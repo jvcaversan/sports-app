@@ -10,11 +10,6 @@ export default function calcularNotaTotal(time: Time): number {
     ...time.atacantes,
   ].filter(Boolean);
 
-  console.log(
-    "Calculating total score:",
-    todosJogadores.map((j) => j?.nota)
-  );
-
   return todosJogadores.reduce(
     (total, jogador) => total + (jogador?.nota || 0),
     0

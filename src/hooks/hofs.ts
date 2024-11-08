@@ -21,3 +21,38 @@ export const meias = mockData.user.grupos[0].partidas[0].jogadores.filter(
 export const atacantes = mockData.user.grupos[0].partidas[0].jogadores.filter(
   (jogador) => jogador.posicao === "Atacante"
 );
+
+interface MatchStats {
+  placar: {
+    time1: number;
+    time2: number;
+  };
+  time1: {
+    gols: number;
+  };
+  time2: {
+    gols: number;
+  };
+  cartoesAmarelos: {
+    time1: number;
+    time2: number;
+  };
+  cartoesVermelhos: {
+    time1: number;
+    time2: number;
+  };
+  gols: {
+    time1: number;
+    time2: number;
+  };
+}
+
+interface StatsStore {
+  [matchId: string]: MatchStats;
+}
+
+export const stats: StatsStore = {};
+
+export function updateMatchStats(matchId: string, newStats: MatchStats) {
+  stats[matchId] = newStats;
+}
