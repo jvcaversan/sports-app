@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Jogador, ModalState } from "@/src/types/types";
+import { Jogador, ModalState } from "../types/types";
 
 export function useModalManagement() {
   const [modalState, setModalState] = useState<ModalState | null>(null);

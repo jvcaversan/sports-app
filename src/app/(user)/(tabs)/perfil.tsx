@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Text, TouchableOpacity, Image, TextInput } from "react-native";
 import { StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { ScreenWrapper } from "../../../components/screen-wrapper";
+import { ScreenWrapper } from "@/components/screen-wrapper";
 import { router } from "expo-router";
 
 interface UserProfile {

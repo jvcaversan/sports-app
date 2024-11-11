@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from "react-native";
-import { TeamLineupProps } from "@/src/types/types";
-import calcularNotaTotal from "@/src/utils/calcularnotas";
+import type { TeamLineupProps } from "../../types/types";
+import calcularNotaTotal from "@/utils/calcularnotas";
 
 export function TeamLineup({ team, color, isBlueTeam }: TeamLineupProps) {
   const allPlayers = [

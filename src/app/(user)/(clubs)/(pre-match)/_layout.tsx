@@ -17,7 +17,7 @@ export default function PreMatchLayout() {
         name="[id]"
         options={{
           title: "Escalação",
-          href: id ? `/(user)/(matchs)/(pre-match)/${id}` : null,
+          href: id ? `/(user)/(clubs)/(pre-match)/${id}` : null,
         }}
       />
 
@@ -25,7 +25,7 @@ export default function PreMatchLayout() {
         name="matchstatus"
         options={{
           title: "Estatísticas",
-          href: id ? `/(user)/(matchs)/(pre-match)/matchstatus` : null,
+          href: id ? `/(user)/(clubs)/(pre-match)/matchstatus` : null,
         }}
         initialParams={{ id }}
       />

@@ -1,4 +1,4 @@
-import { Jogador } from "@/src/types/types";
+import { Jogador } from "@/types/types";
 
 export function filterPlayersByPosition(jogadores: Jogador[]) {
   return {

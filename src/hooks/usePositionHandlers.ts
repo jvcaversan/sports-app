@@ -1,4 +1,4 @@
-import { Jogador } from "@/src/types/types";
+import { Jogador } from "@/types/types";
 import {
   atacantes,
   goalkeepers,
@@ -6,7 +6,7 @@ import {
   meias,
   rightBacks,
   zagueiros,
-} from "@/src/hooks/hofs";
+} from "@/hooks/hofs";
 
 interface PositionHandlersProps {
   openModal: (

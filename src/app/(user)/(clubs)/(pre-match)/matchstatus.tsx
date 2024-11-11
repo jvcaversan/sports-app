@@ -1,6 +1,7 @@
-import { StatTeamLineup } from "@/src/components/prematchsorteio/StatTeamLineup";
-import { ScreenWrapper } from "@/src/components/screen-wrapper";
-import { mockData } from "@/src/data";
+import { ScreenWrapper } from "@/components/screen-wrapper";
+import { TeamLineup } from "@/components/TeamLineup";
+import { mockData } from "@/data";
+import { useTeamManagement } from "@/hooks/useTeamManagement";
 import { useLocalSearchParams } from "expo-router";
 import { Text, View, StyleSheet, ScrollView } from "react-native";
 
@@ -61,6 +62,8 @@ export default function MatchStatus() {
   const params = useLocalSearchParams();
   const match = findMatchById(params.id as string);
 
+  const { time2, time1 } = useTeamManagement();
+
   if (!match) {
     return (
       <ScreenWrapper>
@@ -78,12 +81,12 @@ export default function MatchStatus() {
     match.jogadores.slice(halfLength)
   );
 
-  const time1 = {
+  const timeUm = {
     nome: "Time Vermelho",
     jogadores: time1Jogadores,
   };
 
-  const time2 = {
+  const timeDois = {
     nome: "Time Azul",
     jogadores: time2Jogadores,
   };
@@ -105,22 +108,14 @@ export default function MatchStatus() {
             <Text style={[styles.teamName, { color: "#FF3B30" }]}>
               Time Vermelho
             </Text>
-            <StatTeamLineup
-              team={time1}
-              color="#FF3B30"
-              matchStats={match.estatisticasPartida}
-            />
+            <TeamLineup team={time2} color="#FF3B30" isBlueTeam={false} />
           </View>
 
           <View style={styles.teamColumn}>
             <Text style={[styles.teamName, { color: "#007AFF" }]}>
               Time Azul
             </Text>
-            <StatTeamLineup
-              team={time2}
-              color="#007AFF"
-              matchStats={match.estatisticasPartida}
-            />
+            <TeamLineup team={time1} color="#007AFF" isBlueTeam={true} />
           </View>
         </View>
       </ScrollView>

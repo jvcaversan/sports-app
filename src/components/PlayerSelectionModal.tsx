@@ -1,5 +1,5 @@
 import { Modal, View, Text, Pressable, StyleSheet } from "react-native";
-import { Jogador } from "@/src/types/types";
+import { Jogador } from "@/types/types";
 
 interface PlayerSelectionModalProps {
   isVisible: boolean;

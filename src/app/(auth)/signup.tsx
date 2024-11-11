@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { Link, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { Button } from "@/src/components/Button";
+import { Button } from "@/components/Button";
 
 interface SignUpFormData {
   name: string;

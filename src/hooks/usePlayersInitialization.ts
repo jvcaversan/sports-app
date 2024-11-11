@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Jogador } from "@/src/types/types";
-import { mockData } from "@/src/data";
+import { Jogador } from "../types/types";
+import { mockData } from "../data";
 
 export function usePlayersInitialization(matchId: string) {
   const [jogadores] = useState<Jogador[]>(

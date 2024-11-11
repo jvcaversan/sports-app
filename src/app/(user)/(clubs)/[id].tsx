@@ -1,6 +1,6 @@
-import { ScreenWrapper } from "@/src/components/screen-wrapper";
-import { mockData } from "@/src/data";
-import { useRouter, useLocalSearchParams, Link } from "expo-router";
+import { ScreenWrapper } from "@/components/screen-wrapper";
+import { mockData } from "@/data";
+import { useLocalSearchParams, Link, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import {
   Text,
@@ -24,25 +24,21 @@ interface MatchItem {
     time1: { nome: string; jogadores: any[] };
     time2: { nome: string; jogadores: any[] };
   };
+  estatisticasPartida: {
+    placar: {
+      time1: number;
+      time2: number;
+    };
+  };
 }
 
 export default function Match() {
   const { id } = useLocalSearchParams();
   const insets = useSafeAreaInsets();
-  const router = useRouter();
-
   const group = mockData.user.grupos.find((grupo) => grupo.id === Number(id));
 
-  if (!group) {
-    return (
-      <View style={styles.container}>
-        <Text>Grupo não encontrado</Text>
-      </View>
-    );
-  }
-
   const renderMatchItem = ({ item }: { item: MatchItem }) => (
-    <Link href={`/(user)/(matchs)/(pre-match)/${item.id}`} asChild>
+    <Link href={`/(user)/(clubs)/(pre-match)/${item.id}`} asChild>
       <Pressable style={styles.matchCard}>
         <View style={styles.matchContent}>
           <Text style={styles.leagueName}>Partida Amistosa</Text>
@@ -54,7 +50,9 @@ export default function Match() {
                 style={styles.teamLogo}
               />
               <Text style={styles.teamName}>{item.times.time1.nome}</Text>
-              <Text style={styles.score}>0</Text>
+              <Text style={styles.score}>
+                {item.estatisticasPartida?.placar?.time1}
+              </Text>
             </View>
 
             <View style={styles.matchStatus}>
@@ -68,7 +66,9 @@ export default function Match() {
                 style={styles.teamLogo}
               />
               <Text style={styles.teamName}>{item.times.time2.nome}</Text>
-              <Text style={styles.score}>0</Text>
+              <Text style={styles.score}>
+                {item.estatisticasPartida?.placar?.time2}
+              </Text>
             </View>
           </View>
 
@@ -96,13 +96,13 @@ export default function Match() {
           </TouchableOpacity>
 
           <View style={styles.titleContainer}>
-            <Text style={styles.groupName}>{group.nomeGrupo}</Text>
+            <Text style={styles.groupName}>{group?.nomeGrupo}</Text>
           </View>
         </View>
       </LinearGradient>
 
       <FlatList
-        data={group.partidas}
+        data={group?.partidas}
         renderItem={renderMatchItem}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.listContainer}
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
   score: {
     fontSize: 20,
     fontWeight: "500",
-    color: "#202124",
+    color: "black",
   },
   matchStatus: {
     alignItems: "center",

@@ -8,13 +8,15 @@ import {
 
 interface PlayerPositionProps {
   onPress: () => void;
-  playerId?: string | number; // ID do jogador selecionado
-  label: string; // Label para mostrar quando não há jogador (ex: "GOL", "LE")
-  style?: StyleProp<ViewStyle>; // Estilo customizado opcional
+  onClear?: () => void;
+  playerId?: string | number;
+  label: string;
+  style?: StyleProp<ViewStyle>;
 }
 
 export function PlayerPosition({
   onPress,
+  onClear,
   playerId,
   label,
   style,
@@ -22,6 +24,16 @@ export function PlayerPosition({
   return (
     <Pressable style={[styles.position, style]} onPress={onPress}>
       <Text style={styles.text}>{playerId || label}</Text>
+      {playerId && (
+        <Pressable
+          style={styles.clearButton}
+          onPress={() => {
+            onClear?.();
+          }}
+        >
+          <Text style={styles.clearButtonText}>×</Text>
+        </Pressable>
+      )}
     </Pressable>
   );
 }
@@ -40,5 +52,21 @@ const styles = StyleSheet.create({
   text: {
     color: "#fff",
     fontSize: 12,
+  },
+  clearButton: {
+    position: "absolute",
+    top: -5,
+    right: -5,
+    backgroundColor: "#ff4444",
+    borderRadius: 10,
+    width: 20,
+    height: 20,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  clearButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "bold",
   },
 });

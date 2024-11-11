@@ -22,6 +22,8 @@ export const atacantes = mockData.user.grupos[0].partidas[0].jogadores.filter(
   (jogador) => jogador.posicao === "Atacante"
 );
 
+export const times = mockData.user.grupos[0].partidas[0].times;
+
 interface MatchStats {
   placar: {
     time1: number;

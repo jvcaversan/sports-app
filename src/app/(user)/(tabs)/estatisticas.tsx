@@ -1,8 +1,8 @@
 import React from "react";
 import { View, Text, StyleSheet, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ScreenWrapper } from "../../../components/screen-wrapper";
-import UserStats from "@/src/components/user-stats";
+import { ScreenWrapper } from "@/components/screen-wrapper";
+import UserStats from "@/components/user-stats";
 import { LinearGradient } from "expo-linear-gradient";
 
 export default function Stats() {

@@ -3,8 +3,8 @@ import { View, Text, TouchableOpacity, FlatList } from "react-native";
 import { StyleSheet } from "react-native";
 import { Link } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { ScreenWrapper } from "../../../components/screen-wrapper";
-import { mockData } from "@/src/data";
+import { ScreenWrapper } from "@/components/screen-wrapper";
+import { mockData } from "@/data";
 
 interface Group {
   id: number;
@@ -21,7 +21,7 @@ export default function Groups() {
   // Mock data for groups
   const data: Group[] = mockData.user.grupos;
   const renderGroupItem = ({ item }: { item: Group }) => (
-    <Link href={`/(user)/(matchs)/${item.id}`} asChild>
+    <Link href={`/(user)/(clubs)/${item.id}`} asChild>
       <TouchableOpacity style={styles.groupCard}>
         <Text style={styles.groupName}>{item.nomeGrupo}</Text>
       </TouchableOpacity>

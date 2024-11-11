@@ -1,14 +1,14 @@
-import { Jogador, Time } from "@/src/types/types";
-import { sortearTimes } from "@/src/utils/sortteams";
+import { Jogador, Time } from "@/types/types";
+import { sortearTimes } from "@/utils/sortteams";
 
 interface TeamSortingResult {
-  timeAzul: Time; // Use o tipo correto do seu time aqui
-  timeVermelho: Time; // Use o tipo correto do seu time aqui
+  time1: Time; // Use o tipo correto do seu time aqui
+  time2: Time; // Use o tipo correto do seu time aqui
 }
 
 interface TeamSortingHandlers {
-  setTimeAzul: (time: any) => void;
-  setTimeVermelho: (time: any) => void;
+  setTime1: (time: any) => void;
+  setTime2: (time: any) => void;
   setSelectedGoalkeeper: (player: Jogador | null) => void;
   setSelectedRightBack: (player: Jogador | null) => void;
   setSelectedZagueiros: (players: Jogador[]) => void;
@@ -21,40 +21,33 @@ export function handleTeamSorting(
   jogadores: Jogador[],
   handlers: TeamSortingHandlers
 ) {
-  const { timeAzul, timeVermelho } = sortearTimes(jogadores);
+  const { time1, time2 } = sortearTimes(jogadores);
 
-  handlers.setTimeAzul(timeAzul);
-  handlers.setTimeVermelho(timeVermelho);
+  handlers.setTime1(time1);
+  handlers.setTime2(time2);
 
-  if (timeAzul.goleiros.length > 0) {
-    handlers.setSelectedGoalkeeper(timeAzul.goleiros[0]);
+  if (time1.goleiros.length > 0) {
+    handlers.setSelectedGoalkeeper(time1.goleiros[0]);
   }
-  if (timeAzul.lateraisDireitos.length > 0) {
-    handlers.setSelectedRightBack(timeAzul.lateraisDireitos[0]);
+  if (time1.lateraisDireitos.length > 0) {
+    handlers.setSelectedRightBack(time1.lateraisDireitos[0]);
   }
-  if (timeAzul.zagueiros.length >= 2) {
-    handlers.setSelectedZagueiros([
-      timeAzul.zagueiros[0],
-      timeAzul.zagueiros[1],
-    ]);
+  if (time1.zagueiros.length >= 2) {
+    handlers.setSelectedZagueiros([time1.zagueiros[0], time1.zagueiros[1]]);
   }
-  if (timeAzul.lateraisEsquerdos.length > 0) {
-    handlers.setSelectedLeftBack(timeAzul.lateraisEsquerdos[0]);
+  if (time1.lateraisEsquerdos.length > 0) {
+    handlers.setSelectedLeftBack(time1.lateraisEsquerdos[0]);
   }
-  if (timeAzul.meias.length >= 3) {
-    handlers.setSelectedMeias([
-      timeAzul.meias[0],
-      timeAzul.meias[1],
-      timeAzul.meias[2],
-    ]);
+  if (time1.meias.length >= 3) {
+    handlers.setSelectedMeias([time1.meias[0], time1.meias[1], time1.meias[2]]);
   }
-  if (timeAzul.atacantes.length >= 3) {
+  if (time1.atacantes.length >= 3) {
     handlers.setSelectedAtacantes([
-      timeAzul.atacantes[0],
-      timeAzul.atacantes[1],
-      timeAzul.atacantes[2],
+      time1.atacantes[0],
+      time1.atacantes[1],
+      time1.atacantes[2],
     ]);
   }
 
-  return { timeAzul, timeVermelho };
+  return { time1, time2 };
 }

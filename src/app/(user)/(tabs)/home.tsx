@@ -9,8 +9,7 @@ import {
 import { StyleSheet } from "react-native";
 import { Link, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { ScreenWrapper } from "../../../components/screen-wrapper";
-import { Platform, StatusBar } from "react-native";
+import { ScreenWrapper } from "@/components/screen-wrapper";
 
 interface Game {
   id: number;

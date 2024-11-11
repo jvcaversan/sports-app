@@ -2,7 +2,7 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { Ionicons, Entypo, MaterialCommunityIcons } from "@expo/vector-icons";
-import { mockData } from "@/src/data";
+import { mockData } from "@/data";
 import { LinearGradient } from "expo-linear-gradient";
 
 interface UserStatsProps {

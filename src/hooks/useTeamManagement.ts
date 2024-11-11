@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Jogador, Time } from "@/src/types/types";
-import calcularNotaTotal from "@/src/utils/calcularnotas";
+import { Jogador, Time } from "@/types/types";
+import calcularNotaTotal from "@/utils/calcularnotas";
 
 const emptyTime: Time = {
   goleiros: [],
@@ -12,10 +12,10 @@ const emptyTime: Time = {
 };
 
 interface TeamManagementReturn {
-  timeAzul: Time;
-  timeVermelho: Time;
-  timeAzulScore: number;
-  timeVermelhoScore: number;
+  time1: Time;
+  time2: Time;
+  time1Score: number;
+  time2Score: number;
   selectedGoalkeeper: Jogador | null;
   selectedRightBack: Jogador | null;
   selectedZagueiros: Jogador[];
@@ -28,8 +28,8 @@ interface TeamManagementReturn {
   setSelectedLeftBack: (player: Jogador | null) => void;
   handleMeiaSelect: (index: number) => (player: Jogador) => void;
   handleAtacanteSelect: (index: number) => (player: Jogador) => void;
-  setTimeAzul: (time: Time) => void;
-  setTimeVermelho: (time: Time) => void;
+  setTime1: (time: Time) => void;
+  setTime2: (time: Time) => void;
   setSelectedZagueiros: (players: Jogador[]) => void;
   setSelectedMeias: (players: Jogador[]) => void;
   setSelectedAtacantes: (players: Jogador[]) => void;
@@ -38,8 +38,8 @@ interface TeamManagementReturn {
 }
 
 export function useTeamManagement(): TeamManagementReturn {
-  const [timeAzul, setTimeAzul] = useState<Time>(emptyTime);
-  const [timeVermelho, setTimeVermelho] = useState<Time>(emptyTime);
+  const [time1, setTime1] = useState<Time>(emptyTime);
+  const [time2, setTime2] = useState<Time>(emptyTime);
   const [selectedGoalkeeper, setSelectedGoalkeeper] = useState<Jogador | null>(
     null
   );
@@ -52,8 +52,9 @@ export function useTeamManagement(): TeamManagementReturn {
   );
   const [selectedMeias, setSelectedMeias] = useState<Jogador[]>([]);
   const [selectedAtacantes, setSelectedAtacantes] = useState<Jogador[]>([]);
-  const [timeAzulScore, setTimeAzulScore] = useState(0);
-  const [timeVermelhoScore, setTimeVermelhoScore] = useState(0);
+
+  const [time1Score, setTime1Score] = useState(0);
+  const [time2Score, setTime2Score] = useState(0);
   const [jogadores, setJogadores] = useState<Jogador[]>([]);
 
   const handleZagueiroSelect = (index: number) => (player: Jogador) => {
@@ -82,7 +83,7 @@ export function useTeamManagement(): TeamManagementReturn {
 
   useEffect(() => {
     const updateTimes = () => {
-      const novoTimeAzul = {
+      const novoTime1 = {
         goleiros: selectedGoalkeeper ? [selectedGoalkeeper] : [],
         lateraisDireitos: selectedRightBack ? [selectedRightBack] : [],
         zagueiros: selectedZagueiros.filter(Boolean),
@@ -91,38 +92,38 @@ export function useTeamManagement(): TeamManagementReturn {
         atacantes: selectedAtacantes.filter(Boolean),
       };
 
-      const jogadoresTimeAzul = [
-        ...novoTimeAzul.goleiros,
-        ...novoTimeAzul.lateraisDireitos,
-        ...novoTimeAzul.zagueiros,
-        ...novoTimeAzul.lateraisEsquerdos,
-        ...novoTimeAzul.meias,
-        ...novoTimeAzul.atacantes,
+      const jogadoresTime1 = [
+        ...novoTime1.goleiros,
+        ...novoTime1.lateraisDireitos,
+        ...novoTime1.zagueiros,
+        ...novoTime1.lateraisEsquerdos,
+        ...novoTime1.meias,
+        ...novoTime1.atacantes,
       ];
 
-      const novoTimeVermelho = {
-        goleiros: timeVermelho.goleiros.filter(
-          (j) => !jogadoresTimeAzul.some((ja) => ja.id === j.id)
+      const novoTime2: Time = {
+        goleiros: time2.goleiros.filter(
+          (j) => !jogadoresTime1.some((ja) => ja.id === j.id)
         ),
-        lateraisDireitos: timeVermelho.lateraisDireitos.filter(
-          (j) => !jogadoresTimeAzul.some((ja) => ja.id === j.id)
+        lateraisDireitos: time2.lateraisDireitos.filter(
+          (j) => !jogadoresTime1.some((ja) => ja.id === j.id)
         ),
-        zagueiros: timeVermelho.zagueiros.filter(
-          (j) => !jogadoresTimeAzul.some((ja) => ja.id === j.id)
+        zagueiros: time2.zagueiros.filter(
+          (j) => !jogadoresTime1.some((ja) => ja.id === j.id)
         ),
-        lateraisEsquerdos: timeVermelho.lateraisEsquerdos.filter(
-          (j) => !jogadoresTimeAzul.some((ja) => ja.id === j.id)
+        lateraisEsquerdos: time2.lateraisEsquerdos.filter(
+          (j) => !jogadoresTime1.some((ja) => ja.id === j.id)
         ),
-        meias: timeVermelho.meias.filter(
-          (j) => !jogadoresTimeAzul.some((ja) => ja.id === j.id)
+        meias: time2.meias.filter(
+          (j) => !jogadoresTime1.some((ja) => ja.id === j.id)
         ),
-        atacantes: timeVermelho.atacantes.filter(
-          (j) => !jogadoresTimeAzul.some((ja) => ja.id === j.id)
+        atacantes: time2.atacantes.filter(
+          (j) => !jogadoresTime1.some((ja) => ja.id === j.id)
         ),
       };
 
-      setTimeAzul(novoTimeAzul);
-      setTimeVermelho(novoTimeVermelho);
+      setTime1(novoTime1);
+      setTime2(novoTime2);
     };
 
     updateTimes();
@@ -136,17 +137,17 @@ export function useTeamManagement(): TeamManagementReturn {
   ]);
 
   useEffect(() => {
-    const azulScore = calcularNotaTotal(timeAzul);
-    const vermelhoScore = calcularNotaTotal(timeVermelho);
-    setTimeAzulScore(azulScore);
-    setTimeVermelhoScore(vermelhoScore);
-  }, [timeAzul, timeVermelho]);
+    const time1Score = calcularNotaTotal(time1);
+    const time2Score = calcularNotaTotal(time2);
+    setTime1Score(time1Score);
+    setTime2Score(time2Score);
+  }, [time1, time2]);
 
   return {
-    timeAzul,
-    timeVermelho,
-    timeAzulScore,
-    timeVermelhoScore,
+    time1,
+    time2,
+    time1Score,
+    time2Score,
     selectedGoalkeeper,
     selectedRightBack,
     selectedZagueiros,
@@ -159,8 +160,8 @@ export function useTeamManagement(): TeamManagementReturn {
     setSelectedLeftBack,
     handleMeiaSelect,
     handleAtacanteSelect,
-    setTimeAzul,
-    setTimeVermelho,
+    setTime1,
+    setTime2,
     setSelectedZagueiros,
     setSelectedMeias,
     setSelectedAtacantes,

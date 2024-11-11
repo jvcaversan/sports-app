@@ -43,7 +43,7 @@ export interface TeamLineupProps {
   team: Time;
   color: string;
   isBlueTeam: boolean;
-  score: number; // Add this line
+  score?: number; // Add this line
 }
 
 export interface ModalState {

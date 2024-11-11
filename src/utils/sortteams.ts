@@ -1,6 +1,6 @@
 // sortearTimes.ts
-import { Jogador, Time } from "@/src/types/types";
-import distribuirJogadores from "@/src/utils/sortplayers";
+import { Jogador, Time } from "@/types/types";
+import distribuirJogadores from "@/utils/sortplayers";
 
 const emptyTime: Time = {
   goleiros: [],
@@ -13,7 +13,7 @@ const emptyTime: Time = {
 
 export const sortearTimes = (
   jogadores: Jogador[]
-): { timeAzul: Time; timeVermelho: Time } => {
+): { time1: Time; time2: Time } => {
   // Validar se há jogadores no array
   if (!jogadores || jogadores.length === 0) {
     throw new Error("Nenhum jogador fornecido para o sorteio");
@@ -74,7 +74,7 @@ export const sortearTimes = (
   const [atacantesA, atacantesB] = distribuirJogadores(porPosicao.atacante, 3);
 
   return {
-    timeAzul: {
+    time1: {
       goleiros: goleirosA,
       zagueiros: zagueirosA,
       lateraisDireitos: lateraisDireitosA,
@@ -82,7 +82,7 @@ export const sortearTimes = (
       meias: meiasA,
       atacantes: atacantesA,
     },
-    timeVermelho: {
+    time2: {
       goleiros: goleirosB,
       zagueiros: zagueirosB,
       lateraisDireitos: lateraisDireitosB,
