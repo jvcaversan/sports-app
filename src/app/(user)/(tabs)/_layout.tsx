@@ -26,7 +26,7 @@ export default function HomeLayout() {
         }}
       />
       <Tabs.Screen
-        name="grupos"
+        name="times"
         options={{
           title: "Grupos",
           tabBarIcon: ({ focused, color }) => (

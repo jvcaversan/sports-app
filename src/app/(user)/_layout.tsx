@@ -8,7 +8,7 @@ export default function UserLayout() {
       }}
     >
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="(clubs)" options={{ headerShown: false }} />
+      <Stack.Screen name="(times)" options={{ headerShown: false }} />
     </Stack>
   );
 }

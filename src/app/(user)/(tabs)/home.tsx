@@ -5,11 +5,11 @@ import {
   TouchableOpacity,
   FlatList,
   Pressable,
+  SafeAreaView,
 } from "react-native";
 import { StyleSheet } from "react-native";
 import { Link, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { ScreenWrapper } from "@/components/screen-wrapper";
 
 interface Game {
   id: number;
@@ -31,66 +31,49 @@ export default function Home() {
     { id: 2, date: "2024-03-28", time: "20:00", opponent: "Time B" },
   ];
 
-  const renderGameItem = ({ item: game }: { item: Game }) => (
-    <View style={styles.gameCard}>
-      <Text style={styles.gameDate}>{game.date}</Text>
-      <Text style={styles.gameInfo}>
-        {game.time} - vs {game.opponent}
-      </Text>
-    </View>
-  );
-
   return (
-    <ScreenWrapper>
-      <FlatList
-        ListHeaderComponent={() => (
-          <>
-            {/* Header com informações do usuário */}
-            <View style={styles.header}>
-              <View style={styles.userInfo}>
-                <Text style={styles.userName}>{user.name}</Text>
-                <Link href="/perfil" asChild>
-                  <TouchableOpacity>
-                    <Ionicons name="settings-outline" size={24} color="#333" />
-                  </TouchableOpacity>
-                </Link>
-              </View>
-            </View>
+    <SafeAreaView style={{ flex: 1 }}>
+      {/* Header com informações do usuário */}
+      <View style={styles.header}>
+        <View style={styles.userInfo}>
+          <Text style={styles.userName}>{user.name}</Text>
 
-            {/* Estatísticas do usuário */}
-            <Pressable
-              style={styles.statsContainer}
-              onPress={() => router.navigate("/(tabs)/estatisticas")}
-            >
-              <Text style={styles.sectionTitle}>Estatísticas</Text>
-              <View style={styles.statsGrid}>
-                <View style={styles.statItem}>
-                  <Text style={styles.statNumber}>{user.gamesPlayed}</Text>
-                  <Text style={styles.statLabel}>Jogos</Text>
-                </View>
-                <View style={styles.statItem}>
-                  <Text style={styles.statNumber}>{user.wins}</Text>
-                  <Text style={styles.statLabel}>Vitórias</Text>
-                </View>
-                <View style={styles.statItem}>
-                  <Text style={styles.statNumber}>{user.losses}</Text>
-                  <Text style={styles.statLabel}>Derrotas</Text>
-                </View>
-              </View>
-            </Pressable>
+          <TouchableOpacity onPress={() => router.navigate("/(tabs)/perfil")}>
+            <Ionicons name="settings-outline" size={24} color="#333" />
+          </TouchableOpacity>
+        </View>
+      </View>
+      <Pressable
+        style={styles.statsContainer}
+        onPress={() => router.navigate("/(tabs)/estatisticas")}
+      >
+        <Text style={styles.sectionTitle}>Estatísticas</Text>
+        <View style={styles.statsGrid}>
+          <View style={styles.statItem}>
+            <Text style={styles.statNumber}>{user.gamesPlayed}</Text>
+            <Text style={styles.statLabel}>Jogos</Text>
+          </View>
+          <View style={styles.statItem}>
+            <Text style={styles.statNumber}>{user.wins}</Text>
+            <Text style={styles.statLabel}>Vitórias</Text>
+          </View>
+          <View style={styles.statItem}>
+            <Text style={styles.statNumber}>{user.losses}</Text>
+            <Text style={styles.statLabel}>Derrotas</Text>
+          </View>
+        </View>
+      </Pressable>
 
-            <View style={styles.upcomingGames}>
-              <Text style={styles.sectionTitle}>Próximos Jogos</Text>
-            </View>
-          </>
-        )}
-        data={upcomingGames}
-        renderItem={renderGameItem}
-        keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={styles.listContainer}
-        showsVerticalScrollIndicator={false}
-      />
-    </ScreenWrapper>
+      <View style={styles.upcomingGames}>
+        <Text style={styles.sectionTitle}>Próximos Jogos</Text>
+        <Pressable>
+          <Text>{upcomingGames[0].id}</Text>
+          <Text>{upcomingGames[0].date}</Text>
+          <Text>{upcomingGames[0].opponent}</Text>
+          <Text>{upcomingGames[0].time}</Text>
+        </Pressable>
+      </View>
+    </SafeAreaView>
   );
 }
 

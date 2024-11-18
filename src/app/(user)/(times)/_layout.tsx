@@ -7,7 +7,8 @@ export default function UserLayout() {
         headerShown: false,
       }}
     >
-      <Stack.Screen name="(pre-match)" options={{ headerShown: false }} />
+      <Stack.Screen name="[id]" options={{ headerShown: false }} />
+      <Stack.Screen name="partidas" options={{ headerShown: false }} />
     </Stack>
   );
 }

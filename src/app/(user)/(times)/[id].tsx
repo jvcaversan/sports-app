@@ -1,4 +1,3 @@
-import { ScreenWrapper } from "@/components/screen-wrapper";
 import { mockData } from "@/data";
 import { useLocalSearchParams, Link, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -10,6 +9,7 @@ import {
   TouchableOpacity,
   Image,
   Pressable,
+  SafeAreaView,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -37,8 +37,10 @@ export default function Match() {
   const insets = useSafeAreaInsets();
   const group = mockData.user.grupos.find((grupo) => grupo.id === Number(id));
 
+  console.log(id);
+
   const renderMatchItem = ({ item }: { item: MatchItem }) => (
-    <Link href={`/(user)/(clubs)/(pre-match)/${item.id}`} asChild>
+    <Link href={`/(user)/(times)/partidas/${item.id}`} asChild>
       <Pressable style={styles.matchCard}>
         <View style={styles.matchContent}>
           <Text style={styles.leagueName}>Partida Amistosa</Text>
@@ -82,7 +84,7 @@ export default function Match() {
   );
 
   return (
-    <ScreenWrapper style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <LinearGradient
         colors={["#1a5fb4", "#1c71d8"]}
         style={[styles.header, { paddingTop: insets.top }]}
@@ -108,7 +110,7 @@ export default function Match() {
         contentContainerStyle={styles.listContainer}
         showsVerticalScrollIndicator={false}
       />
-    </ScreenWrapper>
+    </SafeAreaView>
   );
 }
 

@@ -1,9 +1,14 @@
 import React from "react";
-import { View, Text, TouchableOpacity, FlatList } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  FlatList,
+  SafeAreaView,
+} from "react-native";
 import { StyleSheet } from "react-native";
 import { Link } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { ScreenWrapper } from "@/components/screen-wrapper";
 import { mockData } from "@/data";
 
 interface Group {
@@ -21,7 +26,7 @@ export default function Groups() {
   // Mock data for groups
   const data: Group[] = mockData.user.grupos;
   const renderGroupItem = ({ item }: { item: Group }) => (
-    <Link href={`/(user)/(clubs)/${item.id}`} asChild>
+    <Link href={`/(user)/(times)/${item.id}`} asChild>
       <TouchableOpacity style={styles.groupCard}>
         <Text style={styles.groupName}>{item.nomeGrupo}</Text>
       </TouchableOpacity>
@@ -29,7 +34,7 @@ export default function Groups() {
   );
 
   return (
-    <ScreenWrapper>
+    <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.title}>Meus Grupos</Text>
@@ -43,12 +48,12 @@ export default function Groups() {
         <FlatList
           data={data}
           renderItem={renderGroupItem}
-          keyExtractor={(item) => item.nomeGrupo}
+          keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={styles.listContainer}
           showsVerticalScrollIndicator={false}
         />
       </View>
-    </ScreenWrapper>
+    </SafeAreaView>
   );
 }
 

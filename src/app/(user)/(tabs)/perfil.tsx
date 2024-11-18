@@ -1,8 +1,14 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, Image, TextInput } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  TextInput,
+  SafeAreaView,
+} from "react-native";
 import { StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { ScreenWrapper } from "@/components/screen-wrapper";
 import { router } from "expo-router";
 
 interface UserProfile {
@@ -37,7 +43,7 @@ export default function Profile() {
   }
 
   return (
-    <ScreenWrapper>
+    <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
         <View style={styles.header}>
           <View style={styles.avatarContainer}>
@@ -108,7 +114,7 @@ export default function Profile() {
           </TouchableOpacity>
         </View>
       </View>
-    </ScreenWrapper>
+    </SafeAreaView>
   );
 }
 

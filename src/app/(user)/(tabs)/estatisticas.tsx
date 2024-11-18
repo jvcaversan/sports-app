@@ -1,8 +1,13 @@
 import React from "react";
-import { View, Text, StyleSheet, useWindowDimensions } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  useWindowDimensions,
+  SafeAreaView,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ScreenWrapper } from "@/components/screen-wrapper";
-import UserStats from "@/components/user-stats";
+import UserStats from "@/components/UserStatistics/user-stats";
 import { LinearGradient } from "expo-linear-gradient";
 
 export default function Stats() {
@@ -10,7 +15,7 @@ export default function Stats() {
   const { width } = useWindowDimensions();
 
   return (
-    <ScreenWrapper style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <LinearGradient
         colors={["#2E7D32", "#1B5E20"]}
         style={[styles.header, { width }]}
@@ -27,7 +32,7 @@ export default function Stats() {
       <View style={styles.content}>
         <UserStats userId={1} />
       </View>
-    </ScreenWrapper>
+    </SafeAreaView>
   );
 }
 

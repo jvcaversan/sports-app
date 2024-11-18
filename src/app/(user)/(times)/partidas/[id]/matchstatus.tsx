@@ -1,0 +1,30 @@
+import TeamLineup from "@/components/prematchsorteio/TeamLineup";
+import useMatchStore from "@/store/store";
+import { useGlobalSearchParams } from "expo-router/build/hooks";
+import { SafeAreaView, View } from "react-native";
+
+export default function MatchStatus() {
+  const { selectedPlayers } = useMatchStore();
+  const { id } = useGlobalSearchParams();
+
+  console.log(id);
+
+  return (
+    <SafeAreaView style={{ flex: 1 }}>
+      <View
+        style={{ flex: 1, justifyContent: "center", marginLeft: 20, gap: 5 }}
+      >
+        <TeamLineup
+          team={selectedPlayers.time1}
+          showTotalScore={false}
+          style={{ gap: 5 }}
+        />
+        <TeamLineup
+          team={selectedPlayers.time2}
+          showTotalScore={false}
+          style={{ gap: 5 }}
+        />
+      </View>
+    </SafeAreaView>
+  );
+}

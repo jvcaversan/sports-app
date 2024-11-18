@@ -3,6 +3,7 @@ export interface Jogador {
   nome: string;
   posicao: string;
   nota: number;
+  disabled?: boolean;
 }
 
 export interface Time {
@@ -40,7 +41,7 @@ export interface TeamSectionProps {
 }
 
 export interface TeamLineupProps {
-  team: Time;
+  team?: Time;
   color: string;
   isBlueTeam: boolean;
   score?: number; // Add this line
@@ -52,4 +53,18 @@ export interface ModalState {
   onSelect: (player: Jogador) => void;
   players: Jogador[];
   selectedPlayers: Jogador[];
+}
+
+export interface time1433 {
+  goleiro: Jogador | null;
+  zagueiro1: Jogador | null;
+  zagueiro2: Jogador | null;
+  lateralEsquerdo: Jogador | null;
+  lateralDireito: Jogador | null;
+  meioCampo1: Jogador | null;
+  meioCampo2: Jogador | null;
+  meioCampo3: Jogador | null;
+  atacante1: Jogador | null;
+  atacante2: Jogador | null;
+  atacante3: Jogador | null;
 }

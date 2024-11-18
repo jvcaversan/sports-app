@@ -7,7 +7,7 @@ import {
 } from "react-native";
 
 interface PlayerPositionProps {
-  onPress: () => void;
+  onPress?: () => void;
   onClear?: () => void;
   playerId?: string | number;
   label: string;

@@ -1,92 +1,70 @@
-import { StyleSheet, Text, View } from "react-native";
-import type { TeamLineupProps } from "../../types/types";
-import calcularNotaTotal from "@/utils/calcularnotas";
+import { TeamPlayers } from "@/types/pre-match.types";
+import { Text, View, StyleSheet } from "react-native";
 
-export function TeamLineup({ team, color, isBlueTeam }: TeamLineupProps) {
-  const allPlayers = [
-    ...team.goleiros,
-    ...team.lateraisDireitos,
-    ...team.zagueiros,
-    ...team.lateraisEsquerdos,
-    ...team.meias,
-    ...team.atacantes,
-  ];
+const positionLabels: { [K in keyof TeamPlayers]: string } = {
+  goleiro: "G",
+  lateralDireito: "LD",
+  zagueiro1: "ZAG",
+  zagueiro2: "ZAG",
+  lateralEsquerdo: "LE",
+  meioCampo1: "MEI",
+  meioCampo2: "MEI",
+  meioCampo3: "MEI",
+  atacante1: "ATA",
+  atacante2: "ATA",
+  atacante3: "ATA",
+};
 
-  function getPositionAbbreviation(position: string) {
-    const abbreviations: Record<string, string> = {
-      "Lateral Direito": "LD",
-      "Lateral Esquerdo": "LE",
-      Zagueiro: "Z",
-      Meia: "M",
-      Atacante: "A",
-    };
-    return abbreviations[position] || position;
-  }
+// Ordem específica das posições
+const orderedPositions: (keyof TeamPlayers)[] = [
+  "goleiro",
+  "lateralDireito",
+  "zagueiro1",
+  "zagueiro2",
+  "lateralEsquerdo",
+  "meioCampo1",
+  "meioCampo2",
+  "meioCampo3",
+  "atacante1",
+  "atacante2",
+  "atacante3",
+];
+
+interface TeamLineupProps {
+  team: TeamPlayers;
+  showTotalScore?: boolean;
+  style?: object; // Adiciona a propriedade 'style' para personalizar o estilo
+}
+
+export default function TeamLineup({
+  team,
+  showTotalScore = true,
+  style,
+}: TeamLineupProps) {
+  const totalNotes = Object.values(team).reduce((sum, player) => {
+    return player ? sum + (player.nota || 0) : sum;
+  }, 0);
 
   return (
-    <View style={styles.lineupList}>
-      <Text style={[styles.lineupTitle, { color }]}>Escalação:</Text>
-
-      {team.goleiros.map((jogador) => (
-        <Text key={jogador.id} style={styles.lineupItem}>
-          G - {jogador.nome}
+    <View
+      style={[styles.defaultContainer, style]} // Aplica o estilo padrão e o estilo passado como prop
+    >
+      {orderedPositions.map((position) => (
+        <Text key={position}>
+          {positionLabels[position]} -{" "}
+          {team[position] ? team[position].nome : "Vazio"}
         </Text>
       ))}
-
-      {allPlayers
-        .filter((jogador) => !team.goleiros.includes(jogador))
-        .map((jogador) => (
-          <Text key={jogador.id} style={styles.lineupItem}>
-            {getPositionAbbreviation(jogador.posicao)} - {jogador.nome}
-          </Text>
-        ))}
-
-      <View style={styles.notaTotalContainer}>
-        <Text style={styles.notaTotalLabel}>Nota Total:</Text>
-        <Text style={[styles.notaTotalValue, { color }]}>
-          {calcularNotaTotal(team).toFixed(1)}
-        </Text>
-      </View>
+      {showTotalScore && <Text>Total Score: {totalNotes}</Text>}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  lineupList: {
+  defaultContainer: {
     flex: 1,
-    backgroundColor: "transparent",
-    padding: 8,
-    borderRadius: 8,
-    marginTop: 10,
-    borderWidth: 1,
-    borderColor: "#ddd",
-  },
-  lineupTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 4,
-  },
-  lineupItem: {
-    fontSize: 14,
-    color: "#333",
-    marginVertical: 2,
-  },
-  notaTotalContainer: {
-    marginTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: "#ddd",
-    paddingTop: 8,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  notaTotalLabel: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#333",
-  },
-  notaTotalValue: {
-    fontSize: 18,
-    fontWeight: "bold",
+    flexDirection: "column",
+    marginBottom: 20,
+    gap: 1,
   },
 });
