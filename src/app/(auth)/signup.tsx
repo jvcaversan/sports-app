@@ -1,178 +1,92 @@
-import { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  Pressable,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native";
-import { Link, router } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
-import { Button } from "@/components/Button";
+import React, { useState } from "react";
+import { Alert, StyleSheet, View, AppState } from "react-native";
+import { Button, Input } from "@rneui/themed";
+import { supabase } from "@/database/supabase";
+import { router } from "expo-router";
+import { MaterialIcons } from "@expo/vector-icons";
 
-interface SignUpFormData {
-  name: string;
-  email: string;
-  password: string;
-}
-
-export default function SignUp() {
-  const [formData, setFormData] = useState<SignUpFormData>({
-    name: "",
-    email: "",
-    password: "",
-  });
+export default function SignIn() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
-  async function handleSignUp() {
-    setIsLoading(true);
-    try {
-      // Implement sign up logic here
-      console.log("Sign up:", formData);
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      router.replace("/(user)/(tabs)/home");
-    } catch (error) {
-      console.error("Sign up error:", error);
-    } finally {
-      setIsLoading(false);
+  async function signUpWithEmail() {
+    setLoading(true);
+    const { error } = await supabase.auth.signUp({
+      email: email,
+      password: password,
+    });
+
+    if (error) {
+      Alert.alert(error.message);
+    } else {
+      Alert.alert("Conta criada com Sucesso!", "", [
+        { text: "OK", onPress: () => router.push("/home") },
+      ]);
     }
+    setLoading(false);
   }
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={styles.container}
-    >
-      <View style={styles.content}>
-        <Text style={styles.title}>Criar Conta</Text>
-
-        {/* Name Input */}
-        <View style={styles.inputContainer}>
-          <View style={styles.inputWrapper}>
-            <Ionicons name="person-outline" size={24} color="#666" />
-            <TextInput
-              style={styles.input}
-              placeholder="Nome"
-              value={formData.name}
-              onChangeText={(text) => setFormData({ ...formData, name: text })}
-              placeholderTextColor="#666"
-            />
-          </View>
-        </View>
-
-        {/* Email Input */}
-        <View style={styles.inputContainer}>
-          <View style={styles.inputWrapper}>
-            <Ionicons name="mail-outline" size={24} color="#666" />
-            <TextInput
-              style={styles.input}
-              placeholder="E-mail"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              value={formData.email}
-              onChangeText={(text) => setFormData({ ...formData, email: text })}
-              placeholderTextColor="#666"
-            />
-          </View>
-        </View>
-
-        {/* Password Input */}
-        <View style={styles.inputContainer}>
-          <View style={styles.inputWrapper}>
-            <Ionicons name="lock-closed-outline" size={24} color="#666" />
-            <TextInput
-              style={styles.input}
-              placeholder="Senha"
-              secureTextEntry={!showPassword}
-              value={formData.password}
-              onChangeText={(text) =>
-                setFormData({ ...formData, password: text })
-              }
-              placeholderTextColor="#666"
-            />
-            <Pressable onPress={() => setShowPassword(!showPassword)}>
-              <Ionicons
-                name={showPassword ? "eye-outline" : "eye-off-outline"}
-                size={24}
-                color="#666"
-              />
-            </Pressable>
-          </View>
-        </View>
-
-        {/* Sign Up Button */}
-        <Button
-          title="Criar Conta"
-          onPress={handleSignUp}
-          isLoading={isLoading}
+    <View style={styles.container}>
+      <View style={[styles.verticallySpaced, styles.mt20]}>
+        <Input
+          label="Email"
+          leftIcon={{ type: "font-awesome", name: "envelope" }}
+          onChangeText={(text) => setEmail(text)}
+          value={email}
+          placeholder="email@address.com"
+          autoCapitalize={"none"}
         />
-
-        {/* Sign In Link */}
-        <View style={styles.signInContainer}>
-          <Text style={styles.signInText}>Já possui uma conta? </Text>
-          <Link href="/signin" asChild>
-            <Pressable>
-              <Text style={styles.signInLink}>Entrar</Text>
-            </Pressable>
-          </Link>
-        </View>
       </View>
-    </KeyboardAvoidingView>
+      <View style={styles.verticallySpaced}>
+        <Input
+          label="Password"
+          leftIcon={{ type: "font-awesome", name: "lock" }}
+          rightIcon={
+            <MaterialIcons
+              name={showPassword ? "visibility" : "visibility-off"}
+              onPress={() => setShowPassword(!showPassword)}
+              size={24}
+            />
+          }
+          onChangeText={(text) => setPassword(text)}
+          value={password}
+          secureTextEntry={!showPassword}
+          placeholder="Password"
+          autoCapitalize={"none"}
+        />
+      </View>
+      <View style={[styles.verticallySpaced, styles.mt20]}>
+        <Button
+          title="Sign Up"
+          disabled={loading}
+          onPress={() => signUpWithEmail()}
+        />
+      </View>
+      <View style={styles.verticallySpaced}>
+        <Button
+          title="Sign In"
+          disabled={loading}
+          onPress={() => router.navigate("/(auth)/signin")}
+        />
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: "#fff",
+    marginTop: 40,
+    padding: 12,
   },
-  content: {
-    flex: 1,
-    justifyContent: "center",
-    paddingHorizontal: 24,
+  verticallySpaced: {
+    paddingTop: 4,
+    paddingBottom: 4,
+    alignSelf: "stretch",
   },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 32,
-    color: "#000",
-  },
-  inputContainer: {
-    marginBottom: 16,
-  },
-  inputWrapper: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    backgroundColor: "#f5f5f5",
-  },
-  input: {
-    flex: 1,
-    marginLeft: 8,
-    fontSize: 18,
-    color: "#000",
-  },
-  signInContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 16,
-  },
-  signInText: {
-    color: "#666",
-    marginRight: 8,
-  },
-  signInLink: {
-    color: "#007bff",
-    fontWeight: "bold",
+  mt20: {
+    marginTop: 20,
   },
 });

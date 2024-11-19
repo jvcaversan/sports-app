@@ -1,170 +1,175 @@
-import { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  Pressable,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native";
-import { Link, router } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
-import { Button } from "@/components/Button";
+import React, { useState } from "react";
+import { Alert, StyleSheet, View, Text, TouchableOpacity } from "react-native";
 
-interface SignInFormData {
-  email: string;
-  password: string;
-}
+import { Input } from "@rneui/themed";
+import { supabase } from "@/database/supabase";
+import { router } from "expo-router";
+import { AntDesign, MaterialIcons } from "@expo/vector-icons";
+import { Button } from "@/components/Button";
+import { useSessionStore } from "@/store/useSessionStore";
 
 export default function SignIn() {
-  const [formData, setFormData] = useState<SignInFormData>({
-    email: "",
-    password: "",
-  });
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
-  async function handleSignIn() {
-    setIsLoading(true);
-    try {
-      // Implement sign in logic here
-      console.log("Sign in:", formData);
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      router.replace("/(user)/(tabs)/home");
-    } catch (error) {
-      console.error("Sign in error:", error);
-    } finally {
-      setIsLoading(false);
+  const { setSession } = useSessionStore();
+
+  async function signInWithEmail() {
+    setLoading(true);
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: email,
+      password: password,
+    });
+
+    if (error) {
+      Alert.alert("Email ou Senha inválidos");
+      setLoading(false);
+      return;
     }
+
+    // Atualizando o estado da sessão
+    setSession(data?.session); // Supondo que você tenha uma store de Zustand ou contexto
+
+    // Redireciona para a home após o login bem-sucedido
+    if (data?.session) {
+      router.push("/(user)/home"); // Isso vai navegar diretamente para a página de home
+    }
+
+    setLoading(false);
   }
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={styles.container}
-    >
-      <View style={styles.content}>
-        <Text style={styles.title}>Bem-vindo de volta!</Text>
-
-        {/* Email Input */}
-        <View style={styles.inputContainer}>
-          <View style={styles.inputWrapper}>
-            <Ionicons name="mail-outline" size={24} color="#666" />
-            <TextInput
-              style={styles.input}
-              placeholder="E-mail"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              value={formData.email}
-              onChangeText={(text) => setFormData({ ...formData, email: text })}
-              placeholderTextColor="#666"
-            />
-          </View>
-        </View>
-
-        {/* Password Input */}
-        <View style={styles.inputContainer}>
-          <View style={styles.inputWrapper}>
-            <Ionicons name="lock-closed-outline" size={24} color="#666" />
-            <TextInput
-              style={styles.input}
-              placeholder="Senha"
-              secureTextEntry={!showPassword}
-              value={formData.password}
-              onChangeText={(text) =>
-                setFormData({ ...formData, password: text })
-              }
-              placeholderTextColor="#666"
-            />
-            <Pressable onPress={() => setShowPassword(!showPassword)}>
-              <Ionicons
-                name={showPassword ? "eye-outline" : "eye-off-outline"}
-                size={24}
-                color="#666"
-              />
-            </Pressable>
-          </View>
-        </View>
-
-        {/* Sign In Button */}
-        <Button title="Entrar" onPress={handleSignIn} isLoading={isLoading} />
-
-        {/* Sign Up Link */}
-        <View style={styles.signUpContainer}>
-          <Text style={styles.signUpText}>Não tem uma conta? </Text>
-          <Link href="/signup" asChild>
-            <Pressable>
-              <Text style={styles.signUpLink}>Cadastre-se</Text>
-            </Pressable>
-          </Link>
-        </View>
+    <View style={styles.container}>
+      <View>
+        <Input
+          label="Email"
+          leftIcon={{ type: "material-icons", name: "email" }}
+          onChangeText={(text) => setEmail(text)}
+          value={email}
+          placeholder="email@exemplo.com"
+          autoCapitalize={"none"}
+        />
       </View>
-    </KeyboardAvoidingView>
+      <View>
+        <Input
+          label="Senha"
+          leftIcon={{ type: "material-icons", name: "lock" }}
+          rightIcon={
+            <MaterialIcons
+              name={showPassword ? "visibility" : "visibility-off"}
+              onPress={() => setShowPassword(!showPassword)}
+              size={24}
+            />
+          }
+          onChangeText={(text) => setPassword(text)}
+          value={password}
+          secureTextEntry={!showPassword}
+          placeholder="Senha"
+          autoCapitalize={"none"}
+        />
+      </View>
+      <View>
+        <Button
+          title="Entrar"
+          variant="primary"
+          disabled={loading}
+          isLoading={loading}
+          onPress={() => signInWithEmail()}
+        />
+      </View>
+
+      <View style={styles.socialButtonsContainer}>
+        <TouchableOpacity
+          style={styles.socialButton}
+          onPress={() => {
+            /* lógica de conexão com Google */
+          }}
+        >
+          <AntDesign name="google" size={49} color="#DB4437" />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.socialButton}
+          onPress={() => {
+            /* lógica de conexão com Facebook */
+          }}
+        >
+          <MaterialIcons name="facebook" size={52} color="#4267B2" />
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.footerContainer}>
+        <Text style={styles.footerText}>Não possui uma conta? </Text>
+        <TouchableOpacity onPress={() => router.navigate("/(auth)/signup")}>
+          <Text style={styles.linkText}>Cadastre-se</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
-  },
-  content: {
-    flex: 1,
     justifyContent: "center",
-    paddingHorizontal: 24,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 32,
-    color: "#000",
+    padding: 20,
+    backgroundColor: "#F5F5F5",
   },
   inputContainer: {
-    marginBottom: 16,
-  },
-  inputWrapper: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    backgroundColor: "#f5f5f5",
-  },
-  input: {
-    flex: 1,
-    marginLeft: 8,
-    fontSize: 18,
-    color: "#000",
+    marginBottom: 20,
+    borderRadius: 10,
+    backgroundColor: "#FFFFFF",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
+    padding: 15,
   },
   button: {
-    backgroundColor: "#007bff",
-    borderRadius: 8,
-    paddingVertical: 16,
-    alignItems: "center",
-    marginBottom: 16,
+    borderRadius: 24,
+    marginVertical: 15,
+    paddingVertical: 12,
   },
-  buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  signUpContainer: {
+  footerContainer: {
+    marginTop: 30,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 16,
   },
-  signUpText: {
+  footerText: {
     color: "#666",
-    marginRight: 8,
+    marginRight: 5,
   },
-  signUpLink: {
-    color: "#007bff",
+  linkText: {
+    color: "#007BFF",
     fontWeight: "bold",
+  },
+  socialButtonsContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginVertical: 20,
+  },
+  socialButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: "center",
+    alignItems: "center",
+    marginHorizontal: 10,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
   },
 });

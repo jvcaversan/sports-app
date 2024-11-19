@@ -17,6 +17,7 @@ interface Game {
   time: string;
   opponent: string;
 }
+
 export default function Home() {
   // Mock data - replace with real data later
   const user = {
