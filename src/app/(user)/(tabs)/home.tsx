@@ -1,15 +1,15 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   View,
   Text,
   TouchableOpacity,
-  FlatList,
   Pressable,
   SafeAreaView,
 } from "react-native";
 import { StyleSheet } from "react-native";
-import { Link, router } from "expo-router";
+import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { useSessionStore } from "@/store/useSessionStore";
 
 interface Game {
   id: number;
