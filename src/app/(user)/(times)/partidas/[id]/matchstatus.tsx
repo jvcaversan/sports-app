@@ -1,7 +1,8 @@
+import CustomScreen from "@/components/CustomView";
 import TeamLineup from "@/components/prematchsorteio/TeamLineup";
 import useMatchStore from "@/store/store";
 import { useGlobalSearchParams } from "expo-router/build/hooks";
-import { SafeAreaView, View } from "react-native";
+import { View } from "react-native";
 
 export default function MatchStatus() {
   const { selectedPlayers } = useMatchStore();
@@ -10,7 +11,7 @@ export default function MatchStatus() {
   console.log(id);
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <CustomScreen>
       <View
         style={{ flex: 1, justifyContent: "center", marginLeft: 20, gap: 5 }}
       >
@@ -25,6 +26,6 @@ export default function MatchStatus() {
           style={{ gap: 5 }}
         />
       </View>
-    </SafeAreaView>
+    </CustomScreen>
   );
 }

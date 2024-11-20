@@ -9,10 +9,10 @@ import {
   TouchableOpacity,
   Image,
   Pressable,
-  SafeAreaView,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import CustomScreen from "@/components/CustomView";
 
 interface MatchItem {
   id: number;
@@ -84,7 +84,7 @@ export default function Match() {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <CustomScreen>
       <LinearGradient
         colors={["#1a5fb4", "#1c71d8"]}
         style={[styles.header, { paddingTop: insets.top }]}
@@ -110,7 +110,7 @@ export default function Match() {
         contentContainerStyle={styles.listContainer}
         showsVerticalScrollIndicator={false}
       />
-    </SafeAreaView>
+    </CustomScreen>
   );
 }
 

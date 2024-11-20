@@ -1,12 +1,5 @@
-import { router, useLocalSearchParams } from "expo-router";
-import {
-  Text,
-  View,
-  StyleSheet,
-  ScrollView,
-  Image,
-  SafeAreaView,
-} from "react-native";
+import { useLocalSearchParams } from "expo-router";
+import { Text, View, StyleSheet, ScrollView, Image } from "react-native";
 import { Jogador } from "@/types/types";
 import { Button } from "@/components/Button";
 import { times } from "@/hooks/hofs";
@@ -19,6 +12,7 @@ import { usePlayerSelection } from "@/hooks/usePlayerSelection";
 import { Time1 } from "@/components/prematchsorteio/time1";
 import { Time2 } from "@/components/prematchsorteio/time2";
 import TeamLineup from "@/components/prematchsorteio/TeamLineup";
+import CustomScreen from "@/components/CustomView";
 // import { TeamLineup } from "@/components/prematchsorteio/TeamLineup";
 
 export default function PreMatch() {
@@ -66,7 +60,7 @@ export default function PreMatch() {
   });
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <CustomScreen>
       <ScrollView>
         <View style={styles.timeContainer}>
           <Text>{times.time2.nome}</Text>
@@ -127,9 +121,9 @@ export default function PreMatch() {
           }}
           posicao={selectedPosicao}
         />
+        <View style={styles.buttonContainer}></View>
       </ScrollView>
-      <View style={styles.buttonContainer}></View>
-    </SafeAreaView>
+    </CustomScreen>
   );
 }
 
@@ -170,8 +164,6 @@ const styles = StyleSheet.create({
   },
 
   buttonContainer: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
     alignItems: "center", // Centraliza o botão horizontalmente
     marginTop: 20,
   },

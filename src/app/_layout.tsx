@@ -10,9 +10,6 @@ export default function RootLayout() {
       <Stack
         screenOptions={{
           headerShown: false,
-          animation: "slide_from_right",
-          gestureEnabled: false,
-          animationDuration: 200,
         }}
       >
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />

@@ -1,15 +1,10 @@
 import React from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  FlatList,
-  SafeAreaView,
-} from "react-native";
+import { View, Text, TouchableOpacity, FlatList } from "react-native";
 import { StyleSheet } from "react-native";
 import { Link } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { mockData } from "@/data";
+import CustomScreen from "@/components/CustomView";
 
 interface Group {
   id: number;
@@ -34,7 +29,7 @@ export default function Groups() {
   );
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <CustomScreen>
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.title}>Meus Grupos</Text>
@@ -53,7 +48,7 @@ export default function Groups() {
           showsVerticalScrollIndicator={false}
         />
       </View>
-    </SafeAreaView>
+    </CustomScreen>
   );
 }
 

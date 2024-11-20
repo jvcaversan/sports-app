@@ -1,16 +1,10 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
-  TextInput,
-  SafeAreaView,
-} from "react-native";
+import { View, Text, TouchableOpacity, Image, TextInput } from "react-native";
 import { StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { supabase } from "@/database/supabase";
+import CustomScreen from "@/components/CustomView";
 
 interface UserProfile {
   name: string;
@@ -44,7 +38,7 @@ export default function Profile() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <CustomScreen>
       <View style={styles.container}>
         <View style={styles.header}>
           <View style={styles.avatarContainer}>
@@ -115,7 +109,7 @@ export default function Profile() {
           </TouchableOpacity>
         </View>
       </View>
-    </SafeAreaView>
+    </CustomScreen>
   );
 }
 

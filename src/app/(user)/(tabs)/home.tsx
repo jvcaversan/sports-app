@@ -1,15 +1,9 @@
-import React, { useEffect } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Pressable,
-  SafeAreaView,
-} from "react-native";
+import React from "react";
+import { View, Text, TouchableOpacity, Pressable } from "react-native";
 import { StyleSheet } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { useSessionStore } from "@/store/useSessionStore";
+import CustomScreen from "@/components/CustomView";
 
 interface Game {
   id: number;
@@ -33,7 +27,7 @@ export default function Home() {
   ];
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <CustomScreen>
       {/* Header com informações do usuário */}
       <View style={styles.header}>
         <View style={styles.userInfo}>
@@ -74,7 +68,7 @@ export default function Home() {
           <Text>{upcomingGames[0].time}</Text>
         </Pressable>
       </View>
-    </SafeAreaView>
+    </CustomScreen>
   );
 }
 
