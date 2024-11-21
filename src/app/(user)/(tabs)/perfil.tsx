@@ -1,10 +1,17 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, Image, TextInput } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  TextInput,
+  Alert,
+} from "react-native";
 import { StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { supabase } from "@/database/supabase";
 import CustomScreen from "@/components/CustomView";
+import { useSessionStore } from "@/store/useSessionStore";
 
 interface UserProfile {
   name: string;
@@ -22,13 +29,16 @@ export default function Profile() {
     avatar: "https://github.com/jvcaversan.png",
   });
 
+  const { clearSession } = useSessionStore();
+
   function handleSave() {
     setIsEditing(false);
+
     // Aqui você implementaria a lógica para salvar no backend
   }
 
   function handleLogout() {
-    supabase.auth.signOut();
+    clearSession();
     router.replace("/(auth)/signin");
   }
 

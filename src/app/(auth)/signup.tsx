@@ -22,7 +22,7 @@ export default function SignIn() {
       Alert.alert(error.message);
     } else {
       Alert.alert("Conta criada com Sucesso!", "", [
-        { text: "OK", onPress: () => router.push("/home") },
+        { text: "OK", onPress: () => router.push("/perfil") },
       ]);
     }
     setLoading(false);

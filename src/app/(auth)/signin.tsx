@@ -85,7 +85,7 @@ export default function SignIn() {
         <TouchableOpacity
           style={styles.socialButton}
           onPress={() => {
-            /* lógica de conexão com Google */
+            router.replace("/(user)/perfil");
           }}
         >
           <AntDesign name="google" size={49} color="#DB4437" />

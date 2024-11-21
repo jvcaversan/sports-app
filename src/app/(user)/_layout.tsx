@@ -1,19 +1,28 @@
 import { useSessionStore } from "@/store/useSessionStore";
 import { router, Stack } from "expo-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { ActivityIndicator } from "react-native";
 
 export default function UserLayout() {
   const { session } = useSessionStore();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
+    const checkSession = async () => {
       if (!session) {
         router.replace("/(auth)/signin");
       }
-    }, 0); // Aguarda o próximo ciclo de renderização
+      setLoading(false);
+    };
 
-    return () => clearTimeout(timeout);
+    checkSession();
   }, [session]);
+
+  // Mostrar um indicador de carregamento ou tela de transição até verificar a sessão
+  if (loading) {
+    return <ActivityIndicator />;
+  }
+
   return (
     <Stack
       screenOptions={{
