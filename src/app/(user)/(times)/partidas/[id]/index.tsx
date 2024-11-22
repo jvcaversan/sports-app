@@ -68,7 +68,7 @@ export default function PreMatch() {
         </View>
         <View style={styles.campoContainer}>
           <Image
-            source={require("@/assets/images/campo.jpg")}
+            source={require("@/images/campo.jpg")}
             style={styles.campoImage}
           />
 

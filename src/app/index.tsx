@@ -1,23 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Redirect } from "expo-router";
-import { fetchSession, useSessionStore } from "@/store/useSessionStore";
-import { Session as SupabaseSession } from "@supabase/supabase-js";
+import { useSessionStore } from "@/store/useSessionStore";
 
 export default function Index() {
-  const { session, setSession } = useSessionStore(); // Acessando a store do Zustand
-  const [loading, setLoading] = useState(true);
+  const { session, loading, initializeSession } = useSessionStore();
 
   useEffect(() => {
-    const checkSession = async () => {
-      const storedSession: SupabaseSession | null = await fetchSession(); // Obtendo a sessão do Supabase
-      setSession(storedSession); // Atualizando a store com a sessão
-      setLoading(false); // Atualizando o estado de loading
-    };
+    initializeSession(); // Inicializa a sessão ao carregar o app
+  }, [initializeSession]);
 
-    checkSession(); // Verifica a sessão quando o componente é montado
-  }, [setSession]);
-
-  if (loading) return null;
+  if (loading) return null; // Exibe um carregamento enquanto a sessão é verificada
 
   return <Redirect href={session ? "/(user)/home" : "/(auth)/signin"} />;
 }
