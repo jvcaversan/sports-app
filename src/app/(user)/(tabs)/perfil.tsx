@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -6,35 +6,74 @@ import {
   Image,
   TextInput,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import { StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import CustomScreen from "@/components/CustomView";
 import { useSessionStore } from "@/store/useSessionStore";
+import { supabase } from "@/database/supabase";
+import { useQuery } from "@tanstack/react-query";
 
 interface UserProfile {
+  id: string;
   name: string;
   phone: string;
   email: string;
-  avatar: string;
+  photo: string;
+  position: string;
 }
 
 export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
-  const [profile, setProfile] = useState<UserProfile>({
-    name: "João Silva",
-    phone: "(11) 99999-9999",
-    email: "joao@example.com",
-    avatar: "https://github.com/jvcaversan.png",
-  });
+  const [profile, setProfile] = useState<UserProfile | null>(null);
 
   const { clearSession } = useSessionStore();
 
-  function handleSave() {
-    setIsEditing(false);
+  const { data, error, isLoading } = useQuery({
+    queryKey: ["profiles"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .single();
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data;
+    },
+  });
 
-    // Aqui você implementaria a lógica para salvar no backend
+  useEffect(() => {
+    if (data) {
+      setProfile(data);
+    }
+  }, [data]);
+
+  if (isLoading) {
+    return <ActivityIndicator />;
+  }
+
+  async function handleSave() {
+    if (profile) {
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          name: profile.name,
+          phone: profile.phone,
+          photo: profile.photo,
+          email: profile.email,
+          position: profile.position,
+        })
+        .eq("id", profile.id); // Substitua 'id' pelo identificador correto
+      if (error) {
+        Alert.alert("Erro", "Falha ao salvar o perfil.");
+      } else {
+        Alert.alert("Sucesso", "Perfil atualizado com sucesso.");
+      }
+    }
+    setIsEditing(false);
   }
 
   function handleLogout() {
@@ -53,7 +92,7 @@ export default function Profile() {
       <View style={styles.container}>
         <View style={styles.header}>
           <View style={styles.avatarContainer}>
-            <Image source={{ uri: profile.avatar }} style={styles.avatar} />
+            <Image source={{ uri: profile?.photo }} style={styles.avatar} />
           </View>
           <TouchableOpacity
             style={styles.editButton}
@@ -72,8 +111,10 @@ export default function Profile() {
             <Text style={styles.label}>Nome</Text>
             <TextInput
               style={[styles.input, !isEditing && styles.inputDisabled]}
-              value={profile.name}
-              onChangeText={(text) => setProfile({ ...profile, name: text })}
+              value={profile?.name || ""}
+              onChangeText={(text) =>
+                setProfile((prev) => (prev ? { ...prev, name: text } : prev))
+              }
               editable={isEditing}
             />
           </View>
@@ -82,8 +123,10 @@ export default function Profile() {
             <Text style={styles.label}>Telefone</Text>
             <TextInput
               style={[styles.input, !isEditing && styles.inputDisabled]}
-              value={profile.phone}
-              onChangeText={(text) => setProfile({ ...profile, phone: text })}
+              value={profile?.phone}
+              onChangeText={(text) =>
+                setProfile((prev) => (prev ? { ...prev, phone: text } : prev))
+              }
               editable={isEditing}
               keyboardType="phone-pad"
             />
@@ -93,11 +136,26 @@ export default function Profile() {
             <Text style={styles.label}>Email</Text>
             <TextInput
               style={[styles.input, !isEditing && styles.inputDisabled]}
-              value={profile.email}
-              onChangeText={(text) => setProfile({ ...profile, email: text })}
+              value={profile?.email}
+              onChangeText={(text) =>
+                setProfile((prev) => (prev ? { ...prev, email: text } : prev))
+              }
               editable={isEditing}
               keyboardType="email-address"
               autoCapitalize="none"
+            />
+          </View>
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Posição</Text>
+            <TextInput
+              style={[styles.input, !isEditing && styles.inputDisabled]}
+              value={profile?.position}
+              onChangeText={(text) =>
+                setProfile((prev) =>
+                  prev ? { ...prev, position: text } : prev
+                )
+              }
+              editable={isEditing}
             />
           </View>
         </View>

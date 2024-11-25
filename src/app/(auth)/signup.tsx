@@ -4,6 +4,7 @@ import { Button, Input } from "@rneui/themed";
 import { supabase } from "@/database/supabase";
 import { router } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useSessionStore } from "@/store/useSessionStore";
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
@@ -11,20 +12,32 @@ export default function SignIn() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  const { session, initializeSession } = useSessionStore();
+
   async function signUpWithEmail() {
     setLoading(true);
+
     const { error } = await supabase.auth.signUp({
-      email: email,
-      password: password,
+      email,
+      password,
     });
 
     if (error) {
       Alert.alert(error.message);
-    } else {
-      Alert.alert("Conta criada com Sucesso!", "", [
-        { text: "OK", onPress: () => router.push("/perfil") },
-      ]);
+      setLoading(false);
+      return;
     }
+
+    Alert.alert("Conta criada com sucesso!", "", [
+      {
+        text: "OK",
+        onPress: async () => {
+          await initializeSession(); // Inicializa a sessão
+          router.push("/perfil");
+        },
+      },
+    ]);
+
     setLoading(false);
   }
 
