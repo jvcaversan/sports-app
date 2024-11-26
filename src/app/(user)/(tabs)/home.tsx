@@ -1,9 +1,17 @@
 import React from "react";
-import { View, Text, TouchableOpacity, Pressable } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Pressable,
+  ActivityIndicator,
+} from "react-native";
 import { StyleSheet } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import CustomScreen from "@/components/CustomView";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/database/supabase";
 
 interface Game {
   id: number;
@@ -15,7 +23,7 @@ interface Game {
 export default function Home() {
   // Mock data - replace with real data later
   const user = {
-    name: "João Silva",
+    name: "Joao",
     gamesPlayed: 24,
     wins: 15,
     losses: 9,
