@@ -92,7 +92,12 @@ export default function Profile() {
       <View style={styles.container}>
         <View style={styles.header}>
           <View style={styles.avatarContainer}>
-            <Image source={{ uri: profile?.photo }} style={styles.avatar} />
+            <Image
+              source={{
+                uri: profile?.photo || "https://github.com/jvcaversan.png",
+              }}
+              style={styles.avatar}
+            />
           </View>
           <TouchableOpacity
             style={styles.editButton}
@@ -116,6 +121,9 @@ export default function Profile() {
                 setProfile((prev) => (prev ? { ...prev, name: text } : prev))
               }
               editable={isEditing}
+              autoComplete="off"
+              autoCorrect={false}
+              spellCheck={false}
             />
           </View>
 
