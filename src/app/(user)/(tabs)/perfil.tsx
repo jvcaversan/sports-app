@@ -15,6 +15,7 @@ import CustomScreen from "@/components/CustomView";
 import { useSessionStore } from "@/store/useSessionStore";
 import { supabase } from "@/database/supabase";
 import { useQuery } from "@tanstack/react-query";
+import { useProfile } from "@/api/profiles";
 
 interface UserProfile {
   id: string;
@@ -31,19 +32,7 @@ export default function Profile() {
 
   const { clearSession } = useSessionStore();
 
-  const { data, error, isLoading } = useQuery({
-    queryKey: ["profiles"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .single();
-      if (error) {
-        throw new Error(error.message);
-      }
-      return data;
-    },
-  });
+  const { data, error, isLoading } = useProfile();
 
   useEffect(() => {
     if (data) {
