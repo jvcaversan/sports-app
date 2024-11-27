@@ -33,11 +33,13 @@ export default function Groups() {
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.title}>Meus Grupos</Text>
-          <Link href="/(tabs)/home" asChild>
-            <TouchableOpacity style={styles.addButton}>
-              <Ionicons name="add" size={24} color="#fff" />
-            </TouchableOpacity>
-          </Link>
+
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() => console.log("criando clube")}
+          >
+            <Ionicons name="add" size={24} color="#fff" />
+          </TouchableOpacity>
         </View>
 
         <FlatList
