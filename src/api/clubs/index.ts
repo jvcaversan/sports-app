@@ -1,24 +1,40 @@
 import { supabase } from "@/database/supabase";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 export const useCreateClub = () => {
   return useMutation({
-    async mutationFn({ clubName, clubPhoto, userId }: any) {
-      const { data: newClub, error: clubError } = await supabase
+    async mutationFn(data: any) {
+      console.log(data);
+      if (!data.userId) {
+        throw new Error("ID do usuário é obrigatório para criar o clube.");
+      }
+
+      const { error, data: newClub } = await supabase
         .from("clubs")
         .insert({
-          name: clubName,
-          photo: clubPhoto,
-          createdBy: userId,
+          name: data.name,
+          created_by: data.userId, // Passa o ID validado
         })
         .select()
         .single();
 
-      if (clubError) {
-        throw new Error(`Erro ao criar clube: ${clubError.message}`);
+      if (error) {
+        throw new Error(error.message);
       }
-
       return newClub;
+    },
+  });
+};
+
+export const useListClubs = () => {
+  return useQuery({
+    queryKey: ["clubs"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("clubs").select("*");
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data;
     },
   });
 };

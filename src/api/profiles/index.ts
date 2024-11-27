@@ -5,7 +5,6 @@ export const useProfile = () => {
   return useQuery({
     queryKey: ["profiles"],
     queryFn: async () => {
-      const user = supabase.auth.getUser();
       const { data, error } = await supabase
         .from("profiles")
         .select("*")

@@ -1,29 +1,24 @@
 import React from "react";
 import { View, Text, TouchableOpacity, FlatList } from "react-native";
 import { StyleSheet } from "react-native";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { mockData } from "@/data";
 import CustomScreen from "@/components/CustomView";
+import { useListClubs } from "@/api/clubs";
 
 interface Group {
-  id: number;
-  nomeGrupo: string;
-  partidas: Match[];
-}
-
-interface Match {
-  id: number;
-  nomePartida: string;
+  id: string;
+  name: string;
 }
 
 export default function Groups() {
+  const { data: clubs, error, isLoading } = useListClubs();
   // Mock data for groups
-  const data: Group[] = mockData.user.grupos;
   const renderGroupItem = ({ item }: { item: Group }) => (
     <Link href={`/(user)/(times)/${item.id}`} asChild>
       <TouchableOpacity style={styles.groupCard}>
-        <Text style={styles.groupName}>{item.nomeGrupo}</Text>
+        <Text style={styles.groupName}>{item.name}</Text>
       </TouchableOpacity>
     </Link>
   );
@@ -36,14 +31,14 @@ export default function Groups() {
 
           <TouchableOpacity
             style={styles.addButton}
-            onPress={() => console.log("criando clube")}
+            onPress={() => router.navigate("/(times)/createTeam")}
           >
             <Ionicons name="add" size={24} color="#fff" />
           </TouchableOpacity>
         </View>
 
         <FlatList
-          data={data}
+          data={clubs}
           renderItem={renderGroupItem}
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={styles.listContainer}
