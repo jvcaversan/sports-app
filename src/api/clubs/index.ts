@@ -38,3 +38,20 @@ export const useListClubs = () => {
     },
   });
 };
+
+export const useClubsById = (id: string) => {
+  return useQuery({
+    queryKey: ["clubs", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("clubs")
+        .select("*")
+        .eq("id", id)
+        .single();
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data;
+    },
+  });
+};
