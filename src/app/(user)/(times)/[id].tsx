@@ -1,7 +1,7 @@
 import { useClubMembers } from "@/api/club_members";
 import { useClubsById } from "@/api/clubs";
 import { useLocalSearchParams } from "expo-router";
-import { ActivityIndicator, SafeAreaView, Text } from "react-native";
+import { ActivityIndicator, FlatList, SafeAreaView, Text } from "react-native";
 
 export default function ClubDetails() {
   const { id } = useLocalSearchParams();
@@ -10,9 +10,7 @@ export default function ClubDetails() {
 
   const { data: club, isLoading, isError } = useClubsById(clubId);
 
-  const { data: member } = useClubMembers(clubId);
-
-  console.log(member);
+  const { data: members } = useClubMembers(clubId);
 
   // Caso o dado esteja carregando ou tenha dado erro, exibe isso na tela
   if (isLoading) {
@@ -45,8 +43,17 @@ export default function ClubDetails() {
     <SafeAreaView>
       <Text>Club id: {id}</Text>
       <Text>CLUB NAME:{club.name}</Text>
-      <Text>PlayerName:{member[0].profiles.name}</Text>
-      <Text>PlayerName:{member[0].role}</Text>
+      {members && members.length > 0 ? (
+        <FlatList
+          data={members}
+          keyExtractor={(item) => item.player_id}
+          renderItem={({ item }) => (
+            <Text>{`Jogador: ${item.name} - Função: ${item.role}`}</Text>
+          )}
+        />
+      ) : (
+        <Text>Clube sem Membros até o momento</Text>
+      )}
     </SafeAreaView>
   );
 }

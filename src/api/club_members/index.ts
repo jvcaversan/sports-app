@@ -7,7 +7,7 @@ export const useClubMembers = (clubId: string) => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("club_members")
-        .select("player_id, role, profiles(name)")
+        .select("player_id, role, name")
         .eq("club_id", clubId);
       if (error) {
         throw new Error(error.message);
