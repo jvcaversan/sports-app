@@ -3,7 +3,6 @@ import { View, Text, TouchableOpacity, FlatList } from "react-native";
 import { StyleSheet } from "react-native";
 import { Link, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { mockData } from "@/data";
 import CustomScreen from "@/components/CustomView";
 import { useListClubs } from "@/api/clubs";
 
