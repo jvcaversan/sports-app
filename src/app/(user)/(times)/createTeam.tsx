@@ -42,27 +42,7 @@ const CreateClubScreen = ({ id }: { id: string }) => {
       {
         onSuccess: async (newClub) => {
           console.log("Clube criado com sucesso:", newClub);
-          const { error: insertError } = await supabase
-            .from("club_members")
-            .insert([
-              {
-                club_id: newClub.id, // ID do clube criado
-                player_id: userId, // ID do usuário logado
-                role: "admin", // Definindo o papel como 'admin'
-              },
-            ]);
-
-          if (insertError) {
-            console.error(
-              "Erro ao adicionar usuário ao clube:",
-              insertError.message
-            );
-          } else {
-            console.log(
-              "Usuário adicionado como administrador no clube com sucesso!"
-            );
-          }
-          router.push(`/clubs/${newClub.id}`); // Redireciona para a página do clube
+          router.push(`/(user)/(times)/${newClub.id}`); // Redireciona para a página do clube
         },
         onError: (err) => {
           console.error("Erro ao criar clube:", err.message);

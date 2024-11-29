@@ -4,7 +4,6 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 export const useCreateClub = () => {
   return useMutation({
     async mutationFn(data: any) {
-      console.log(data);
       if (!data.userId) {
         throw new Error("ID do usuário é obrigatório para criar o clube.");
       }
