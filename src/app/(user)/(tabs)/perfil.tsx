@@ -14,7 +14,6 @@ import { router } from "expo-router";
 import CustomScreen from "@/components/CustomView";
 import { useSessionStore } from "@/store/useSessionStore";
 import { supabase } from "@/database/supabase";
-import { useQuery } from "@tanstack/react-query";
 import { useProfile } from "@/api/profiles";
 
 interface UserProfile {
