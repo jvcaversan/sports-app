@@ -1,17 +1,9 @@
 import React from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Pressable,
-  ActivityIndicator,
-} from "react-native";
+import { View, Text, TouchableOpacity, Pressable } from "react-native";
 import { StyleSheet } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import CustomScreen from "@/components/CustomView";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/database/supabase";
 
 interface Game {
   id: number;
@@ -41,14 +33,14 @@ export default function Home() {
         <View style={styles.userInfo}>
           <Text style={styles.userName}>{user.name}</Text>
 
-          <TouchableOpacity onPress={() => router.navigate("/(perfil)/index")}>
+          <TouchableOpacity onPress={() => router.navigate("/perfil")}>
             <Ionicons name="settings-outline" size={24} color="#333" />
           </TouchableOpacity>
         </View>
       </View>
       <Pressable
         style={styles.statsContainer}
-        onPress={() => router.navigate("/(estatisticas)/index")}
+        onPress={() => router.navigate("/estatisticas")}
       >
         <Text style={styles.sectionTitle}>Estatísticas</Text>
         <View style={styles.statsGrid}>
