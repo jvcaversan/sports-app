@@ -74,7 +74,7 @@ export const useClubsByUserId = (userId?: string) => {
       }
       return data.map((member) => ({
         id: member.club_id,
-        name: member.clubs[0]?.name,
+        name: member.clubs.name,
       }));
     },
   });
