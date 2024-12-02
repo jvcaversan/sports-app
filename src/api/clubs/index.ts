@@ -61,7 +61,6 @@ export const useClubsByUserId = (userId?: string) => {
     queryFn: async () => {
       const { data: session } = await supabase.auth.getSession();
       const userId = session?.session?.user.id; // ID do usuário logado
-      console.log(userId);
       if (!userId) {
         throw new Error("Usuário não autenticado");
       }

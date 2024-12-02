@@ -41,14 +41,14 @@ export default function Home() {
         <View style={styles.userInfo}>
           <Text style={styles.userName}>{user.name}</Text>
 
-          <TouchableOpacity onPress={() => router.navigate("/(tabs)/perfil")}>
+          <TouchableOpacity onPress={() => router.navigate("/(perfil)/index")}>
             <Ionicons name="settings-outline" size={24} color="#333" />
           </TouchableOpacity>
         </View>
       </View>
       <Pressable
         style={styles.statsContainer}
-        onPress={() => router.navigate("/(tabs)/estatisticas")}
+        onPress={() => router.navigate("/(estatisticas)/index")}
       >
         <Text style={styles.sectionTitle}>Estatísticas</Text>
         <View style={styles.statsGrid}>
