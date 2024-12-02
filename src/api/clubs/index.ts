@@ -54,3 +54,28 @@ export const useClubsById = (id: string) => {
     },
   });
 };
+
+export const useClubsByUserId = (userId?: string) => {
+  return useQuery({
+    queryKey: ["clubs", userId],
+    queryFn: async () => {
+      const { data: session } = await supabase.auth.getSession();
+      const userId = session?.session?.user.id; // ID do usuário logado
+      console.log(userId);
+      if (!userId) {
+        throw new Error("Usuário não autenticado");
+      }
+      const { data, error } = await supabase
+        .from("club_members")
+        .select("club_id, clubs(name)")
+        .eq("player_id", userId);
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data.map((member) => ({
+        id: member.club_id,
+        name: member.clubs[0]?.name,
+      }));
+    },
+  });
+};

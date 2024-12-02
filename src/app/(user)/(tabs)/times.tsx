@@ -4,7 +4,7 @@ import { StyleSheet } from "react-native";
 import { Link, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import CustomScreen from "@/components/CustomView";
-import { useListClubs } from "@/api/clubs";
+import { useClubsByUserId, useListClubs } from "@/api/clubs";
 
 interface Group {
   id: string;
@@ -12,8 +12,9 @@ interface Group {
 }
 
 export default function Groups() {
-  const { data: clubs, error, isLoading } = useListClubs();
+  const { data: clubs, error, isLoading } = useClubsByUserId();
   // Mock data for groups
+  console.log(clubs);
   const renderGroupItem = ({ item }: { item: Group }) => (
     <Link href={`/(user)/(times)/${item.id}`} asChild>
       <TouchableOpacity style={styles.groupCard}>
