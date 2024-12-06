@@ -6,15 +6,42 @@ import { Ionicons } from "@expo/vector-icons";
 import CustomScreen from "@/components/CustomView";
 import { useClubsByUserId } from "@/api/clubs";
 
-interface Group {
-  id: string;
-  name: string;
-}
-
 export default function Groups() {
   const { data: clubs, error, isLoading } = useClubsByUserId();
 
-  const renderGroupItem = ({ item }: { item: Group }) => (
+  if (isLoading) {
+    return (
+      <CustomScreen>
+        <Text style={styles.message}>Carregando grupos...</Text>
+      </CustomScreen>
+    );
+  }
+
+  if (error) {
+    return (
+      <CustomScreen>
+        <Text style={styles.message}>
+          Erro ao carregar grupos: {error.message}
+        </Text>
+      </CustomScreen>
+    );
+  }
+
+  if (!clubs || clubs.length === 0) {
+    return (
+      <CustomScreen>
+        <Text style={styles.message}>
+          Você ainda não faz parte de nenhum grupo.
+        </Text>
+      </CustomScreen>
+    );
+  }
+
+  const renderGroupItem = ({
+    item,
+  }: {
+    item: { id: string; name: string };
+  }) => (
     <Link href={`/(user)/times/listTeams/${item.id}`} asChild>
       <TouchableOpacity style={styles.groupCard}>
         <Text style={styles.groupName}>{item.name}</Text>
@@ -27,10 +54,9 @@ export default function Groups() {
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.title}>Meus Grupos</Text>
-
           <TouchableOpacity
             style={styles.addButton}
-            onPress={() => router.navigate("/times/listTeams/createTeam")}
+            onPress={() => router.navigate("/times/createTeam")}
           >
             <Ionicons name="add" size={24} color="#fff" />
           </TouchableOpacity>
@@ -39,7 +65,7 @@ export default function Groups() {
         <FlatList
           data={clubs}
           renderItem={renderGroupItem}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContainer}
           showsVerticalScrollIndicator={false}
         />
@@ -98,5 +124,12 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     paddingVertical: 8,
+  },
+  message: {
+    flex: 1,
+    textAlign: "center",
+    marginTop: 20,
+    fontSize: 16,
+    color: "#555",
   },
 });

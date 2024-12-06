@@ -1,7 +1,9 @@
 import { supabase } from "@/database/supabase";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useCreateClub = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     async mutationFn(data: any) {
       if (!data.userId) {
@@ -21,6 +23,10 @@ export const useCreateClub = () => {
         throw new Error(error.message);
       }
       return newClub;
+    },
+    onSuccess: () => {
+      // Invalida o cache para "clubs" e força o refetch
+      queryClient.invalidateQueries({ queryKey: ["clubs"] });
     },
   });
 };
