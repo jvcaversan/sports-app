@@ -42,7 +42,7 @@ const CreateClubScreen = ({ id }: { id: string }) => {
       {
         onSuccess: async (newClub) => {
           console.log("Clube criado com sucesso:", newClub);
-          router.push(`/(user)/times/listTeams/${newClub.id}`); // Redireciona para a página do clube
+          router.replace(`/(user)/times/listTeams/${newClub.id}`); // Redireciona para a página do clube
         },
         onError: (err) => {
           console.error("Erro ao criar clube:", err.message);
