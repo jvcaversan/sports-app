@@ -35,7 +35,7 @@ export default function SignIn() {
 
     // Redireciona para a home após o login bem-sucedido
     if (data?.session) {
-      router.push("/(user)/home"); // Isso vai navegar diretamente para a página de home
+      router.replace("/(user)/home"); // Isso vai navegar diretamente para a página de home
     }
 
     setLoading(false);
@@ -85,7 +85,12 @@ export default function SignIn() {
         <TouchableOpacity
           style={styles.socialButton}
           onPress={() => {
-            router.replace("/(user)/perfil");
+            const { session } = useSessionStore.getState(); // Obtém o estado da sessão
+            if (session) {
+              router.navigate("/(user)/home");
+            } else {
+              router.replace("/(auth)/signin");
+            }
           }}
         >
           <AntDesign name="google" size={49} color="#DB4437" />
@@ -94,7 +99,12 @@ export default function SignIn() {
         <TouchableOpacity
           style={styles.socialButton}
           onPress={() => {
-            /* lógica de conexão com Facebook */
+            const { session } = useSessionStore.getState(); // Obtém o estado da sessão
+            if (session) {
+              router.navigate("/(user)/home");
+            } else {
+              router.replace("/(auth)/signin");
+            }
           }}
         >
           <MaterialIcons name="facebook" size={52} color="#4267B2" />
