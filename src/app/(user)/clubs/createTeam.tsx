@@ -7,14 +7,13 @@ import {
   ActivityIndicator,
   StyleSheet,
 } from "react-native";
-import { useRouter } from "expo-router"; // Navegação com Expo Router
+import { router, useRouter } from "expo-router"; // Navegação com Expo Router
 import { useCreateClub } from "@/api/clubs";
 import { supabase } from "@/database/supabase";
 
 const CreateClubScreen = ({ id }: { id: string }) => {
   const [clubName, setClubName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const router = useRouter();
 
   const { mutate: createClub, error } = useCreateClub();
 
@@ -42,7 +41,7 @@ const CreateClubScreen = ({ id }: { id: string }) => {
       {
         onSuccess: async (newClub) => {
           console.log("Clube criado com sucesso:", newClub);
-          router.replace(`/(user)/times/listTeams/${newClub.id}`); // Redireciona para a página do clube
+          router.replace(`/(user)/clubs/listTeams/${newClub.id}`); // Redireciona para a página do clube
         },
         onError: (err) => {
           console.error("Erro ao criar clube:", err.message);

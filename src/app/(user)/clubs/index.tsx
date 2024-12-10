@@ -42,7 +42,7 @@ export default function Groups() {
   }: {
     item: { id: string; name: string };
   }) => (
-    <Link href={`/(user)/times/listTeams/${item.id}`} asChild>
+    <Link href={`/(user)/clubs/(listTeams)/${item.id}`} asChild>
       <TouchableOpacity style={styles.groupCard}>
         <Text style={styles.groupName}>{item.name}</Text>
       </TouchableOpacity>
@@ -56,7 +56,7 @@ export default function Groups() {
           <Text style={styles.title}>Meus Grupos</Text>
           <TouchableOpacity
             style={styles.addButton}
-            onPress={() => router.navigate("/times/createTeam")}
+            onPress={() => router.navigate("/clubs/createTeam")}
           >
             <Ionicons name="add" size={24} color="#fff" />
           </TouchableOpacity>

@@ -1,7 +1,8 @@
 import { useSearchUser } from "@/api/club_invitation";
 import { useClubMembers } from "@/api/club_members";
 import { useClubsById } from "@/api/clubs";
-import { useLocalSearchParams } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import {
   ActivityIndicator,
@@ -65,7 +66,19 @@ export default function ClubDetails() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.clubName}>{club.name}</Text>
+      <View style={styles.header}>
+        <Text style={styles.clubName}>{club.name}</Text>
+        <TouchableOpacity
+          style={styles.createMatchButton}
+          onPress={() => {
+            router.navigate(
+              `/(user)/clubs/(listTeams)/createMatch?clubId=${clubId}`
+            );
+          }}
+        >
+          <Ionicons name="add" size={24} color="white" />
+        </TouchableOpacity>
+      </View>
 
       <View style={styles.searchSection}>
         <TextInput
@@ -128,12 +141,23 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: "#f5f5f5",
   },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 20,
+    padding: 10,
+    backgroundColor: "#3498db", // Cor de fundo do cabeçalho
+    borderRadius: 10, // Bordas arredondadas
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
   clubName: {
     fontSize: 24,
     fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 20,
-    color: "#2c3e50",
+    color: "#ffffff", // Cor do texto do nome do clube
   },
   searchSection: {
     marginBottom: 20,
@@ -209,5 +233,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#e74c3c",
     textAlign: "center",
+  },
+  createMatchButton: {
+    backgroundColor: "#2ecc71", // Cor de fundo do botão
+    borderRadius: 50, // Botão redondo
+    padding: 12, // Espaçamento interno
+    elevation: 4, // Sombra
   },
 });

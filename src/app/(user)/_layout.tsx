@@ -26,7 +26,7 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="times"
+        name="clubs"
         options={{
           title: "Grupos",
           tabBarIcon: ({ focused, color }) => (
