@@ -20,7 +20,7 @@ export const useCreateMatch = () => {
           local: data.local,
           horario: data.horario,
           data: data.data,
-          id: data.clubId,
+          clubid: data.clubId,
         })
         .select()
         .single();

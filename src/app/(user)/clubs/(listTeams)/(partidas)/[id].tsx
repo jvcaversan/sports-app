@@ -18,8 +18,6 @@ import CustomScreen from "@/components/CustomView";
 export default function PreMatch() {
   const { id } = useLocalSearchParams();
 
-  console.log(id);
-
   const [selectedTeam, setSelectedTeam] = useState<"time1" | "time2">("time1");
   const [selectedNumero, setSelectedNumero] = useState<number | undefined>();
   const {
