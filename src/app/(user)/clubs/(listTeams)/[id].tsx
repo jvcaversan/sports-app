@@ -19,7 +19,6 @@ import {
   Image,
 } from "react-native";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
-import { useProfile } from "@/api/profiles";
 
 export default function ClubDetails() {
   const [query, setQuery] = useState(""); // Query de busca
