@@ -1,16 +1,21 @@
 import { supabase } from "@/database/supabase";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
+export interface UserProfile {
+  id: string;
+  name: string;
+  phone: string;
+  email: string;
+  photo: string;
+  position: string;
+}
 
 export const useProfile = (userId?: string) => {
-  return useQuery({
+  return useQuery<UserProfile, Error>({
     queryKey: ["profiles", userId],
     queryFn: async () => {
       if (!userId) {
-        const { data: session } = await supabase.auth.getSession();
-        userId = session?.session?.user.id;
-        if (!userId) {
-          throw new Error("Usuário não autenticado");
-        }
+        throw new Error("Usuário não autenticado");
       }
 
       const { data, error } = await supabase
@@ -22,8 +27,30 @@ export const useProfile = (userId?: string) => {
       if (error) {
         throw new Error(error.message);
       }
-      return data;
+      return data as UserProfile;
     },
-    enabled: !!userId,
+  });
+};
+
+export const useEditProfile = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: Partial<UserProfile>) => {
+      const { data: updateUser, error } = await supabase
+        .from("profiles")
+        .update(data)
+        .eq("id", data.id)
+        .single();
+
+      if (error) {
+        throw new Error(error.message);
+      }
+      return updateUser;
+    },
+    onSuccess: (updatedUser, { id }) => {
+      queryClient.setQueryData(["profiles", id], updatedUser);
+      queryClient.invalidateQueries({ queryKey: ["profiles"] });
+    },
   });
 };

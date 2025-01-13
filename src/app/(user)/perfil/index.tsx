@@ -4,64 +4,63 @@ import {
   Text,
   TouchableOpacity,
   Image,
+  ActivityIndicator,
   TextInput,
   Alert,
-  ActivityIndicator,
 } from "react-native";
 import { StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import CustomScreen from "@/components/CustomView";
 import { useSessionStore } from "@/store/useSessionStore";
-import { supabase } from "@/database/supabase";
-import { useProfile } from "@/api/profiles";
-
-interface UserProfile {
-  id: string;
-  name: string;
-  phone: string;
-  email: string;
-  photo: string;
-  position: string;
-}
+import { useProfile, useEditProfile } from "@/api/profiles";
+import { UserProfile } from "@/api/profiles";
 
 export default function Profile() {
+  const { session, clearSession } = useSessionStore();
+  const userId = session?.user?.id;
+
+  const { data: profile, error, isLoading } = useProfile(userId || undefined);
+
   const [isEditing, setIsEditing] = useState(false);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [editedProfile, setEditedProfile] = useState<Partial<UserProfile>>({});
 
-  const { clearSession } = useSessionStore();
-
-  const { data, error, isLoading } = useProfile();
+  const editProfileMutation = useEditProfile();
 
   useEffect(() => {
-    if (data) {
-      setProfile(data);
+    if (profile) {
+      setEditedProfile(profile);
     }
-  }, [data]);
+  }, [profile]);
+
+  const handleSave = async () => {
+    if (!userId) {
+      Alert.alert("Erro", "ID do usuário não encontrado.");
+      return;
+    }
+
+    try {
+      await editProfileMutation.mutateAsync({
+        ...editedProfile,
+        id: userId,
+      });
+      setIsEditing(false);
+      Alert.alert("Sucesso", "Perfil atualizado com sucesso!");
+    } catch (error) {
+      Alert.alert("Erro", "Falha ao atualizar o perfil.");
+    }
+  };
 
   if (isLoading) {
     return <ActivityIndicator />;
   }
 
-  async function handleSave() {
-    if (profile) {
-      const { error } = await supabase
-        .from("profiles")
-        .update({
-          name: profile.name,
-          phone: profile.phone,
-          photo: profile.photo,
-          email: profile.email,
-          position: profile.position,
-        })
-        .eq("id", profile.id); // Substitua 'id' pelo identificador correto
-      if (error) {
-        Alert.alert("Erro", "Falha ao salvar o perfil.");
-      } else {
-        Alert.alert("Sucesso", "Perfil atualizado com sucesso.");
-      }
-    }
-    setIsEditing(false);
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.errorText}>Erro ao carregar o perfil.</Text>
+      </View>
+    );
   }
 
   function handleLogout() {
@@ -70,10 +69,7 @@ export default function Profile() {
     router.replace("/(auth)/signin");
   }
 
-  function handleChangePassword() {
-    // Implementar navegação para tela de troca de senha
-    // router.push("/change-password");
-  }
+  function handleChangePassword() {}
 
   return (
     <CustomScreen>
@@ -82,17 +78,18 @@ export default function Profile() {
           <View style={styles.avatarContainer}>
             <Image
               source={{
-                uri: profile?.photo || "https://github.com/jvcaversan.png",
+                uri:
+                  editedProfile?.photo || "https://github.com/jvcaversan.png",
               }}
               style={styles.avatar}
             />
           </View>
           <TouchableOpacity
             style={styles.editButton}
-            onPress={() => (isEditing ? handleSave() : setIsEditing(true))}
+            onPress={() => setIsEditing(!isEditing)}
           >
             <Ionicons
-              name={isEditing ? "checkmark-outline" : "create-outline"}
+              name={isEditing ? "close-outline" : "create-outline"}
               size={24}
               color="#333"
             />
@@ -100,18 +97,18 @@ export default function Profile() {
         </View>
 
         <View style={styles.formContainer}>
+          {isEditing && (
+            <Text style={styles.editingText}>Modo de edição ativado</Text>
+          )}
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Nome</Text>
             <TextInput
               style={[styles.input, !isEditing && styles.inputDisabled]}
-              value={profile?.name || ""}
+              value={editedProfile?.name || ""}
               onChangeText={(text) =>
-                setProfile((prev) => (prev ? { ...prev, name: text } : prev))
+                setEditedProfile((prev) => ({ ...prev, name: text }))
               }
               editable={isEditing}
-              autoComplete="off"
-              autoCorrect={false}
-              spellCheck={false}
             />
           </View>
 
@@ -119,9 +116,9 @@ export default function Profile() {
             <Text style={styles.label}>Telefone</Text>
             <TextInput
               style={[styles.input, !isEditing && styles.inputDisabled]}
-              value={profile?.phone}
+              value={editedProfile?.phone || ""}
               onChangeText={(text) =>
-                setProfile((prev) => (prev ? { ...prev, phone: text } : prev))
+                setEditedProfile((prev) => ({ ...prev, phone: text }))
               }
               editable={isEditing}
               keyboardType="phone-pad"
@@ -132,24 +129,23 @@ export default function Profile() {
             <Text style={styles.label}>Email</Text>
             <TextInput
               style={[styles.input, !isEditing && styles.inputDisabled]}
-              value={profile?.email}
+              value={editedProfile?.email || ""}
               onChangeText={(text) =>
-                setProfile((prev) => (prev ? { ...prev, email: text } : prev))
+                setEditedProfile((prev) => ({ ...prev, email: text }))
               }
               editable={isEditing}
               keyboardType="email-address"
               autoCapitalize="none"
             />
           </View>
+
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Posição</Text>
             <TextInput
               style={[styles.input, !isEditing && styles.inputDisabled]}
-              value={profile?.position}
+              value={editedProfile?.position || ""}
               onChangeText={(text) =>
-                setProfile((prev) =>
-                  prev ? { ...prev, position: text } : prev
-                )
+                setEditedProfile((prev) => ({ ...prev, position: text }))
               }
               editable={isEditing}
             />
@@ -157,28 +153,37 @@ export default function Profile() {
         </View>
 
         <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={[styles.button, styles.changePasswordButton]}
-            onPress={handleChangePassword}
-          >
-            <Ionicons name="key-outline" size={20} color="#666" />
-            <Text style={styles.buttonText}>Trocar Senha</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.button, styles.logoutButton]}
-            onPress={handleLogout}
-          >
-            <Ionicons name="log-out-outline" size={20} color="#ff4444" />
-            <Text style={[styles.buttonText, styles.logoutText]}>Sair</Text>
-          </TouchableOpacity>
+          {isEditing ? (
+            <TouchableOpacity
+              style={[styles.button, styles.saveButton, { marginBottom: 40 }]}
+              onPress={handleSave}
+            >
+              <Text style={styles.saveButtonText}>Salvar</Text>
+            </TouchableOpacity>
+          ) : (
+            <>
+              <TouchableOpacity
+                style={[styles.button, styles.changePasswordButton]}
+                onPress={handleChangePassword}
+              >
+                <Ionicons name="key-outline" size={20} color="#666" />
+                <Text style={styles.buttonText}>Trocar Senha</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.button, styles.logoutButton]}
+                onPress={handleLogout}
+              >
+                <Ionicons name="log-out-outline" size={20} color="#ff4444" />
+                <Text style={[styles.buttonText, styles.logoutText]}>Sair</Text>
+              </TouchableOpacity>
+            </>
+          )}
         </View>
       </View>
     </CustomScreen>
   );
 }
 
-// Add these new styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -204,29 +209,6 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  formContainer: {
-    padding: 16,
-  },
-  inputGroup: {
-    marginBottom: 16,
-  },
-  label: {
-    fontSize: 14,
-    color: "#666",
-    marginBottom: 4,
-  },
-  input: {
-    backgroundColor: "#fff",
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-  },
-  inputDisabled: {
-    backgroundColor: "#f5f5f5",
-    color: "#666",
-  },
   editButton: {
     position: "absolute",
     top: 16,
@@ -239,6 +221,34 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
+  },
+  formContainer: {
+    padding: 16,
+  },
+  editingText: {
+    fontSize: 16,
+    color: "#ffa500",
+    textAlign: "center",
+    marginBottom: 16,
+  },
+  inputGroup: {
+    marginBottom: 16,
+  },
+  label: {
+    fontSize: 14,
+    color: "#666",
+    marginBottom: 4,
+  },
+  input: {
+    fontSize: 16,
+    color: "#333",
+    padding: 12,
+    backgroundColor: "#f5f5f5",
+    borderRadius: 8,
+  },
+  inputDisabled: {
+    backgroundColor: "#f5f5f5",
+    color: "#666",
   },
   buttonContainer: {
     padding: 16,
@@ -256,6 +266,12 @@ const styles = StyleSheet.create({
   changePasswordButton: {
     backgroundColor: "#f5f5f5",
   },
+  saveButton: {
+    backgroundColor: "#4CAF50",
+  },
+  saveButtonText: {
+    color: "#fff",
+  },
   logoutButton: {
     backgroundColor: "#fff0f0",
   },
@@ -265,5 +281,11 @@ const styles = StyleSheet.create({
   },
   logoutText: {
     color: "#ff4444",
+  },
+  errorText: {
+    fontSize: 16,
+    color: "#ff4444",
+    textAlign: "center",
+    marginTop: 20,
   },
 });

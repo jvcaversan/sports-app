@@ -480,7 +480,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0,
     borderBottomWidth: 1,
     borderBottomColor: "#E5E7EB",
-    height: 40,
+    height: 45,
     marginBottom: 6,
   },
   tabIndicator: {
