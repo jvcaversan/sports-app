@@ -51,6 +51,14 @@ export default function Profile() {
     }
   };
 
+  const handleCancelEdit = () => {
+    // Reseta o estado editedProfile para o valor original do perfil
+    if (profile) {
+      setEditedProfile(profile);
+    }
+    setIsEditing(false);
+  };
+
   if (isLoading) {
     return <ActivityIndicator />;
   }
@@ -86,7 +94,7 @@ export default function Profile() {
           </View>
           <TouchableOpacity
             style={styles.editButton}
-            onPress={() => setIsEditing(!isEditing)}
+            onPress={isEditing ? handleCancelEdit : () => setIsEditing(true)}
           >
             <Ionicons
               name={isEditing ? "close-outline" : "create-outline"}
