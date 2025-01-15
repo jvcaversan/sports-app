@@ -13,7 +13,6 @@ interface Game {
 }
 
 export default function Home() {
-  // Mock data - replace with real data later
   const user = {
     name: "Joao",
     gamesPlayed: 24,
@@ -28,7 +27,6 @@ export default function Home() {
 
   return (
     <CustomScreen>
-      {/* Header com informações do usuário */}
       <View style={styles.header}>
         <View style={styles.userInfo}>
           <Text style={styles.userName}>{user.name}</Text>

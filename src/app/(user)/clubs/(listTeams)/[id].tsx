@@ -1,6 +1,6 @@
 import { useSearchUser } from "@/api/club_invitation";
 import { useClubMembers } from "@/api/club_members";
-import { useClubsById, useClubsByUserId } from "@/api/clubs";
+import { useClubsById } from "@/api/clubs";
 import { useMatchsByClubId } from "@/api/createMatch";
 import { Ionicons } from "@expo/vector-icons";
 import { Link, router, useLocalSearchParams } from "expo-router";
@@ -21,7 +21,7 @@ import {
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 
 export default function ClubDetails() {
-  const [query, setQuery] = useState(""); // Query de busca
+  const [query, setQuery] = useState("");
 
   const { id } = useLocalSearchParams();
   const clubId = Array.isArray(id) ? id[0] : id;

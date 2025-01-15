@@ -7,41 +7,35 @@ import {
   ActivityIndicator,
   StyleSheet,
 } from "react-native";
-import { router, useRouter } from "expo-router"; // Navegação com Expo Router
+import { router } from "expo-router";
 import { useCreateClub } from "@/api/clubs";
-import { supabase } from "@/database/supabase";
+import { useSessionStore } from "@/store/useSessionStore";
 
-const CreateClubScreen = ({ id }: { id: string }) => {
+const CreateClubScreen = () => {
   const [clubName, setClubName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { mutate: createClub, error } = useCreateClub();
+  const { mutate: createClub } = useCreateClub();
+
+  const { session } = useSessionStore();
 
   const onCreate = async () => {
     setIsSubmitting(true);
 
-    // Obtém a sessão ativa
-    const { data: sessionData, error: sessionError } =
-      await supabase.auth.getSession();
-
-    if (sessionError || !sessionData.session) {
-      console.error(
-        "Usuário não autenticado:",
-        sessionError?.message || "Sessão inexistente"
-      );
+    if (!session) {
+      console.error("Usuário não autenticado:");
       setIsSubmitting(false);
       return;
     }
 
-    // Obtém o ID do usuário logado a partir da sessão
-    const userId = sessionData.session.user.id;
+    const userId = session.user.id;
 
     createClub(
-      { name: clubName, userId }, // Envia o ID do usuário junto com o nome do clube
+      { name: clubName, userId },
       {
         onSuccess: async (newClub) => {
           console.log("Clube criado com sucesso:", newClub);
-          router.replace(`/(user)/clubs/(listTeams)/${newClub.id}`); // Redireciona para a página do clube
+          router.replace(`/(user)/clubs/(listTeams)/${newClub.id}`);
         },
         onError: (err) => {
           console.error("Erro ao criar clube:", err.message);
@@ -84,7 +78,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f7f7f7", // Fundo claro
+    backgroundColor: "#f7f7f7",
     padding: 16,
   },
   title: {
@@ -105,7 +99,7 @@ const styles = StyleSheet.create({
   },
   button: {
     width: "90%",
-    backgroundColor: "#007BFF", // Azul
+    backgroundColor: "#007BFF",
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: "center",

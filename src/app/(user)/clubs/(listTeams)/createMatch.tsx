@@ -7,9 +7,9 @@ import {
   ActivityIndicator,
   StyleSheet,
 } from "react-native";
-import { router, useLocalSearchParams, useRouter } from "expo-router"; // Navegação com Expo Router
-import { supabase } from "@/database/supabase";
+import { router, useLocalSearchParams } from "expo-router";
 import { useCreateMatch } from "@/api/createMatch";
+import { useSessionStore } from "@/store/useSessionStore";
 
 const CreateClubScreen = ({ id }: { id: string }) => {
   const [team1Name, setTeam1Name] = useState("");
@@ -20,43 +20,35 @@ const CreateClubScreen = ({ id }: { id: string }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { mutate: createMatch, error } = useCreateMatch();
+  const { session } = useSessionStore();
 
   const { clubId } = useLocalSearchParams();
 
   const onCreate = async () => {
     setIsSubmitting(true);
 
-    // Obtém a sessão ativa
-    const { data: sessionData, error: sessionError } =
-      await supabase.auth.getSession();
-
-    if (sessionError || !sessionData.session) {
-      console.error(
-        "Usuário não autenticado:",
-        sessionError?.message || "Sessão inexistente"
-      );
+    if (!session) {
+      console.error("Usuário não autenticado:");
       setIsSubmitting(false);
       return;
     }
 
-    // Obtém o ID do usuário logado a partir da sessão
-    const userId = sessionData.session.user.id;
-    console.log(userId);
+    const userId = session.user.id;
 
     createMatch(
       {
-        time1: team1Name, // Adiciona o nome do time 1
-        time2: team2Name, // Adiciona o nome do time 2
-        local, // Adiciona o local
-        horario, // Adiciona o horário
-        data: dia, // Adiciona a data
-        userId, // Envia o ID do usuário
+        time1: team1Name,
+        time2: team2Name,
+        local,
+        horario,
+        data: dia,
+        userId,
         clubId,
       },
       {
         onSuccess: async (newMatch) => {
           console.log("Partida criada com sucesso:", newMatch);
-          router.replace(`/(user)/clubs/(listTeams)/(partidas)/${newMatch.id}`); // Redireciona para a página da partida
+          router.replace(`/(user)/clubs/(listTeams)/(partidas)/${newMatch.id}`);
         },
         onError: (err) => {
           console.error("Erro ao criar partida:", err.message);

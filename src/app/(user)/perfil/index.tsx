@@ -17,14 +17,13 @@ import { useProfile, useEditProfile } from "@/api/profiles";
 import { UserProfile } from "@/api/profiles";
 
 export default function Profile() {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedProfile, setEditedProfile] = useState<Partial<UserProfile>>({});
+
   const { session, clearSession } = useSessionStore();
   const userId = session?.user?.id;
 
   const { data: profile, error, isLoading } = useProfile(userId || undefined);
-
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedProfile, setEditedProfile] = useState<Partial<UserProfile>>({});
-
   const editProfileMutation = useEditProfile();
 
   useEffect(() => {
@@ -52,7 +51,6 @@ export default function Profile() {
   };
 
   const handleCancelEdit = () => {
-    // Reseta o estado editedProfile para o valor original do perfil
     if (profile) {
       setEditedProfile(profile);
     }
