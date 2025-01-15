@@ -4,6 +4,8 @@ import { StyleSheet } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import CustomScreen from "@/components/CustomView";
+import { useProfile } from "@/api/profiles";
+import { useSessionStore } from "@/store/useSessionStore";
 
 interface Game {
   id: number;
@@ -13,12 +15,10 @@ interface Game {
 }
 
 export default function Home() {
-  const user = {
-    name: "Joao",
-    gamesPlayed: 24,
-    wins: 15,
-    losses: 9,
-  };
+  const { session } = useSessionStore();
+  const userId = session?.user.id;
+
+  const { data: profile } = useProfile(userId || undefined);
 
   const upcomingGames = [
     { id: 1, date: "2024-03-25", time: "19:00", opponent: "Time A" },
@@ -29,7 +29,7 @@ export default function Home() {
     <CustomScreen>
       <View style={styles.header}>
         <View style={styles.userInfo}>
-          <Text style={styles.userName}>{user.name}</Text>
+          <Text style={styles.userName}>{profile?.name}</Text>
 
           <TouchableOpacity onPress={() => router.navigate("/perfil")}>
             <Ionicons name="settings-outline" size={24} color="#333" />
@@ -43,21 +43,21 @@ export default function Home() {
         <Text style={styles.sectionTitle}>Estatísticas</Text>
         <View style={styles.statsGrid}>
           <View style={styles.statItem}>
-            <Text style={styles.statNumber}>{user.gamesPlayed}</Text>
+            {/* <Text style={styles.statNumber}>{user.gamesPlayed}</Text> */}
             <Text style={styles.statLabel}>Jogos</Text>
           </View>
           <View style={styles.statItem}>
-            <Text style={styles.statNumber}>{user.wins}</Text>
+            {/* <Text style={styles.statNumber}>{user.wins}</Text> */}
             <Text style={styles.statLabel}>Vitórias</Text>
           </View>
           <View style={styles.statItem}>
-            <Text style={styles.statNumber}>{user.losses}</Text>
+            {/* <Text style={styles.statNumber}>{user.losses}</Text> */}
             <Text style={styles.statLabel}>Derrotas</Text>
           </View>
         </View>
       </Pressable>
 
-      <View style={styles.upcomingGames}>
+      {/* <View style={styles.upcomingGames}>
         <Text style={styles.sectionTitle}>Próximos Jogos</Text>
         <Pressable>
           <Text>{upcomingGames[0].id}</Text>
@@ -65,7 +65,7 @@ export default function Home() {
           <Text>{upcomingGames[0].opponent}</Text>
           <Text>{upcomingGames[0].time}</Text>
         </Pressable>
-      </View>
+      </View> */}
     </CustomScreen>
   );
 }

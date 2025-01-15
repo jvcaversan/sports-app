@@ -25,7 +25,7 @@ export default function Stats() {
       </LinearGradient>
 
       <View style={styles.content}>
-        <UserStats userId={1} />
+        <UserStats />
       </View>
     </CustomScreen>
   );
