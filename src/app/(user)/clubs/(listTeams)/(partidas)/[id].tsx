@@ -1,7 +1,7 @@
 import { useLocalSearchParams } from "expo-router";
 import { Text, View, StyleSheet, ScrollView, Image } from "react-native";
 
-import { times } from "@/hooks/hofs";
+// import { times } from "@/hooks/hofs";
 import { useState } from "react";
 
 import CustomScreen from "@/components/CustomView";
@@ -15,10 +15,10 @@ export default function PreMatch() {
   return (
     <CustomScreen>
       <ScrollView>
-        <View style={styles.timeContainer}>
+        {/* <View style={styles.timeContainer}>
           <Text>{times.time2.nome}</Text>
           <Text>{times.time1.nome}</Text>
-        </View>
+        </View> */}
         <View style={styles.campoContainer}>
           <Image
             source={require("@/images/campo.jpg")}
