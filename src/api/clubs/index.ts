@@ -66,8 +66,9 @@ export const useClubsByUserId = (userId?: string) => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("club_members")
-        .select("club_id, clubs(name)")
-        .eq("player_id", userId);
+        .select("club_id, clubs(name), joined_at")
+        .eq("player_id", userId)
+        .order("joined_at", { ascending: false });
 
       if (error) {
         throw new Error(error.message);
@@ -76,6 +77,7 @@ export const useClubsByUserId = (userId?: string) => {
       return data?.map((club) => ({
         id: club.club_id,
         name: club.clubs?.name || "Nome não disponível",
+        joined_at: club.joined_at,
       }));
     },
   });
