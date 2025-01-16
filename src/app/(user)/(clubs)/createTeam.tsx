@@ -10,6 +10,7 @@ import {
 import { router } from "expo-router";
 import { useCreateClub } from "@/api/clubs";
 import { useSessionStore } from "@/store/useSessionStore";
+import { useProfile } from "@/api/profiles";
 
 const CreateClubScreen = () => {
   const [clubName, setClubName] = useState("");
@@ -18,6 +19,9 @@ const CreateClubScreen = () => {
   const { mutate: createClub } = useCreateClub();
 
   const { session } = useSessionStore();
+  const userId = session?.user.id;
+
+  const { data: profile } = useProfile(userId);
 
   const onCreate = async () => {
     setIsSubmitting(true);
@@ -28,14 +32,17 @@ const CreateClubScreen = () => {
       return;
     }
 
-    const userId = session.user.id;
+    if (!userId) {
+      console.error("Usuário não encontrado");
+      return;
+    }
 
     createClub(
-      { name: clubName, userId },
+      { name: clubName, created_by: userId, creator_name: profile?.name },
       {
         onSuccess: async (newClub) => {
           console.log("Clube criado com sucesso:", newClub);
-          router.replace(`/(user)/clubs/(listTeams)/${newClub.id}`);
+          router.replace(`/(user)/(clubs)/(listTeams)/${newClub.id}`);
         },
         onError: (err) => {
           console.error("Erro ao criar clube:", err.message);

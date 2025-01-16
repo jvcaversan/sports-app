@@ -7,26 +7,19 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useStats } from "@/api/stats";
 import { useSessionStore } from "@/store/useSessionStore";
 
-const UserStats = () => {
-  //   const calculateUserStats = (userId: number) => {
-  //     const allMatches = mockData.user.grupos.flatMap((grupo) => grupo.partidas);
-
+export default function UserStats() {
   const { session } = useSessionStore();
   const userId = session?.user.id;
 
   const { data: profile, error, isLoading } = useStats(userId || undefined);
 
   if (isLoading) {
-    console.log("Loading stats...");
-    return <Text>Loading...</Text>; // ou algum outro componente de carregamento
+    return <Text>Loading...</Text>;
   }
 
   if (error) {
-    console.log("Error loading stats:", error);
-    return <Text>Error: {error.message}</Text>; // Exibe a mensagem de erro
+    return <Text>Error: {error.message}</Text>;
   }
-
-  console.log(profile.statistics);
 
   const stats = profile?.statistics?.[0];
 
@@ -97,7 +90,7 @@ const UserStats = () => {
       ))}
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   statsGrid: {
@@ -144,5 +137,3 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 });
-
-export default UserStats;

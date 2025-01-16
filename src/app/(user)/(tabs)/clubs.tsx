@@ -5,9 +5,18 @@ import { Link, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import CustomScreen from "@/components/CustomView";
 import { useClubsByUserId } from "@/api/clubs";
+import { useSessionStore } from "@/store/useSessionStore";
 
 export default function Groups() {
-  const { data: clubs, error, isLoading } = useClubsByUserId();
+  const { session } = useSessionStore();
+
+  const userId = session?.user.id;
+
+  const { data: clubs, error, isLoading } = useClubsByUserId(userId);
+
+  if (!session) {
+    throw new Error("Usuário não está logado!");
+  }
 
   if (isLoading) {
     return (
@@ -27,22 +36,12 @@ export default function Groups() {
     );
   }
 
-  if (!clubs || clubs.length === 0) {
-    return (
-      <CustomScreen>
-        <Text style={styles.message}>
-          Você ainda não faz parte de nenhum grupo.
-        </Text>
-      </CustomScreen>
-    );
-  }
-
   const renderGroupItem = ({
     item,
   }: {
     item: { id: string; name: string };
   }) => (
-    <Link href={`/(user)/clubs/(listTeams)/${item.id}`} asChild>
+    <Link href={`/(user)/(clubs)/(listTeams)/${item.id}`} asChild>
       <TouchableOpacity style={styles.groupCard}>
         <Text style={styles.groupName}>{item.name}</Text>
       </TouchableOpacity>
@@ -56,19 +55,26 @@ export default function Groups() {
           <Text style={styles.title}>Meus Grupos</Text>
           <TouchableOpacity
             style={styles.addButton}
-            onPress={() => router.navigate("/clubs/createTeam")}
+            onPress={() => router.navigate("/(clubs)/createTeam")}
           >
             <Ionicons name="add" size={24} color="#fff" />
           </TouchableOpacity>
         </View>
-
-        <FlatList
-          data={clubs}
-          renderItem={renderGroupItem}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContainer}
-          showsVerticalScrollIndicator={false}
-        />
+        {!clubs || clubs.length === 0 ? (
+          <CustomScreen>
+            <Text style={styles.message}>
+              Você ainda não faz parte de nenhum grupo.
+            </Text>
+          </CustomScreen>
+        ) : (
+          <FlatList
+            data={clubs}
+            renderItem={renderGroupItem}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.listContainer}
+            showsVerticalScrollIndicator={false}
+          />
+        )}
       </View>
     </CustomScreen>
   );

@@ -1,20 +1,19 @@
 import { supabase } from "@/database/supabase";
+import { Club } from "@/types/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useCreateClub = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    async mutationFn(data: any) {
-      if (!data.userId) {
-        throw new Error("ID do usuário é obrigatório para criar o clube.");
-      }
-
+    async mutationFn(data: Omit<Club, "id" | "created_at">) {
       const { error, data: newClub } = await supabase
         .from("clubs")
         .insert({
           name: data.name,
-          created_by: data.userId, // Passa o ID validado
+          photo: data.photo || null,
+          created_by: data.created_by,
+          creator_name: data.creator_name,
         })
         .select()
         .single();
@@ -65,21 +64,18 @@ export const useClubsByUserId = (userId?: string) => {
   return useQuery({
     queryKey: ["clubs", userId],
     queryFn: async () => {
-      const { data: session } = await supabase.auth.getSession();
-      const userId = session?.session?.user.id; // ID do usuário logado
-      if (!userId) {
-        throw new Error("Usuário não autenticado");
-      }
       const { data, error } = await supabase
         .from("club_members")
         .select("club_id, clubs(name)")
         .eq("player_id", userId);
+
       if (error) {
         throw new Error(error.message);
       }
-      return data.map((member) => ({
-        id: member.club_id,
-        name: member.clubs.name,
+
+      return data?.map((club) => ({
+        id: club.club_id,
+        name: club.clubs?.name || "Nome não disponível",
       }));
     },
   });
