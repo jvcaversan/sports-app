@@ -2,6 +2,17 @@ import { supabase } from "@/database/supabase";
 import { Club } from "@/types/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+interface ClubsMember {
+  club_id: string;
+  clubs: { name: string };
+  joined_at: string;
+}
+
+interface Clubs {
+  id: string;
+  name: string;
+}
+
 export const useCreateClub = () => {
   const queryClient = useQueryClient();
 
@@ -63,7 +74,11 @@ export const useClubsById = (id: string) => {
 export const useClubsByUserId = (userId?: string) => {
   return useQuery({
     queryKey: ["clubs", userId],
-    queryFn: async () => {
+    queryFn: async (): Promise<Clubs[]> => {
+      if (!userId) {
+        throw new Error("User ID is required");
+      }
+
       const { data, error } = await supabase
         .from("club_members")
         .select("club_id, clubs(name), joined_at")
@@ -74,11 +89,15 @@ export const useClubsByUserId = (userId?: string) => {
         throw new Error(error.message);
       }
 
-      return data?.map((club) => ({
-        id: club.club_id,
-        name: club.clubs?.name || "Nome não disponível",
-        joined_at: club.joined_at,
-      }));
+      return data.map((item) => {
+        const clubMember = item as unknown as ClubsMember;
+        return {
+          id: clubMember.club_id,
+          name: clubMember.clubs?.name || "Nome não disponível",
+          joined_at: clubMember.joined_at,
+        };
+      });
     },
+    enabled: !!userId,
   });
 };
