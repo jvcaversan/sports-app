@@ -154,6 +154,7 @@ export default function Profile() {
             <TouchableOpacity
               style={[styles.button, styles.saveButton, { marginBottom: 40 }]}
               onPress={handleSave}
+              onPressOut={() => setIsEditing(false)}
             >
               <Text style={styles.saveButtonText}>Salvar</Text>
             </TouchableOpacity>
