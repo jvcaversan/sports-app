@@ -1,19 +1,14 @@
 import { supabase } from "@/database/supabase";
+import { Database } from "@/types/supabase";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-export interface UserProfile {
-  id: string;
-  name: string;
-  phone: string;
-  email: string;
-  photo: string;
-  position: string;
-}
+type Profile = Database["public"]["Tables"]["profiles"]["Row"];
+type ProfileUpdate = Database["public"]["Tables"]["profiles"]["Update"];
 
 export const useProfile = (userId?: string) => {
-  return useQuery<UserProfile, Error>({
+  return useQuery({
     queryKey: ["profiles", userId],
-    queryFn: async () => {
+    queryFn: async (): Promise<Profile> => {
       if (!userId) {
         throw new Error("Usuário não autenticado");
       }
@@ -27,7 +22,7 @@ export const useProfile = (userId?: string) => {
       if (error) {
         throw new Error(error.message);
       }
-      return data as UserProfile;
+      return data;
     },
   });
 };
@@ -36,20 +31,25 @@ export const useEditProfile = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: Partial<UserProfile>) => {
-      const { data: updateUser, error } = await supabase
+    mutationFn: async (data: ProfileUpdate) => {
+      if (!data.id) {
+        throw new Error("ID do perfil é obrigatório");
+      }
+
+      const { data: updatedProfile, error } = await supabase
         .from("profiles")
         .update(data)
         .eq("id", data.id)
+        .select()
         .single();
 
       if (error) {
         throw new Error(error.message);
       }
-      return updateUser;
+      return updatedProfile;
     },
-    onSuccess: (updatedUser, { id }) => {
-      queryClient.setQueryData(["profiles", id], updatedUser);
+    onSuccess: (updatedProfile) => {
+      queryClient.setQueryData(["profiles", updatedProfile.id], updatedProfile);
       queryClient.invalidateQueries({ queryKey: ["profiles"] });
     },
   });

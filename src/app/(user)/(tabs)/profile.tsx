@@ -14,11 +14,14 @@ import { router } from "expo-router";
 import CustomScreen from "@/components/CustomView";
 import { useSessionStore } from "@/store/useSessionStore";
 import { useProfile, useEditProfile } from "@/api/profiles";
-import { UserProfile } from "@/api/profiles";
+import { Database } from "@/types/supabase";
+
+type Profile = Database["public"]["Tables"]["profiles"]["Row"];
+type ProfileUpdate = Database["public"]["Tables"]["profiles"]["Update"];
 
 export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
-  const [editedProfile, setEditedProfile] = useState<Partial<UserProfile>>({});
+  const [editedProfile, setEditedProfile] = useState<Partial<Profile>>({});
 
   const { session, clearSession } = useSessionStore();
   const userId = session?.user?.id;
@@ -42,7 +45,7 @@ export default function Profile() {
       await editProfileMutation.mutateAsync({
         ...editedProfile,
         id: userId,
-      });
+      } as ProfileUpdate);
       setIsEditing(false);
       Alert.alert("Sucesso", "Perfil atualizado com sucesso!");
     } catch (error) {
@@ -142,18 +145,6 @@ export default function Profile() {
               editable={isEditing}
               keyboardType="email-address"
               autoCapitalize="none"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Posição</Text>
-            <TextInput
-              style={[styles.input, !isEditing && styles.inputDisabled]}
-              value={editedProfile?.position || ""}
-              onChangeText={(text) =>
-                setEditedProfile((prev) => ({ ...prev, position: text }))
-              }
-              editable={isEditing}
             />
           </View>
         </View>
