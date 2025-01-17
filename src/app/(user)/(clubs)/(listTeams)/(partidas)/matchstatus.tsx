@@ -6,8 +6,6 @@ import { View } from "react-native";
 export default function MatchStatus() {
   const { id } = useGlobalSearchParams();
 
-  console.log(id);
-
   return (
     <CustomScreen>
       <View

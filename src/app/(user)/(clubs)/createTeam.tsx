@@ -41,7 +41,6 @@ const CreateClubScreen = () => {
       { name: clubName, created_by: userId, creator_name: profile?.name },
       {
         onSuccess: async (newClub) => {
-          console.log("Clube criado com sucesso:", newClub);
           router.replace(`/(user)/(clubs)/(listTeams)/${newClub.id}`);
         },
         onError: (err) => {

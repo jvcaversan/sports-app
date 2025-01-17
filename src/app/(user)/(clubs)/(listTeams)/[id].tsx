@@ -2,8 +2,9 @@ import { useSearchUser } from "@/api/club_invitation";
 import { useClubMembers } from "@/api/club_members";
 import { useClubsById } from "@/api/clubs";
 import { useMatchsByClubId } from "@/api/createMatch";
+import MatchListItem from "@/components/MatchsList";
 import { Ionicons } from "@expo/vector-icons";
-import { Link, router, useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import {
   ActivityIndicator,
@@ -56,7 +57,7 @@ export default function ClubDetails() {
       <View style={styles.membersSection}>
         <FlatList
           data={members}
-          keyExtractor={(item) => item.player_id}
+          keyExtractor={(item) => item.player_id ?? "default_key"}
           renderItem={({ item }) => <MemberCard member={item} />}
           style={styles.memberList}
           contentContainerStyle={styles.listContentContainer}
@@ -76,7 +77,7 @@ export default function ClubDetails() {
       <View style={styles.matchesSection}>
         <FlatList
           data={matchs}
-          renderItem={renderGroupItem}
+          renderItem={({ item }) => <MatchListItem match={item} />}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContentContainer}
           showsVerticalScrollIndicator={false}
@@ -126,34 +127,6 @@ export default function ClubDetails() {
     );
   }
 
-  const renderGroupItem = ({
-    item,
-  }: {
-    item: {
-      id: string;
-      team1: string;
-      team2: string;
-      local: string;
-      horario: string;
-      data: Date;
-      createdby: string;
-    };
-  }) => (
-    <Link href={`/(user)/clubs/(listTeams)/(partidas)/${item.id}`} asChild>
-      <TouchableOpacity style={styles.matchItem}>
-        <Text style={styles.matchId}>{item.id}</Text>
-        <Text style={styles.matchTeams}>
-          {item.team1} vs {item.team2}
-        </Text>
-        <Text style={styles.matchLocation}>{item.local}</Text>
-        <Text style={styles.matchTime}>{item.horario}</Text>
-        <Text style={styles.matchDate}>
-          {new Date(item.data).toLocaleDateString()}
-        </Text>
-      </TouchableOpacity>
-    </Link>
-  );
-
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
@@ -166,7 +139,7 @@ export default function ClubDetails() {
               style={styles.createMatchButton}
               onPress={() => {
                 router.navigate(
-                  `/(user)/clubs/(listTeams)/createMatch?clubId=${clubId}`
+                  `/(user)/(clubs)/(listTeams)/createMatch?clubId=${clubId}`
                 );
               }}
             >
@@ -430,47 +403,7 @@ const styles = StyleSheet.create({
   matchesList: {
     paddingBottom: 20,
   },
-  matchItem: {
-    backgroundColor: "#ffffff",
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 3,
-    elevation: 2,
-    borderWidth: 1,
-    borderColor: "#F1F5F9",
-  },
-  matchId: {
-    fontSize: 12,
-    color: "#666",
-    marginBottom: 4,
-  },
-  matchTeams: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#0B4619",
-    marginBottom: 8,
-    letterSpacing: 0.5,
-  },
-  matchLocation: {
-    fontSize: 14,
-    color: "#16A34A",
-    marginBottom: 4,
-    fontWeight: "600",
-  },
-  matchTime: {
-    fontSize: 14,
-    color: "#0B4619",
-    marginBottom: 4,
-    fontWeight: "500",
-  },
-  matchDate: {
-    fontSize: 12,
-    color: "#666",
-  },
+
   tabView: {
     flex: 1,
   },

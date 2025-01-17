@@ -47,8 +47,9 @@ const CreateClubScreen = ({ id }: { id: string }) => {
       },
       {
         onSuccess: async (newMatch) => {
-          console.log("Partida criada com sucesso:", newMatch);
-          router.replace(`/(user)/clubs/(listTeams)/(partidas)/${newMatch.id}`);
+          router.replace(
+            `/(user)/(clubs)/(listTeams)/(partidas)/${newMatch.id}`
+          );
         },
         onError: (err) => {
           console.error("Erro ao criar partida:", err.message);

@@ -5,9 +5,25 @@ import { Text, View, StyleSheet, ScrollView, Image } from "react-native";
 import { useState } from "react";
 
 import CustomScreen from "@/components/CustomView";
+import { useStaticsByMatchId } from "@/api/createMatch";
 
 export default function PreMatch() {
   const { id } = useLocalSearchParams();
+
+  const matchId = Array.isArray(id) ? id[0] : id;
+
+  if (!matchId) {
+    console.warn("Clube Inexistente");
+    return (
+      <CustomScreen>
+        <Text>Partida não encontrada.</Text>
+      </CustomScreen>
+    );
+  }
+
+  const { data: matchs, error } = useStaticsByMatchId(matchId);
+
+  const match = matchs ? matchs[0] : null;
 
   const [selectedTeam, setSelectedTeam] = useState<"time1" | "time2">("time1");
   const [selectedNumero, setSelectedNumero] = useState<number | undefined>();
@@ -25,6 +41,8 @@ export default function PreMatch() {
             style={styles.campoImage}
           />
         </View>
+
+        <Text>{match?.local}</Text>
       </ScrollView>
     </CustomScreen>
   );

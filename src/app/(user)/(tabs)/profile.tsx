@@ -74,7 +74,6 @@ export default function Profile() {
 
   function handleLogout() {
     clearSession();
-    console.log("Sessão limpa:", useSessionStore.getState().session);
     router.replace("/(auth)/signin");
   }
 

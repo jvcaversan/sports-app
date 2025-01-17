@@ -38,15 +38,10 @@ export const useCreateMatch = () => {
   });
 };
 
-export const useMatchsByClubId = (clubId?: string) => {
+export const useMatchsByClubId = (clubId: string) => {
   return useQuery({
     queryKey: ["matches", clubId],
     queryFn: async () => {
-      const { data: session } = await supabase.auth.getSession();
-      const userId = session?.session?.user.id; // ID do usuário logado
-      if (!userId) {
-        throw new Error("Usuário não autenticado");
-      }
       const { data, error } = await supabase
         .from("matches")
         .select("id, team1, team2, local, horario, data, createdby")
@@ -54,15 +49,23 @@ export const useMatchsByClubId = (clubId?: string) => {
       if (error) {
         throw new Error(error.message);
       }
-      return data.map((matchs) => ({
-        id: matchs.id,
-        team1: matchs.team1,
-        team2: matchs.team2,
-        local: matchs.local,
-        horario: matchs.horario,
-        data: matchs.data,
-        createdby: matchs.createdby,
-      }));
+      return data;
+    },
+  });
+};
+
+export const useStaticsByMatchId = (matchId: string) => {
+  return useQuery({
+    queryKey: ["matches", matchId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("matches")
+        .select("id, team1, team2, local, horario, data, createdby")
+        .eq("id", matchId);
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data;
     },
   });
 };
