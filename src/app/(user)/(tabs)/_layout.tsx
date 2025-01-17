@@ -28,7 +28,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="clubs"
         options={{
-          title: "Grupos",
+          title: "Clubes",
           tabBarIcon: ({ focused, color }) => (
             <Ionicons
               name={focused ? "people" : "people-outline"}

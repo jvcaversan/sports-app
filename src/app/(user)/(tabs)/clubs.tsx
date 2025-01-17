@@ -22,7 +22,7 @@ export default function Groups() {
   if (isLoading) {
     return (
       <CustomScreen>
-        <Text style={styles.message}>Carregando grupos...</Text>
+        <Text style={styles.message}>Carregando clubes...</Text>
       </CustomScreen>
     );
   }
@@ -31,7 +31,7 @@ export default function Groups() {
     return (
       <CustomScreen>
         <Text style={styles.message}>
-          Erro ao carregar grupos: {error?.message || "Erro desconhecido"}
+          Erro ao carregar clubes: {error?.message || "Erro desconhecido"}
         </Text>
       </CustomScreen>
     );
@@ -41,7 +41,7 @@ export default function Groups() {
     <CustomScreen>
       <View style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.title}>Meus Grupos</Text>
+          <Text style={styles.title}>Meus Clubes</Text>
           <TouchableOpacity
             style={styles.addButton}
             onPress={() => router.navigate("/(clubs)/createTeam")}
