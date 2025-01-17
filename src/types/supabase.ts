@@ -60,7 +60,7 @@ export type Database = {
       };
       club_members: {
         Row: {
-          club_id: string | null;
+          club_id: string;
           id: string;
           joined_at: string | null;
           name: string | null;
