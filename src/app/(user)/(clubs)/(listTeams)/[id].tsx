@@ -2,18 +2,13 @@ import { useClubMembersByQuery } from "@/api/club_members";
 import { ClubTabs } from "@/components/ClubsTabs/Tabs";
 import { useClubDetails } from "@/hooks/Clubs/ClubDetails";
 import { Tables } from "@/types/supabase";
-import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import {
-  ActivityIndicator,
-  SafeAreaView,
-  Text,
-  TouchableOpacity,
-  View,
-  StyleSheet,
-  TextInput,
-} from "react-native";
+import { SafeAreaView, View, StyleSheet } from "react-native";
+import { ClubHeader } from "@/components/ClubsTabs/ClubHeader";
+import { SearchInput } from "@/components/ClubsTabs/SearchInput";
+import { LoadingState } from "@/components/Erros/LoadingState";
+import { ErrorState } from "@/components/Erros/ErroState";
 
 export default function ClubDetails() {
   const { id } = useLocalSearchParams();
@@ -30,62 +25,31 @@ export default function ClubDetails() {
 
   const handleSelectUser = (user: Tables<"club_members">) => {
     console.log(
-      `clicado no usuario com id = ${user.player_id}, nome: ${user.name}`
+      `Clicado no usuário com id = ${user.player_id}, nome: ${user.name}`
     );
   };
 
   if (isLoading) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <ActivityIndicator size="large" color="#3498db" />
-        <Text style={styles.loadingText}>Carregando clube...</Text>
-      </SafeAreaView>
-    );
+    return <LoadingState message="Carregando clube..." />;
   }
 
   if (isError) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <Text style={styles.errorText}>Erro ao carregar o clube.</Text>
-      </SafeAreaView>
-    );
+    return <ErrorState message="Erro ao carregar o clube." />;
   }
 
   if (!club) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <Text style={styles.errorText}>Clube não encontrado.</Text>
-      </SafeAreaView>
-    );
+    return <ErrorState message="Clube não encontrado." />;
   }
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        <View style={styles.header}>
-          <View style={styles.headerContent}>
-            <View style={styles.headerLeft}>
-              <Text style={styles.clubName}>{club.name}</Text>
-            </View>
-            <TouchableOpacity
-              style={styles.createMatchButton}
-              onPress={() => {
-                router.navigate(
-                  `/(user)/(clubs)/(listTeams)/createMatch?clubId=${clubId}`
-                );
-              }}
-            >
-              <Ionicons name="add-circle" size={24} color="white" />
-            </TouchableOpacity>
-          </View>
-        </View>
+        <ClubHeader clubName={club.name} clubId={clubId} />
 
         <View style={styles.mainContent}>
-          <TextInput
-            style={styles.searchInput}
+          <SearchInput
             placeholder="Buscar membro..."
-            value={searchQuery}
-            onChangeText={handleSearchChange}
+            onSearchChange={handleSearchChange}
           />
 
           <ClubTabs
@@ -108,142 +72,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
-    backgroundColor: "#0B4619",
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#0a3d15",
-  },
-  headerContent: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  headerLeft: {
-    flex: 1,
-  },
-  clubName: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#ffffff",
-    letterSpacing: 0.3,
-  },
-  createMatchButton: {
-    backgroundColor: "#16A34A",
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 3,
-    elevation: 3,
-  },
   mainContent: {
     flex: 1,
     padding: 12,
-    paddingTop: 8,
-  },
-  searchInput: {
-    height: 40,
-    borderColor: "#ccc",
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingLeft: 10,
-    marginBottom: 15,
-  },
-  searchIcon: {
-    marginRight: 10,
-  },
-
-  noResultsText: {
-    marginTop: 10,
-    fontSize: 14,
-    color: "#666",
-    textAlign: "center",
-  },
-  sectionHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 15,
-    gap: 8,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#2c3e50",
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  membersSection: {
-    flex: 1,
-    paddingTop: 16,
-  },
-  memberList: {
-    flex: 1,
-  },
-
-  noMembersText: {
-    fontSize: 14,
-    color: "#666",
-    fontStyle: "italic",
-    textAlign: "center",
-    padding: 20,
-    backgroundColor: "#f8f9fa",
-    borderRadius: 12,
-    marginTop: 8,
-  },
-  matchesSection: {
-    flex: 1,
-    paddingTop: 16,
-  },
-  matchesList: {
-    paddingBottom: 20,
-  },
-
-  tabView: {
-    flex: 1,
-  },
-  tabBar: {
-    backgroundColor: "#ffffff",
-    elevation: 0,
-    shadowOpacity: 0,
-    borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
-    height: 45,
-    marginBottom: 6,
-  },
-  tabIndicator: {
-    backgroundColor: "#16A34A",
-    height: 2,
-  },
-  tabLabel: {
-    fontSize: 13,
-    fontWeight: "600",
-    textTransform: "none",
-    letterSpacing: 0.3,
-  },
-
-  loadingText: {
-    fontSize: 16,
-    color: "#3498db",
-    textAlign: "center",
-    marginTop: 10,
-  },
-  errorText: {
-    fontSize: 16,
-    color: "#e74c3c",
-    textAlign: "center",
-    marginTop: 10,
-  },
-  listContentContainer: {
-    padding: 16,
     paddingTop: 8,
   },
 });
