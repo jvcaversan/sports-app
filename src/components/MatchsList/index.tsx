@@ -1,25 +1,44 @@
 import { Link } from "expo-router";
-import { Text } from "react-native";
-
+import { Text, TouchableOpacity, StyleSheet, View } from "react-native";
 import { Tables } from "@/types/supabase";
 
-import { TouchableOpacity, StyleSheet } from "react-native";
-
 type MatchListItemProps = {
-  match: Omit<Tables<"matches">, "clubid">;
+  match?: Omit<Tables<"matches">, "clubid">;
 };
 
 export default function MatchListItem({ match }: MatchListItemProps) {
+  if (!match) {
+    return (
+      <View style={styles.matchItem}>
+        <Text style={styles.matchTeams}>Partida não disponível</Text>
+      </View>
+    );
+  }
+
   return (
-    <Link href={`/(user)/(clubs)/(listTeams)/(partidas)/${match.id}`} asChild>
-      <TouchableOpacity style={styles.matchItem}>
+    <Link
+      href={`/(user)/(clubs)/(listTeams)/(partidas)/${match.id || "unknown"}`}
+      asChild
+    >
+      <TouchableOpacity
+        style={styles.matchItem}
+        accessible
+        accessibilityLabel={`Partida entre ${match.team1} e ${match.team2}`}
+        accessibilityRole="button"
+      >
         <Text style={styles.matchId}>{match.id}</Text>
         <Text style={styles.matchTeams}>
-          {match.team1} vs {match.team2}
+          {match.team1 || "Time 1"} vs {match.team2 || "Time 2"}
         </Text>
-        <Text style={styles.matchLocation}>{match.local}</Text>
-        <Text style={styles.matchTime}>{match.horario}</Text>
-        <Text style={styles.matchDate}>{match.data}</Text>
+        <Text style={styles.matchLocation}>
+          {match.local || "Local não definido"}
+        </Text>
+        <Text style={styles.matchTime}>
+          {match.horario || "Horário não definido"}
+        </Text>
+        <Text style={styles.matchDate}>
+          {match.data || "Data não definida"}
+        </Text>
       </TouchableOpacity>
     </Link>
   );

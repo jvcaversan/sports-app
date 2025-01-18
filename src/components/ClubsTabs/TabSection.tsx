@@ -1,21 +1,21 @@
 import { View, StyleSheet } from "react-native";
 import FlatListWrapper from ".";
 
-interface TabRouteProps {
-  data: any[] | undefined;
-  renderItem: ({ item }: { item: any }) => JSX.Element;
-  keyExtractor: (item: any) => string;
+interface TabRouteProps<T> {
+  data: T[] | undefined;
+  renderItem: ({ item }: { item: T }) => JSX.Element;
+  keyExtractor: (item: T) => string;
   emptyMessage: string;
   sectionStyle: object;
 }
 
-export const TabRoute = ({
+export const TabRoute = <T,>({
   data,
   renderItem,
   keyExtractor,
   emptyMessage,
   sectionStyle,
-}: TabRouteProps) => (
+}: TabRouteProps<T>) => (
   <View style={styles.tabContent}>
     <View style={sectionStyle}>
       <FlatListWrapper

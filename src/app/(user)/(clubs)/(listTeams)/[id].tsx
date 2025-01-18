@@ -1,6 +1,5 @@
 import { useClubMembersByQuery } from "@/api/club_members";
-import { TabRoute } from "@/components/ClubsTabs/TabSection";
-import MatchListItem from "@/components/MatchsList";
+import { ClubTabs } from "@/components/ClubsTabs/Tabs";
 import { useClubDetails } from "@/hooks/Clubs/ClubDetails";
 import { Tables } from "@/types/supabase";
 import { Ionicons } from "@expo/vector-icons";
@@ -13,11 +12,8 @@ import {
   TouchableOpacity,
   View,
   StyleSheet,
-  useWindowDimensions,
-  Image,
   TextInput,
 } from "react-native";
-import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 
 export default function ClubDetails() {
   const { id } = useLocalSearchParams();
@@ -28,67 +24,9 @@ export default function ClubDetails() {
   const { data: filteredMembers, isLoading: isMembersLoading } =
     useClubMembersByQuery(clubId, searchQuery);
 
-  const layout = useWindowDimensions();
-  const [index, setIndex] = useState(0);
-  const [routes] = useState([
-    { key: "members", title: "Membros" },
-    { key: "matches", title: "Partidas" },
-  ]);
-
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
   };
-
-  const MembersRoute = () => {
-    if (isMembersLoading) {
-      return (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#3498db" />
-          <Text style={styles.loadingText}>Carregando membros...</Text>
-        </View>
-      );
-    }
-
-    return (
-      <TabRoute
-        data={filteredMembers || members}
-        renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => handleSelectUser(item)}>
-            <MemberCard member={item} />
-          </TouchableOpacity>
-        )}
-        keyExtractor={(item) => item.player_id}
-        emptyMessage="Membros não encontrados"
-        sectionStyle={styles.membersSection}
-      />
-    );
-  };
-
-  const MatchesRoute = () => (
-    <TabRoute
-      data={matchs}
-      renderItem={({ item }) => <MatchListItem match={item} />}
-      keyExtractor={(item) => item.id}
-      emptyMessage="Este clube ainda não possui partidas"
-      sectionStyle={styles.matchesSection}
-    />
-  );
-
-  const renderScene = SceneMap({
-    members: MembersRoute,
-    matches: MatchesRoute,
-  });
-
-  const renderTabBar = (props: any) => (
-    <TabBar
-      {...props}
-      indicatorStyle={styles.tabIndicator}
-      style={styles.tabBar}
-      labelStyle={styles.tabLabel}
-      activeColor="#0B4619"
-      inactiveColor="#64748B"
-    />
-  );
 
   const handleSelectUser = (user: Tables<"club_members">) => {
     console.log(
@@ -150,39 +88,17 @@ export default function ClubDetails() {
             onChangeText={handleSearchChange}
           />
 
-          <TabView
-            navigationState={{ index, routes }}
-            renderScene={renderScene}
-            onIndexChange={setIndex}
-            initialLayout={{ width: layout.width }}
-            renderTabBar={renderTabBar}
-            style={styles.tabView}
+          <ClubTabs
+            members={filteredMembers || members || []}
+            matchs={matchs || []}
+            isMembersLoading={isMembersLoading}
+            handleSelectUser={handleSelectUser}
           />
         </View>
       </View>
     </SafeAreaView>
   );
 }
-
-const MemberCard = ({ member }: { member: any }) => {
-  return (
-    <View style={styles.memberCard}>
-      <View style={styles.memberAvatar}>
-        <Image
-          source={{ uri: member.photo || "https://github.com/jvcaversan.png" }}
-          style={styles.avatarImage}
-          defaultSource={{
-            uri: member.photo || "https://github.com/jvcaversan.png",
-          }}
-        />
-      </View>
-      <View style={styles.memberInfo}>
-        <Text style={styles.memberName}>{member.name}</Text>
-        <Text style={styles.memberRole}>{member.role}</Text>
-      </View>
-    </View>
-  );
-};
 
 const styles = StyleSheet.create({
   safeArea: {
@@ -242,30 +158,7 @@ const styles = StyleSheet.create({
   searchIcon: {
     marginRight: 10,
   },
-  dropdown: {
-    position: "absolute",
-    top: 60,
-    left: 0,
-    right: 0,
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
-    zIndex: 10,
-    maxHeight: 200,
-  },
-  dropdownItem: {
-    padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
-  },
-  dropdownText: {
-    fontSize: 16,
-    color: "#333",
-  },
+
   noResultsText: {
     marginTop: 10,
     fontSize: 14,
@@ -295,50 +188,7 @@ const styles = StyleSheet.create({
   memberList: {
     flex: 1,
   },
-  memberCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#ffffff",
-    padding: 14,
-    borderRadius: 12,
-    marginBottom: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 3,
-    elevation: 2,
-    borderWidth: 1,
-    borderColor: "#F1F5F9",
-  },
-  memberAvatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: "#0B4619",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 14,
-    overflow: "hidden",
-  },
-  avatarImage: {
-    width: "100%",
-    height: "100%",
-    resizeMode: "cover",
-    borderRadius: 25,
-  },
-  memberInfo: {
-    flex: 1,
-  },
-  memberName: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#2c3e50",
-  },
-  memberRole: {
-    fontSize: 14,
-    color: "#666",
-    marginTop: 2,
-  },
+
   noMembersText: {
     fontSize: 14,
     color: "#666",

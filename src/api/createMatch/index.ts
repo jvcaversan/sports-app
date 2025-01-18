@@ -44,7 +44,7 @@ export const useMatchsByClubId = (clubId: string) => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("matches")
-        .select("id, team1, team2, local, horario, data, createdby")
+        .select("*")
         .eq("clubid", clubId);
       if (error) {
         throw new Error(error.message);
