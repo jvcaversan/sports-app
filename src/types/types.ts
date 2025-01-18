@@ -4,5 +4,5 @@ export interface Club {
   name: string;
   photo?: string | null;
   created_by: string;
-  creator_name?: string;
+  creator_name?: string | null;
 }

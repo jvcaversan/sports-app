@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useCreateMatchHandler } from "@/hooks/Matchs/CreateMatch";
 import {
   View,
   Text,
@@ -7,58 +7,22 @@ import {
   ActivityIndicator,
   StyleSheet,
 } from "react-native";
-import { router, useLocalSearchParams } from "expo-router";
-import { useCreateMatch } from "@/api/createMatch";
-import { useSessionStore } from "@/store/useSessionStore";
 
-const CreateClubScreen = ({ id }: { id: string }) => {
-  const [team1Name, setTeam1Name] = useState("");
-  const [team2Name, setTeam2Name] = useState("");
-  const [local, setLocal] = useState("");
-  const [horario, setHorario] = useState("");
-  const [dia, setDia] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const { mutate: createMatch, error } = useCreateMatch();
-  const { session } = useSessionStore();
-
-  const { clubId } = useLocalSearchParams();
-
-  const onCreate = async () => {
-    setIsSubmitting(true);
-
-    if (!session) {
-      console.error("Usuário não autenticado:");
-      setIsSubmitting(false);
-      return;
-    }
-
-    const userId = session.user.id;
-
-    createMatch(
-      {
-        time1: team1Name,
-        time2: team2Name,
-        local,
-        horario,
-        data: dia,
-        userId,
-        clubId,
-      },
-      {
-        onSuccess: async (newMatch) => {
-          router.replace(
-            `/(user)/(clubs)/(listTeams)/(partidas)/${newMatch.id}`
-          );
-        },
-        onError: (err) => {
-          console.error("Erro ao criar partida:", err.message);
-        },
-      }
-    );
-
-    setIsSubmitting(false);
-  };
+const CreateClubScreen = () => {
+  const {
+    team1Name,
+    team2Name,
+    setDia,
+    setHorario,
+    setLocal,
+    setTeam1Name,
+    setTeam2Name,
+    isSubmitting,
+    local,
+    horario,
+    dia,
+    onCreate,
+  } = useCreateMatchHandler();
 
   return (
     <View style={styles.container}>

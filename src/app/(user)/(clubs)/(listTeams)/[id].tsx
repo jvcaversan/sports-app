@@ -1,49 +1,31 @@
-import { useSearchUser } from "@/api/club_invitation";
-import { useClubMembers } from "@/api/club_members";
-import { useClubsById } from "@/api/clubs";
-import { useMatchsByClubId } from "@/api/createMatch";
+import { useClubMembersByQuery } from "@/api/club_members";
+import { TabRoute } from "@/components/ClubsTabs/TabSection";
 import MatchListItem from "@/components/MatchsList";
+import { useClubDetails } from "@/hooks/Clubs/ClubDetails";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ActivityIndicator,
-  Alert,
-  FlatList,
   SafeAreaView,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
   StyleSheet,
   useWindowDimensions,
   Image,
+  TextInput,
 } from "react-native";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 
 export default function ClubDetails() {
-  const [query, setQuery] = useState("");
-
   const { id } = useLocalSearchParams();
   const clubId = Array.isArray(id) ? id[0] : id;
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const { data: club, isLoading, isError } = useClubsById(clubId);
-  const { data: members } = useClubMembers(clubId);
-  const { data: matchs, error } = useMatchsByClubId(clubId);
-
-  const {
-    data: users,
-    isLoading: isSearching,
-    isError: errorSearch,
-  } = useSearchUser(query);
-
-  const handleChange = (text: string) => {
-    setQuery(text.trim());
-  };
-
-  const handleSelectUser = (user: { id: string; name: string }) => {
-    Alert.alert(`Selecionado: ${user.name} (ID: ${user.id})`);
-  };
+  const { club, members, matchs, isLoading, isError } = useClubDetails(clubId);
+  const { data: filteredMembers, isLoading: isMembersLoading } =
+    useClubMembersByQuery(clubId, searchQuery);
 
   const layout = useWindowDimensions();
   const [index, setIndex] = useState(0);
@@ -52,38 +34,43 @@ export default function ClubDetails() {
     { key: "matches", title: "Partidas" },
   ]);
 
-  const MembersRoute = () => (
-    <View style={styles.tabContent}>
-      <View style={styles.membersSection}>
-        <FlatList
-          data={members}
-          keyExtractor={(item) => item.player_id ?? "default_key"}
-          renderItem={({ item }) => <MemberCard member={item} />}
-          style={styles.memberList}
-          contentContainerStyle={styles.listContentContainer}
-          showsVerticalScrollIndicator={false}
-          ListEmptyComponent={() => (
-            <Text style={styles.noMembersText}>
-              Este clube ainda não possui membros.
-            </Text>
-          )}
-        />
-      </View>
-    </View>
-  );
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
+  };
+
+  const MembersRoute = () => {
+    if (isMembersLoading) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#3498db" />
+          <Text style={styles.loadingText}>Carregando membros...</Text>
+        </View>
+      );
+    }
+
+    return (
+      <TabRoute
+        data={filteredMembers || members}
+        renderItem={({ item }) => (
+          <TouchableOpacity onPress={() => handleSelectUser(item)}>
+            <MemberCard member={item} />
+          </TouchableOpacity>
+        )}
+        keyExtractor={(item) => item.player_id}
+        emptyMessage="Membros não encontrados"
+        sectionStyle={styles.membersSection}
+      />
+    );
+  };
 
   const MatchesRoute = () => (
-    <View style={styles.tabContent}>
-      <View style={styles.matchesSection}>
-        <FlatList
-          data={matchs}
-          renderItem={({ item }) => <MatchListItem match={item} />}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContentContainer}
-          showsVerticalScrollIndicator={false}
-        />
-      </View>
-    </View>
+    <TabRoute
+      data={matchs}
+      renderItem={({ item }) => <MatchListItem match={item} />}
+      keyExtractor={(item) => item.id}
+      emptyMessage="Este clube ainda não possui partidas"
+      sectionStyle={styles.matchesSection}
+    />
   );
 
   const renderScene = SceneMap({
@@ -102,11 +89,15 @@ export default function ClubDetails() {
     />
   );
 
+  const handleSelectUser = (user: any) => {
+    router.push(`/user/${user.player_id}`);
+  };
+
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container}>
         <ActivityIndicator size="large" color="#3498db" />
-        <Text style={styles.loadingText}>Carregando...</Text>
+        <Text style={styles.loadingText}>Carregando clube...</Text>
       </SafeAreaView>
     );
   }
@@ -149,44 +140,12 @@ export default function ClubDetails() {
         </View>
 
         <View style={styles.mainContent}>
-          <View style={styles.searchSection}>
-            <View style={styles.searchInputContainer}>
-              <Ionicons
-                name="search"
-                size={20}
-                color="#666"
-                style={styles.searchIcon}
-              />
-              <TextInput
-                value={query}
-                onChangeText={handleChange}
-                placeholder="Buscar por usuário"
-                placeholderTextColor="#666"
-                style={styles.searchInput}
-              />
-            </View>
-            {query !== "" && !isSearching && users && (
-              <View style={styles.dropdown}>
-                <FlatList
-                  data={users}
-                  keyExtractor={(item) => item.id}
-                  renderItem={({ item }) => (
-                    <TouchableOpacity
-                      style={styles.dropdownItem}
-                      onPress={() => handleSelectUser(item)}
-                    >
-                      <Text style={styles.dropdownText}>{item.name}</Text>
-                    </TouchableOpacity>
-                  )}
-                />
-              </View>
-            )}
-            {query.trim() !== "" && !isSearching && users?.length === 0 && (
-              <Text style={styles.noResultsText}>
-                Nenhum usuário encontrado para "{query}"
-              </Text>
-            )}
-          </View>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Buscar membro..."
+            value={searchQuery}
+            onChangeText={handleSearchChange}
+          />
 
           <TabView
             navigationState={{ index, routes }}
@@ -269,30 +228,16 @@ const styles = StyleSheet.create({
     padding: 12,
     paddingTop: 8,
   },
-  searchSection: {
-    marginBottom: 8,
-  },
-  searchInputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#ffffff",
-    borderRadius: 12,
-    padding: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 3,
-    elevation: 2,
+  searchInput: {
+    height: 40,
+    borderColor: "#ccc",
     borderWidth: 1,
-    borderColor: "#F1F5F9",
+    borderRadius: 8,
+    paddingLeft: 10,
+    marginBottom: 15,
   },
   searchIcon: {
     marginRight: 10,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 16,
-    color: "#333",
   },
   dropdown: {
     position: "absolute",
@@ -334,6 +279,11 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     color: "#2c3e50",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   membersSection: {
     flex: 1,
@@ -392,7 +342,7 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     textAlign: "center",
     padding: 20,
-    backgroundColor: "#ffffff",
+    backgroundColor: "#f8f9fa",
     borderRadius: 12,
     marginTop: 8,
   },
@@ -426,10 +376,7 @@ const styles = StyleSheet.create({
     textTransform: "none",
     letterSpacing: 0.3,
   },
-  tabContent: {
-    flex: 1,
-    backgroundColor: "#f8f9fa",
-  },
+
   loadingText: {
     fontSize: 16,
     color: "#3498db",

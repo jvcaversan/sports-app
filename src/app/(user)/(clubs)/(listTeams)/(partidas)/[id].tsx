@@ -1,7 +1,6 @@
 import { useLocalSearchParams } from "expo-router";
 import { Text, View, StyleSheet, ScrollView, Image } from "react-native";
 
-// import { times } from "@/hooks/hofs";
 import { useState } from "react";
 
 import CustomScreen from "@/components/CustomView";

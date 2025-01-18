@@ -24,7 +24,6 @@ export const useCreateClub = () => {
       return newClub;
     },
     onSuccess: () => {
-      // Invalida o cache para "clubs" e força o refetch
       queryClient.invalidateQueries({ queryKey: ["clubs"] });
     },
   });

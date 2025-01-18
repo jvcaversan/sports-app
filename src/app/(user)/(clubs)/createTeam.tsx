@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   View,
   Text,
@@ -7,50 +7,12 @@ import {
   ActivityIndicator,
   StyleSheet,
 } from "react-native";
-import { router } from "expo-router";
-import { useCreateClub } from "@/api/clubs";
-import { useSessionStore } from "@/store/useSessionStore";
-import { useProfile } from "@/api/profiles";
+
+import { useCreateClubHandler } from "@/hooks/Clubs/CreateClub";
 
 const CreateClubScreen = () => {
-  const [clubName, setClubName] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const { mutate: createClub } = useCreateClub();
-
-  const { session } = useSessionStore();
-  const userId = session?.user.id;
-
-  const { data: profile } = useProfile(userId);
-
-  const onCreate = async () => {
-    setIsSubmitting(true);
-
-    if (!session) {
-      console.error("Usuário não autenticado:");
-      setIsSubmitting(false);
-      return;
-    }
-
-    if (!userId) {
-      console.error("Usuário não encontrado");
-      return;
-    }
-
-    createClub(
-      { name: clubName, created_by: userId, creator_name: profile?.name },
-      {
-        onSuccess: async (newClub) => {
-          router.replace(`/(user)/(clubs)/(listTeams)/${newClub.id}`);
-        },
-        onError: (err) => {
-          console.error("Erro ao criar clube:", err.message);
-        },
-      }
-    );
-
-    setIsSubmitting(false);
-  };
+  const { clubName, setClubName, isSubmitting, onCreate } =
+    useCreateClubHandler();
 
   return (
     <View style={styles.container}>
@@ -65,7 +27,7 @@ const CreateClubScreen = () => {
       <TouchableOpacity
         style={[styles.button, isSubmitting && styles.buttonDisabled]}
         onPress={onCreate}
-        disabled={isSubmitting}
+        disabled={isSubmitting || !clubName.trim()}
       >
         {isSubmitting ? (
           <ActivityIndicator color="#fff" />
