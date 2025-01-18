@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { TabView, TabBar } from "react-native-tab-view";
 import {
   StyleSheet,
@@ -7,6 +7,7 @@ import {
   Text,
   useWindowDimensions,
   TouchableOpacity,
+  TextInput,
 } from "react-native";
 import { TabRoute } from "@/components/ClubsTabs/TabSection";
 import MatchListItem from "@/components/MatchsList";
@@ -34,27 +35,47 @@ export const ClubTabs = ({
   ]);
 
   const MembersRoute = () => {
+    const [searchQuery, setSearchQuery] = useState("");
+
+    const handleSearchChange = (query: string) => {
+      setSearchQuery(query);
+    };
+
+    const filteredMembers = members.filter((member) =>
+      member.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     if (isMembersLoading) {
       return (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#3498db" />
+          <ActivityIndicator size="large" color="#6D28D9" />
           <Text style={styles.loadingText}>Carregando membros...</Text>
         </View>
       );
     }
 
     return (
-      <TabRoute<Tables<"club_members">>
-        data={members}
-        renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => handleSelectUser(item)}>
-            <MemberCard member={item} />
-          </TouchableOpacity>
-        )}
-        keyExtractor={(item) => item.player_id}
-        emptyMessage="Membros não encontrados"
-        sectionStyle={styles.membersSection}
-      />
+      <View style={styles.membersContainer}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Buscar membro..."
+          placeholderTextColor="#94A3B8"
+          value={searchQuery}
+          onChangeText={handleSearchChange}
+        />
+
+        <TabRoute<Tables<"club_members">>
+          data={filteredMembers}
+          renderItem={({ item }) => (
+            <TouchableOpacity onPress={() => handleSelectUser(item)}>
+              <MemberCard member={item} />
+            </TouchableOpacity>
+          )}
+          keyExtractor={(item) => item.player_id}
+          emptyMessage="Nenhum membro encontrado"
+          sectionStyle={styles.membersSection}
+        />
+      </View>
     );
   };
 
@@ -63,7 +84,7 @@ export const ClubTabs = ({
       data={matchs}
       renderItem={({ item }) => <MatchListItem match={item} />}
       keyExtractor={(item) => item.id}
-      emptyMessage="Este clube ainda não possui partidas"
+      emptyMessage="Nenhuma partida encontrada"
       sectionStyle={styles.matchesSection}
     />
   );
@@ -85,7 +106,7 @@ export const ClubTabs = ({
       indicatorStyle={styles.tabIndicator}
       style={styles.tabBar}
       labelStyle={styles.tabLabel}
-      activeColor="#0B4619"
+      activeColor="#16A34A"
       inactiveColor="#64748B"
     />
   );
@@ -107,41 +128,67 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "#FFFFFF",
   },
   loadingText: {
-    fontSize: 16,
-    color: "#3498db",
+    fontSize: 14,
+    color: "#16A34A",
     textAlign: "center",
-    marginTop: 10,
+    marginTop: 8,
+    fontFamily: "Inter-SemiBold",
+  },
+  membersContainer: {
+    flex: 1,
+    padding: 8,
+    backgroundColor: "#FFFFFF",
+  },
+  searchInput: {
+    height: 40,
+    borderColor: "#E2E8F0",
+    borderWidth: 1,
+    borderRadius: 20,
+    paddingLeft: 16,
+    marginBottom: 4,
+    backgroundColor: "#F8FAFC",
+    fontSize: 14,
+    color: "#1E293B",
+    fontFamily: "Inter-Regular",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   membersSection: {
     flex: 1,
-    paddingTop: 16,
+    paddingTop: 4,
   },
   matchesSection: {
     flex: 1,
-    paddingTop: 16,
+    paddingTop: 8,
   },
   tabView: {
     flex: 1,
+    backgroundColor: "#FFFFFF",
   },
   tabBar: {
-    backgroundColor: "#ffffff",
+    backgroundColor: "#FFFFFF",
     elevation: 0,
     shadowOpacity: 0,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
-    height: 45,
-    marginBottom: 6,
+    borderBottomColor: "#E2E8F0",
+    height: 40,
+    marginBottom: 4,
   },
   tabIndicator: {
     backgroundColor: "#16A34A",
-    height: 2,
+    height: 3,
   },
   tabLabel: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: "600",
     textTransform: "none",
     letterSpacing: 0.3,
+    fontFamily: "Inter-SemiBold",
   },
 });

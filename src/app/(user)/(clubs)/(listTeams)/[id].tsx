@@ -47,11 +47,6 @@ export default function ClubDetails() {
         <ClubHeader clubName={club.name} clubId={clubId} />
 
         <View style={styles.mainContent}>
-          <SearchInput
-            placeholder="Buscar membro..."
-            onSearchChange={handleSearchChange}
-          />
-
           <ClubTabs
             members={filteredMembers || members || []}
             matchs={matchs || []}
