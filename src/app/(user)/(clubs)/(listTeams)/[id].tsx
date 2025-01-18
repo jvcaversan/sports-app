@@ -2,9 +2,10 @@ import { useClubMembersByQuery } from "@/api/club_members";
 import { TabRoute } from "@/components/ClubsTabs/TabSection";
 import MatchListItem from "@/components/MatchsList";
 import { useClubDetails } from "@/hooks/Clubs/ClubDetails";
+import { Tables } from "@/types/supabase";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   ActivityIndicator,
   SafeAreaView,
@@ -89,8 +90,10 @@ export default function ClubDetails() {
     />
   );
 
-  const handleSelectUser = (user: any) => {
-    router.push(`/user/${user.player_id}`);
+  const handleSelectUser = (user: Tables<"club_members">) => {
+    console.log(
+      `clicado no usuario com id = ${user.player_id}, nome: ${user.name}`
+    );
   };
 
   if (isLoading) {
