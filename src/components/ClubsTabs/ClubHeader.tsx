@@ -5,54 +5,66 @@ import { router } from "expo-router";
 
 interface ClubHeaderProps {
   clubName: string;
-  clubId?: string;
+  clubId: string;
 }
 
 export const ClubHeader = ({ clubName, clubId }: ClubHeaderProps) => {
   return (
     <View style={styles.header}>
-      <View style={styles.headerContent}>
-        <View style={styles.headerLeft}>
-          <Text style={styles.clubName}>{clubName}</Text>
-        </View>
-        <TouchableOpacity
-          style={styles.createMatchButton}
-          onPress={() => {
-            router.navigate(
-              `/(user)/(clubs)/(listTeams)/createMatch?clubId=${clubId}`
-            );
-          }}
-        >
-          <Ionicons name="add-circle" size={24} color="white" />
-        </TouchableOpacity>
+      {/* Botão de Voltar */}
+      <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+      </TouchableOpacity>
+
+      {/* Nome do Clube (Centralizado) */}
+      <View style={styles.headerCenter}>
+        <Text style={styles.clubName} numberOfLines={1}>
+          {clubName}
+        </Text>
       </View>
+
+      {/* Botão de Criar Grupo */}
+      <TouchableOpacity
+        style={styles.createGroupButton}
+        onPress={() => {
+          router.navigate(
+            `/(user)/(clubs)/(listTeams)/createMatch?clubId=${clubId}`
+          );
+        }}
+      >
+        <Ionicons name="add" size={24} color="#FFFFFF" />
+      </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     backgroundColor: "#0B4619",
-    paddingVertical: 8,
+    paddingVertical: 12,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#0a3d15",
+    borderBottomColor: "#0A3D15",
   },
-  headerContent: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+  backButton: {
+    padding: 8,
   },
-  headerLeft: {
+  headerCenter: {
     flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    marginHorizontal: 16,
   },
   clubName: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#ffffff",
+    color: "#FFFFFF",
     letterSpacing: 0.3,
   },
-  createMatchButton: {
+  createGroupButton: {
     backgroundColor: "#16A34A",
     width: 40,
     height: 40,
@@ -61,8 +73,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 3,
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
     elevation: 3,
   },
 });

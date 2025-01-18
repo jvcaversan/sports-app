@@ -1,6 +1,7 @@
 import { Link } from "expo-router";
 import { Text, TouchableOpacity, StyleSheet, View } from "react-native";
 import { Tables } from "@/types/supabase";
+import { Ionicons } from "@expo/vector-icons";
 
 type MatchListItemProps = {
   match?: Omit<Tables<"matches">, "clubid">;
@@ -9,8 +10,8 @@ type MatchListItemProps = {
 export default function MatchListItem({ match }: MatchListItemProps) {
   if (!match) {
     return (
-      <View style={styles.matchItem}>
-        <Text style={styles.matchTeams}>Partida não disponível</Text>
+      <View style={styles.matchItemUnavailable}>
+        <Text style={styles.matchUnavailableText}>Partida não disponível</Text>
       </View>
     );
   }
@@ -26,19 +27,34 @@ export default function MatchListItem({ match }: MatchListItemProps) {
         accessibilityLabel={`Partida entre ${match.team1} e ${match.team2}`}
         accessibilityRole="button"
       >
-        <Text style={styles.matchId}>{match.id}</Text>
-        <Text style={styles.matchTeams}>
-          {match.team1 || "Time 1"} vs {match.team2 || "Time 2"}
-        </Text>
-        <Text style={styles.matchLocation}>
-          {match.local || "Local não definido"}
-        </Text>
-        <Text style={styles.matchTime}>
-          {match.horario || "Horário não definido"}
-        </Text>
-        <Text style={styles.matchDate}>
-          {match.data || "Data não definida"}
-        </Text>
+        <View style={styles.matchHeader}>
+          <Text style={styles.matchTeams}>
+            {match.team1 || "Time 1"} vs {match.team2 || "Time 2"}
+          </Text>
+        </View>
+
+        <View style={styles.matchDetails}>
+          <View style={styles.detailItem}>
+            <Ionicons name="location" size={16} color="#64748B" />
+            <Text style={styles.detailText}>
+              {match.local || "Local não definido"}
+            </Text>
+          </View>
+
+          <View style={styles.detailItem}>
+            <Ionicons name="time" size={16} color="#64748B" />
+            <Text style={styles.detailText}>
+              {match.horario || "Horário não definido"}
+            </Text>
+          </View>
+
+          <View style={styles.detailItem}>
+            <Ionicons name="calendar" size={16} color="#64748B" />
+            <Text style={styles.detailText}>
+              {match.data || "Data não definida"}
+            </Text>
+          </View>
+        </View>
       </TouchableOpacity>
     </Link>
   );
@@ -46,44 +62,57 @@ export default function MatchListItem({ match }: MatchListItemProps) {
 
 const styles = StyleSheet.create({
   matchItem: {
-    backgroundColor: "#ffffff",
+    backgroundColor: "#FFFFFF",
     borderRadius: 12,
-    padding: 14,
-    marginBottom: 8,
+    padding: 16,
+    marginBottom: 12,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 3,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
     borderWidth: 1,
-    borderColor: "#F1F5F9",
+    borderColor: "#E2E8F0",
   },
-  matchId: {
-    fontSize: 12,
-    color: "#666",
-    marginBottom: 4,
+  matchItemUnavailable: {
+    backgroundColor: "#F8FAFC",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+  },
+  matchUnavailableText: {
+    fontSize: 14,
+    color: "#64748B",
+    textAlign: "center",
+    fontStyle: "italic",
+  },
+  matchHeader: {
+    borderBottomWidth: 1,
+    borderBottomColor: "#E2E8F0",
+    paddingBottom: 12,
+    marginBottom: 12,
   },
   matchTeams: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#0B4619",
-    marginBottom: 8,
-    letterSpacing: 0.5,
-  },
-  matchLocation: {
-    fontSize: 14,
-    color: "#16A34A",
-    marginBottom: 4,
+    fontSize: 16,
     fontWeight: "600",
-  },
-  matchTime: {
-    fontSize: 14,
     color: "#0B4619",
-    marginBottom: 4,
-    fontWeight: "500",
+    textAlign: "center",
   },
-  matchDate: {
-    fontSize: 12,
-    color: "#666",
+  matchDetails: {
+    gap: 8,
+  },
+  detailItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  detailText: {
+    fontSize: 14,
+    color: "#475569",
+    fontWeight: "500",
   },
 });
