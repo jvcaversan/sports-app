@@ -27,31 +27,36 @@ export default function MatchListItem({ match }: MatchListItemProps) {
         accessibilityLabel={`Partida entre ${match.team1} e ${match.team2}`}
         accessibilityRole="button"
       >
+        {/* Cabeçalho da Partida */}
         <View style={styles.matchHeader}>
           <Text style={styles.matchTeams}>
             {match.team1 || "Time 1"} vs {match.team2 || "Time 2"}
           </Text>
         </View>
 
+        {/* Detalhes da Partida */}
         <View style={styles.matchDetails}>
           <View style={styles.detailItem}>
             <Ionicons name="location" size={16} color="#64748B" />
+            <Text style={styles.detailLabel}>Local:</Text>
             <Text style={styles.detailText}>
-              {match.local || "Local não definido"}
+              {match.local || "Não definido"}
             </Text>
           </View>
 
           <View style={styles.detailItem}>
             <Ionicons name="time" size={16} color="#64748B" />
+            <Text style={styles.detailLabel}>Horário:</Text>
             <Text style={styles.detailText}>
-              {match.horario || "Horário não definido"}
+              {match.horario || "Não definido"}
             </Text>
           </View>
 
           <View style={styles.detailItem}>
             <Ionicons name="calendar" size={16} color="#64748B" />
+            <Text style={styles.detailLabel}>Data:</Text>
             <Text style={styles.detailText}>
-              {match.data || "Data não definida"}
+              {match.data || "Não definida"}
             </Text>
           </View>
         </View>
@@ -109,6 +114,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
+  },
+  detailLabel: {
+    fontSize: 14,
+    color: "#64748B",
+    fontWeight: "500",
   },
   detailText: {
     fontSize: 14,
