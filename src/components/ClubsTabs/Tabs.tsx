@@ -48,14 +48,14 @@ export const ClubTabs = ({
     if (isMembersLoading) {
       return (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#6D28D9" />
+          <ActivityIndicator size="large" color="#16A34A" />
           <Text style={styles.loadingText}>Carregando membros...</Text>
         </View>
       );
     }
 
     return (
-      <View style={styles.membersContainer}>
+      <View style={[styles.membersContainer, { backgroundColor: "#F8FAFC" }]}>
         <TextInput
           style={styles.searchInput}
           placeholder="Buscar membro..."
@@ -80,13 +80,15 @@ export const ClubTabs = ({
   };
 
   const MatchesRoute = () => (
-    <TabRoute<Tables<"matches">>
-      data={matchs}
-      renderItem={({ item }) => <MatchListItem match={item} />}
-      keyExtractor={(item) => item.id}
-      emptyMessage="Nenhuma partida encontrada"
-      sectionStyle={styles.matchesSection}
-    />
+    <View style={{ flex: 1, backgroundColor: "#F8FAFC" }}>
+      <TabRoute<Tables<"matches">>
+        data={matchs}
+        renderItem={({ item }) => <MatchListItem match={item} />}
+        keyExtractor={(item) => item.id}
+        emptyMessage="Nenhuma partida encontrada"
+        sectionStyle={styles.matchesSection}
+      />
+    </View>
   );
 
   const renderScene = ({ route }: { route: { key: string } }) => {
@@ -118,7 +120,7 @@ export const ClubTabs = ({
       onIndexChange={setIndex}
       initialLayout={{ width: layout.width }}
       renderTabBar={renderTabBar}
-      style={styles.tabView}
+      style={[styles.tabView, { backgroundColor: "#F8FAFC" }]}
     />
   );
 };
@@ -128,7 +130,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F8FAFC",
   },
   loadingText: {
     fontSize: 14,
@@ -140,7 +142,6 @@ const styles = StyleSheet.create({
   membersContainer: {
     flex: 1,
     padding: 8,
-    backgroundColor: "#FFFFFF",
   },
   searchInput: {
     height: 40,
@@ -149,7 +150,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingLeft: 16,
     marginBottom: 4,
-    backgroundColor: "#F8FAFC",
+    backgroundColor: "#FFFFFF",
     fontSize: 14,
     color: "#1E293B",
     fontFamily: "Inter-Regular",
@@ -169,7 +170,6 @@ const styles = StyleSheet.create({
   },
   tabView: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
   },
   tabBar: {
     backgroundColor: "#FFFFFF",

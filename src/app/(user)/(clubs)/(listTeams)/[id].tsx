@@ -2,13 +2,14 @@ import { useClubMembersByQuery } from "@/api/club_members";
 import { ClubTabs } from "@/components/ClubsTabs/Tabs";
 import { useClubDetails } from "@/hooks/Clubs/ClubDetails";
 import { Tables } from "@/types/supabase";
-import { router, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { SafeAreaView, View, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { ClubHeader } from "@/components/ClubsTabs/ClubHeader";
 import { SearchInput } from "@/components/ClubsTabs/SearchInput";
 import { LoadingState } from "@/components/Erros/LoadingState";
 import { ErrorState } from "@/components/Erros/ErroState";
+import CustomScreen from "@/components/CustomView";
 
 export default function ClubDetails() {
   const { id } = useLocalSearchParams();
@@ -42,7 +43,7 @@ export default function ClubDetails() {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <CustomScreen>
       <View style={styles.container}>
         <ClubHeader clubName={club.name} clubId={clubId} />
 
@@ -55,15 +56,11 @@ export default function ClubDetails() {
           />
         </View>
       </View>
-    </SafeAreaView>
+    </CustomScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "#F4F6F8",
-  },
   container: {
     flex: 1,
   },
