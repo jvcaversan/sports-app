@@ -5,6 +5,10 @@ export default function UserScreen() {
     <Stack>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="(clubs)" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="(playerprofilescreen)/[id]"
+        options={{ headerShown: false }}
+      />
     </Stack>
   );
 }

@@ -19,9 +19,7 @@ export default function PlayerProfileScreen() {
 
   const { data: profile } = useProfile(userId);
 
-  const handleInviteToClub = () => {
-    console.log("Convidar jogador para o clube:", profile?.name);
-  };
+  const handleInviteToClub = () => {};
 
   return (
     <CustomScreen>

@@ -1,5 +1,9 @@
-import { Slot } from "expo-router";
+import { Slot, Stack } from "expo-router";
 
 export default function ClubsLayout() {
-  return <Slot />;
+  return (
+    <Stack>
+      <Stack.Screen name="(listTeams)" options={{ headerShown: false }} />
+    </Stack>
+  );
 }

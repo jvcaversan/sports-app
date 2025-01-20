@@ -18,6 +18,7 @@ export default function InviteClubModal({
   onClose,
 }: InviteClubModalProps) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [filteredUsers, setFilteredUsers] = useState<Tables<"profiles">[]>([]);
 
   const { data: users } = useUsers(searchQuery);
 
@@ -26,14 +27,22 @@ export default function InviteClubModal({
   };
 
   const handleProfilePress = (user: Tables<"profiles">) => {
-    router.navigate(`/(clubs)/(playerprofilescreen)/${user.id}`);
+    onClose();
+    router.navigate(`/(playerprofilescreen)/${user.id}`);
   };
 
   useEffect(() => {
     if (visible) {
       setSearchQuery("");
+      setFilteredUsers([]);
     }
   }, [visible]);
+
+  useEffect(() => {
+    if (users) {
+      setFilteredUsers(users);
+    }
+  }, [users]);
 
   return (
     <Modal
@@ -50,7 +59,7 @@ export default function InviteClubModal({
           />
 
           <FlatListWrapper
-            data={users || []}
+            data={filteredUsers}
             renderItem={({ item }) => (
               <TouchableOpacity onPress={() => handleProfilePress(item)}>
                 <ProfileCard user={item} />

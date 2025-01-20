@@ -9,6 +9,11 @@ export default function UserLayout() {
     >
       <Stack.Screen name="[id]" options={{ headerShown: false }} />
       <Stack.Screen name="(partidas)" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="(perfilbyclub)/[id]"
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen name="createMatch" options={{ headerShown: false }} />
     </Stack>
   );
 }
