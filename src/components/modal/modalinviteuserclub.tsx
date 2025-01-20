@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal, View, StyleSheet, TouchableOpacity } from "react-native";
 import { SearchInput } from "../ClubsTabs/SearchInput";
 import { Text } from "react-native";
@@ -23,6 +23,12 @@ export default function InviteClubModal({
     setSearchQuery(query);
   };
 
+  useEffect(() => {
+    if (visible) {
+      setSearchQuery("");
+    }
+  }, [visible]);
+
   return (
     <Modal
       visible={visible}
@@ -38,7 +44,7 @@ export default function InviteClubModal({
           />
 
           <FlatListWrapper
-            data={users}
+            data={users || []}
             renderItem={({ item }) => <ProfileCard user={item} />}
             keyExtractor={(item) => item.id}
             emptyMessage="Nenhum usuário encontrado"
