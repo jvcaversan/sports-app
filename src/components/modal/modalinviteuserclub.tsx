@@ -5,6 +5,8 @@ import { Text } from "react-native";
 import FlatListWrapper from "../ClubsTabs/FlatListComponent";
 import { useUsers } from "@/api/profiles";
 import { ProfileCard } from "../profile/ProfileCard";
+import { Tables } from "@/types/supabase";
+import { router } from "expo-router";
 
 interface InviteClubModalProps {
   visible: boolean;
@@ -21,6 +23,10 @@ export default function InviteClubModal({
 
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
+  };
+
+  const handleProfilePress = (user: Tables<"profiles">) => {
+    router.navigate(`/(clubs)/(playerprofilescreen)/${user.id}`);
   };
 
   useEffect(() => {
@@ -45,7 +51,11 @@ export default function InviteClubModal({
 
           <FlatListWrapper
             data={users || []}
-            renderItem={({ item }) => <ProfileCard user={item} />}
+            renderItem={({ item }) => (
+              <TouchableOpacity onPress={() => handleProfilePress(item)}>
+                <ProfileCard user={item} />
+              </TouchableOpacity>
+            )}
             keyExtractor={(item) => item.id}
             emptyMessage="Nenhum usuário encontrado"
           />
