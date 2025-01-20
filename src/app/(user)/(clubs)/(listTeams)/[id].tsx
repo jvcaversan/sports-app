@@ -1,28 +1,18 @@
-import { useClubMembersByQuery } from "@/api/club_members";
-import { ClubTabs } from "@/components/ClubsTabs/Tabs";
 import { useClubDetails } from "@/hooks/Clubs/ClubDetails";
-import { Tables } from "@/types/supabase";
 import { useLocalSearchParams } from "expo-router";
-import { useState } from "react";
 import { View, StyleSheet } from "react-native";
 import { ClubHeader } from "@/components/ClubsTabs/ClubHeader";
-import { SearchInput } from "@/components/ClubsTabs/SearchInput";
+import { Tables } from "@/types/supabase";
 import { LoadingState } from "@/components/Erros/LoadingState";
 import { ErrorState } from "@/components/Erros/ErroState";
 import CustomScreen from "@/components/CustomView";
+import { ClubTabs } from "@/components/ClubsTabs/Tabs";
 
 export default function ClubDetails() {
   const { id } = useLocalSearchParams();
   const clubId = Array.isArray(id) ? id[0] : id;
-  const [searchQuery, setSearchQuery] = useState("");
 
   const { club, members, matchs, isLoading, isError } = useClubDetails(clubId);
-  const { data: filteredMembers, isLoading: isMembersLoading } =
-    useClubMembersByQuery(clubId, searchQuery);
-
-  const handleSearchChange = (query: string) => {
-    setSearchQuery(query);
-  };
 
   const handleSelectUser = (user: Tables<"club_members">) => {
     console.log(
@@ -49,9 +39,9 @@ export default function ClubDetails() {
 
         <View style={styles.mainContent}>
           <ClubTabs
-            members={filteredMembers || members || []}
+            members={members || []}
             matchs={matchs || []}
-            isMembersLoading={isMembersLoading}
+            isMembersLoading={isLoading}
             handleSelectUser={handleSelectUser}
           />
         </View>

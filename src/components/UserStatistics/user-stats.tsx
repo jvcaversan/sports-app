@@ -1,17 +1,23 @@
-// src/components/UserStats.tsx
-import React from "react";
+import { useCallback } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { Ionicons, Entypo, MaterialCommunityIcons } from "@expo/vector-icons";
 
 import { LinearGradient } from "expo-linear-gradient";
 import { useStats } from "@/api/stats";
 import { useSessionStore } from "@/store/useSessionStore";
+import { useFocusEffect } from "expo-router";
 
 export default function UserStats() {
   const { session } = useSessionStore();
   const userId = session?.user.id;
 
-  const { data: profile, error, isLoading } = useStats(userId || undefined);
+  const { data: profile, error, isLoading, refetch } = useStats(userId);
+
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [refetch])
+  );
 
   if (isLoading) {
     return <Text>Loading...</Text>;

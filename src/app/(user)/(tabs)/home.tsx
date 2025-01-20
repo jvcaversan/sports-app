@@ -31,7 +31,7 @@ export default function Home() {
         <View style={styles.userInfo}>
           <Text style={styles.userName}>{profile?.name}</Text>
 
-          <TouchableOpacity onPress={() => router.navigate("/perfil")}>
+          <TouchableOpacity onPress={() => router.navigate("/profile")}>
             <Ionicons name="settings-outline" size={24} color="#333" />
           </TouchableOpacity>
         </View>

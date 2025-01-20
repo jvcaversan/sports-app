@@ -20,7 +20,8 @@ export const SearchInput = ({
   return (
     <TextInput
       style={styles.searchInput}
-      placeholder={placeholder}
+      placeholder={placeholder || "Buscar..."}
+      placeholderTextColor="#94A3B8"
       value={query}
       onChangeText={handleChange}
     />

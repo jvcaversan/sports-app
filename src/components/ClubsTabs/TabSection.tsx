@@ -1,5 +1,5 @@
 import { View, StyleSheet } from "react-native";
-import FlatListWrapper from ".";
+import FlatListWrapper from "./FlatListComponent";
 
 interface TabRouteProps<T> {
   data: T[] | undefined;

@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 
 interface ClubHeaderProps {
@@ -11,29 +11,37 @@ interface ClubHeaderProps {
 export const ClubHeader = ({ clubName, clubId }: ClubHeaderProps) => {
   return (
     <View style={styles.header}>
-      {/* Botão de Voltar */}
       <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-        <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+        <Ionicons name="arrow-back" size={20} color="#FFFFFF" />
       </TouchableOpacity>
 
-      {/* Nome do Clube (Centralizado) */}
       <View style={styles.headerCenter}>
         <Text style={styles.clubName} numberOfLines={1}>
           {clubName}
         </Text>
       </View>
 
-      {/* Botão de Criar Grupo */}
-      <TouchableOpacity
-        style={styles.createGroupButton}
-        onPress={() => {
-          router.navigate(
-            `/(user)/(clubs)/(listTeams)/createMatch?clubId=${clubId}`
-          );
-        }}
-      >
-        <Ionicons name="add" size={24} color="#FFFFFF" />
-      </TouchableOpacity>
+      <View style={styles.actionButtons}>
+        <TouchableOpacity
+          style={styles.iconButton}
+          onPress={() => {
+            router.navigate(
+              `/(user)/(clubs)/(listTeams)/createMatch?clubId=${clubId}`
+            );
+          }}
+        >
+          <Ionicons name="add" size={20} color="#FFFFFF" />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.iconButton}
+          onPress={() => {
+            console.log("invitar jogador");
+          }}
+        >
+          <MaterialIcons name="person-add" size={20} color="#FFFFFF" />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -44,7 +52,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     backgroundColor: "#0B4619",
-    paddingVertical: 12,
+    paddingVertical: 10,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
     borderBottomColor: "#0A3D15",
@@ -55,22 +63,26 @@ const styles = StyleSheet.create({
   headerCenter: {
     flex: 1,
     alignItems: "center",
-    justifyContent: "center",
-    marginHorizontal: 16,
+    marginHorizontal: 10,
   },
   clubName: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
     color: "#FFFFFF",
     letterSpacing: 0.3,
   },
-  createGroupButton: {
+  actionButtons: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  iconButton: {
     backgroundColor: "#16A34A",
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     justifyContent: "center",
     alignItems: "center",
+    marginLeft: 8,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
