@@ -14,14 +14,9 @@ import { MemberCard } from "./MemberCard";
 interface TabMembersProps {
   members: Tables<"club_members">[];
   isMembersLoading: boolean;
-  handleSelectUser: (user: Tables<"club_members">) => void;
 }
 
-export const TabMembers = ({
-  members,
-  isMembersLoading,
-  handleSelectUser,
-}: TabMembersProps) => {
+export const TabMembers = ({ members, isMembersLoading }: TabMembersProps) => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleSearchChange = (query: string) => {
@@ -33,6 +28,12 @@ export const TabMembers = ({
       member.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [members, searchQuery]);
+
+  const handleSelectUser = (user: Tables<"club_members">) => {
+    console.log(
+      `Clicado no usuário com id = ${user.player_id}, nome: ${user.name}`
+    );
+  };
 
   if (isMembersLoading) {
     return (

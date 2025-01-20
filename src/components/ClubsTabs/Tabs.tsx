@@ -9,14 +9,12 @@ interface ClubTabsProps {
   members: Tables<"club_members">[];
   matchs: Tables<"matches">[];
   isMembersLoading: boolean;
-  handleSelectUser: (user: Tables<"club_members">) => void;
 }
 
 export const ClubTabs = ({
   members = [],
   matchs = [],
   isMembersLoading,
-  handleSelectUser,
 }: ClubTabsProps) => {
   const layout = useWindowDimensions();
   const [index, setIndex] = React.useState(0);
@@ -29,11 +27,7 @@ export const ClubTabs = ({
     switch (route.key) {
       case "members":
         return (
-          <TabMembers
-            members={members}
-            isMembersLoading={isMembersLoading}
-            handleSelectUser={handleSelectUser}
-          />
+          <TabMembers members={members} isMembersLoading={isMembersLoading} />
         );
       case "matches":
         return <TabMatches matchs={matchs} />;

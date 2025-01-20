@@ -42,7 +42,6 @@ export default function ClubDetails() {
             members={members || []}
             matchs={matchs || []}
             isMembersLoading={isLoading}
-            handleSelectUser={handleSelectUser}
           />
         </View>
       </View>
