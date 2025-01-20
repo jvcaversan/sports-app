@@ -24,9 +24,13 @@ export default function Profile() {
   const [editedProfile, setEditedProfile] = useState<Partial<Profile>>({});
 
   const { session, clearSession } = useSessionStore();
-  const userId = session?.user?.id;
 
-  const { data: profile, error, isLoading } = useProfile(userId || undefined);
+  if (!session) {
+    throw new Error("Usuario não conectado");
+  }
+  const userId = session.user.id;
+
+  const { data: profile, error, isLoading } = useProfile(userId);
   const editProfileMutation = useEditProfile();
 
   useEffect(() => {

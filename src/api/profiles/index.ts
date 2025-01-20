@@ -6,7 +6,7 @@ import { useDebounce } from "use-debounce";
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 type ProfileUpdate = Database["public"]["Tables"]["profiles"]["Update"];
 
-export const useProfile = (userId?: string) => {
+export const useProfile = (userId: string) => {
   return useQuery({
     queryKey: ["profiles", userId],
     queryFn: async (): Promise<Profile> => {
