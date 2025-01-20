@@ -1,6 +1,7 @@
 import { supabase } from "@/database/supabase";
 import { Database } from "@/types/supabase";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useDebounce } from "use-debounce";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 type ProfileUpdate = Database["public"]["Tables"]["profiles"]["Update"];
@@ -52,5 +53,23 @@ export const useEditProfile = () => {
       queryClient.setQueryData(["profiles", updatedProfile.id], updatedProfile);
       queryClient.invalidateQueries({ queryKey: ["profiles"] });
     },
+  });
+};
+
+export const useUsers = (searchQuery: string) => {
+  const [debouncedQuery] = useDebounce(searchQuery, 300);
+  return useQuery({
+    queryKey: ["allusers", debouncedQuery],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .or(`name.ilike.%${debouncedQuery}%`);
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data;
+    },
+    enabled: debouncedQuery.length > 2,
   });
 };

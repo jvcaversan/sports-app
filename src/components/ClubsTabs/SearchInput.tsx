@@ -31,10 +31,19 @@ export const SearchInput = ({
 const styles = StyleSheet.create({
   searchInput: {
     height: 40,
-    borderColor: "#ccc",
+    borderColor: "#E2E8F0",
     borderWidth: 1,
-    borderRadius: 8,
-    paddingLeft: 10,
-    marginBottom: 15,
+    borderRadius: 20,
+    paddingLeft: 16,
+    marginBottom: 4,
+    backgroundColor: "#FFFFFF",
+    fontSize: 14,
+    color: "#1E293B",
+    fontFamily: "Inter-Regular",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
 });

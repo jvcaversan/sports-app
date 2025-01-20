@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import InviteClubModal from "../modal/modalinviteuserclub";
 
 interface ClubHeaderProps {
   clubName: string;
@@ -9,6 +10,16 @@ interface ClubHeaderProps {
 }
 
 export const ClubHeader = ({ clubName, clubId }: ClubHeaderProps) => {
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const handleOpenModal = () => {
+    setModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalVisible(false);
+  };
+
   return (
     <View style={styles.header}>
       <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
@@ -33,14 +44,11 @@ export const ClubHeader = ({ clubName, clubId }: ClubHeaderProps) => {
           <Ionicons name="add" size={20} color="#FFFFFF" />
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.iconButton}
-          onPress={() => {
-            console.log("invitar jogador");
-          }}
-        >
+        <TouchableOpacity style={styles.iconButton} onPress={handleOpenModal}>
           <MaterialIcons name="person-add" size={20} color="#FFFFFF" />
         </TouchableOpacity>
+
+        <InviteClubModal visible={modalVisible} onClose={handleCloseModal} />
       </View>
     </View>
   );

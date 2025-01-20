@@ -11,6 +11,7 @@ import { TabRoute } from "@/components/ClubsTabs/TabSection";
 import { Tables } from "@/types/supabase";
 import { MemberCard } from "./MemberCard";
 import { router } from "expo-router";
+import { SearchInput } from "../SearchInput";
 
 interface TabMembersProps {
   members: Tables<"club_members">[];
@@ -50,10 +51,9 @@ export const TabMembers = ({ members, isMembersLoading }: TabMembersProps) => {
 
   return (
     <View style={[styles.membersContainer, { backgroundColor: "#F8FAFC" }]}>
-      <TextInput
-        style={styles.searchInput}
+      <SearchInput
         placeholder="Buscar membro..."
-        onChangeText={handleSearchChange}
+        onSearchChange={handleSearchChange}
       />
 
       <TabRoute<Tables<"club_members">>
@@ -89,23 +89,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 8,
   },
-  searchInput: {
-    height: 40,
-    borderColor: "#E2E8F0",
-    borderWidth: 1,
-    borderRadius: 20,
-    paddingLeft: 16,
-    marginBottom: 4,
-    backgroundColor: "#FFFFFF",
-    fontSize: 14,
-    color: "#1E293B",
-    fontFamily: "Inter-Regular",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
+
   membersSection: {
     flex: 1,
     paddingTop: 4,
