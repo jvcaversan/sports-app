@@ -23,17 +23,17 @@ export const TabMembers = ({ members, isMembersLoading }: TabMembersProps) => {
     setSearchQuery(query);
   };
 
-  const filteredMembers = useMemo(() => {
-    return members.filter((member) =>
-      member.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [members, searchQuery]);
-
   const handleSelectUser = (user: Tables<"club_members">) => {
     console.log(
       `Clicado no usuário com id = ${user.player_id}, nome: ${user.name}`
     );
   };
+
+  const filteredMembers = useMemo(() => {
+    return members.filter((member) =>
+      member.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [members, searchQuery]);
 
   if (isMembersLoading) {
     return (

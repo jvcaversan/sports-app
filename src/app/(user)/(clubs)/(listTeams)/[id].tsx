@@ -14,12 +14,6 @@ export default function ClubDetails() {
 
   const { club, members, matchs, isLoading, isError } = useClubDetails(clubId);
 
-  const handleSelectUser = (user: Tables<"club_members">) => {
-    console.log(
-      `Clicado no usuário com id = ${user.player_id}, nome: ${user.name}`
-    );
-  };
-
   if (isLoading) {
     return <LoadingState message="Carregando clube..." />;
   }
