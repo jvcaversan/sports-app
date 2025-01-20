@@ -10,6 +10,7 @@ import {
 import { TabRoute } from "@/components/ClubsTabs/TabSection";
 import { Tables } from "@/types/supabase";
 import { MemberCard } from "./MemberCard";
+import { router } from "expo-router";
 
 interface TabMembersProps {
   members: Tables<"club_members">[];
@@ -26,6 +27,9 @@ export const TabMembers = ({ members, isMembersLoading }: TabMembersProps) => {
   const handleSelectUser = (user: Tables<"club_members">) => {
     console.log(
       `Clicado no usuário com id = ${user.player_id}, nome: ${user.name}`
+    );
+    router.navigate(
+      `/(user)/(clubs)/(listTeams)/(perfilbyclub)/${user.player_id}`
     );
   };
 
