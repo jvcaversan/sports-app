@@ -2,7 +2,6 @@ import { supabase } from "@/database/supabase";
 import { create } from "zustand";
 import { Session as SupabaseSession } from "@supabase/supabase-js";
 
-// Definindo os tipos de dados
 interface SessionStore {
   session: SupabaseSession | null;
   loading: boolean;
@@ -11,19 +10,18 @@ interface SessionStore {
   initializeSession: () => Promise<void>;
 }
 
-// Criando a store do Zustand
 export const useSessionStore = create<SessionStore>((set) => ({
   session: null,
   loading: true,
   setSession: (session) => set({ session }),
   clearSession: () => {
-    supabase.auth.signOut(); // Encerra a sessão no Supabase
+    supabase.auth.signOut();
     set({ session: null });
   },
   initializeSession: async () => {
     const {
       data: { session },
-    } = await supabase.auth.getSession(); // Obtém a sessão atual
-    set({ session, loading: false }); // Atualiza a sessão e encerra o carregamento
+    } = await supabase.auth.getSession();
+    set({ session, loading: false });
   },
 }));

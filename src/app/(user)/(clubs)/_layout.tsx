@@ -4,6 +4,7 @@ export default function ClubsLayout() {
   return (
     <Stack>
       <Stack.Screen name="(listTeams)" options={{ headerShown: false }} />
+      <Stack.Screen name="createTeam" options={{ headerShown: false }} />
     </Stack>
   );
 }

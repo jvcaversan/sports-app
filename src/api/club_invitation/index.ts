@@ -1,5 +1,5 @@
 import { supabase } from "@/database/supabase";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useCreateInvitation = () => {
   const queryClient = useQueryClient();
@@ -82,6 +82,46 @@ export const useAddMemberToClub = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["club_members"] });
+    },
+  });
+};
+
+export const isUserClubMember = (clubId: string, userId: string) => {
+  return useQuery({
+    queryKey: ["club_members", clubId, userId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("club_members")
+        .select("*")
+        .eq("club_id", clubId)
+        .eq("player_id", userId)
+        .single();
+
+      if (error && error.code !== "PGRST116") {
+        throw new Error(error.message);
+      }
+      return !!data;
+    },
+  });
+};
+
+export const hasPendingInvitation = (clubId: string, userId: string) => {
+  return useQuery({
+    queryKey: ["club_invitations", clubId, userId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("club_invitations")
+        .select("*")
+        .eq("club_id", clubId)
+        .eq("user_id", userId)
+        .eq("status", "pending")
+        .single();
+
+      if (error && error.code !== "PGRST116") {
+        throw new Error(error.message);
+      }
+
+      return !!data;
     },
   });
 };

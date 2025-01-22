@@ -40,3 +40,21 @@ export const useClubMembersByQuery = (clubId: string, searchQuery: string) => {
     retry: false,
   });
 };
+
+export const useClubsByUserAdminId = (adminId: string) => {
+  return useQuery({
+    queryKey: ["clubs", adminId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("club_members")
+        .select("*, clubs(name)")
+        .eq("player_id", adminId)
+        .eq("role", "admin");
+
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data;
+    },
+  });
+};

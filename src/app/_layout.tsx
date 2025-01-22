@@ -1,7 +1,6 @@
 import React from "react";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Platform } from "react-native";
 import QueryProvider from "@/providers/QueryProvider";
 
 export default function RootLayout() {
@@ -13,15 +12,12 @@ export default function RootLayout() {
           screenOptions={{
             headerShown: false,
           }}
-        />
+        >
+          <Stack.Screen name="(auth)" />
+          <Stack.Screen name="(user)" />
+          <Stack.Screen name="index" />
+        </Stack>
       </QueryProvider>
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  listContainer: {
-    flexGrow: 1,
-    paddingBottom: Platform.OS === "ios" ? 34 : 16,
-  },
-});
