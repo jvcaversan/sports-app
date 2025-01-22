@@ -9,7 +9,7 @@ import {
 import React from "react";
 import { router, useLocalSearchParams } from "expo-router";
 import CustomScreen from "@/components/CustomView";
-import { Ionicons } from "@expo/vector-icons"; // Para o ícone de voltar
+import { Ionicons } from "@expo/vector-icons";
 import { useProfile } from "@/api/profiles";
 
 export default function PlayerProfileScreen() {
@@ -44,30 +44,10 @@ export default function PlayerProfileScreen() {
           <Text style={styles.playerName}>{profile?.name}</Text>
         </View>
 
-        {/* Estatísticas do jogador */}
         <View style={styles.statsSection}>
           <Text style={styles.sectionTitle}>Estatísticas</Text>
-          {/* <View style={styles.statsGrid}>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{player.stats.wins}</Text>
-              <Text style={styles.statLabel}>Vitórias</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{player.stats.losses}</Text>
-              <Text style={styles.statLabel}>Derrotas</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{player.stats.goals}</Text>
-              <Text style={styles.statLabel}>Gols</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>{player.stats.assists}</Text>
-              <Text style={styles.statLabel}>Assistências</Text>
-            </View>
-          </View> */}
         </View>
 
-        {/* Botão para convidar o jogador para o clube */}
         <TouchableOpacity
           style={styles.inviteButton}
           onPress={handleInviteToClub}
@@ -79,7 +59,6 @@ export default function PlayerProfileScreen() {
   );
 }
 
-// Estilos
 const styles = StyleSheet.create({
   header: {
     flexDirection: "row",

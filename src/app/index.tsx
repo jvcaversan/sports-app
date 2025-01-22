@@ -1,15 +1,23 @@
 import { useEffect } from "react";
-import { Redirect } from "expo-router";
 import { useSessionStore } from "@/store/useSessionStore";
+import { router } from "expo-router";
 
 export default function Index() {
   const { session, loading, initializeSession } = useSessionStore();
 
   useEffect(() => {
-    initializeSession(); // Inicializa a sessão ao carregar o app
+    initializeSession();
   }, [initializeSession]);
 
-  if (loading) return null; // Exibe um carregamento enquanto a sessão é verificada
+  useEffect(() => {
+    if (!loading) {
+      if (session) {
+        router.replace("/(user)/home");
+      } else {
+        router.replace("/(auth)/signin");
+      }
+    }
+  }, [loading, session]);
 
-  return <Redirect href={session ? "/(user)/home" : "/(auth)/signin"} />;
+  return null;
 }

@@ -1,11 +1,15 @@
 import React, { useState } from "react";
-import { Alert, StyleSheet, View, Text, TouchableOpacity } from "react-native";
-
-import { Input } from "@rneui/themed";
+import {
+  Alert,
+  StyleSheet,
+  View,
+  TextInput,
+  Text,
+  TouchableOpacity,
+} from "react-native";
 import { supabase } from "@/database/supabase";
 import { router } from "expo-router";
-import { AntDesign, MaterialIcons } from "@expo/vector-icons";
-import { Button } from "@/components/Button";
+import { MaterialIcons, AntDesign } from "@expo/vector-icons";
 import { useSessionStore } from "@/store/useSessionStore";
 
 export default function SignIn() {
@@ -30,12 +34,10 @@ export default function SignIn() {
       return;
     }
 
-    // Atualizando o estado da sessão
-    setSession(data?.session); // Supondo que você tenha uma store de Zustand ou contexto
+    setSession(data?.session);
 
-    // Redireciona para a home após o login bem-sucedido
     if (data?.session) {
-      router.replace("/(user)/home"); // Isso vai navegar diretamente para a página de home
+      router.replace("/(user)/home");
     }
 
     setLoading(false);
@@ -43,49 +45,60 @@ export default function SignIn() {
 
   return (
     <View style={styles.container}>
-      <View>
-        <Input
-          label="Email"
-          leftIcon={{ type: "material-icons", name: "email" }}
-          onChangeText={(text) => setEmail(text)}
+      <Text style={styles.title}>Bem-vindo de Volta!</Text>
+      <Text style={styles.subtitle}>Faça login para continuar</Text>
+
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Email</Text>
+        <TextInput
+          style={styles.textInput}
+          onChangeText={setEmail}
           value={email}
           placeholder="email@exemplo.com"
-          autoCapitalize={"none"}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          placeholderTextColor="#A3A3A3"
         />
       </View>
-      <View>
-        <Input
-          label="Senha"
-          leftIcon={{ type: "material-icons", name: "lock" }}
-          rightIcon={
+
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Senha</Text>
+        <View style={styles.passwordContainer}>
+          <TextInput
+            style={[styles.textInput, styles.passwordInput]}
+            onChangeText={setPassword}
+            value={password}
+            secureTextEntry={!showPassword}
+            placeholder="Digite sua senha"
+            autoCapitalize="none"
+            placeholderTextColor="#A3A3A3"
+          />
+          <TouchableOpacity
+            style={styles.visibilityButton}
+            onPress={() => setShowPassword(!showPassword)}
+          >
             <MaterialIcons
-              name={showPassword ? "visibility" : "visibility-off"}
-              onPress={() => setShowPassword(!showPassword)}
+              name={showPassword ? "visibility-off" : "visibility"}
               size={24}
+              color="#A3A3A3"
             />
-          }
-          onChangeText={(text) => setPassword(text)}
-          value={password}
-          secureTextEntry={!showPassword}
-          placeholder="Senha"
-          autoCapitalize={"none"}
-        />
+          </TouchableOpacity>
+        </View>
       </View>
-      <View>
-        <Button
-          title="Entrar"
-          variant="primary"
-          disabled={loading}
-          isLoading={loading}
-          onPress={() => signInWithEmail()}
-        />
-      </View>
+
+      <TouchableOpacity
+        style={[styles.button, loading && styles.buttonDisabled]}
+        disabled={loading}
+        onPress={signInWithEmail}
+      >
+        <Text style={styles.buttonText}>Entrar</Text>
+      </TouchableOpacity>
 
       <View style={styles.socialButtonsContainer}>
         <TouchableOpacity
           style={styles.socialButton}
           onPress={() => {
-            const { session } = useSessionStore.getState(); // Obtém o estado da sessão
+            const { session } = useSessionStore.getState();
             if (session) {
               router.navigate("/(user)/home");
             } else {
@@ -93,13 +106,13 @@ export default function SignIn() {
             }
           }}
         >
-          <AntDesign name="google" size={49} color="#DB4437" />
+          <AntDesign name="google" size={24} color="#DB4437" />
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.socialButton}
           onPress={() => {
-            const { session } = useSessionStore.getState(); // Obtém o estado da sessão
+            const { session } = useSessionStore.getState();
             if (session) {
               router.navigate("/(user)/home");
             } else {
@@ -107,7 +120,7 @@ export default function SignIn() {
             }
           }}
         >
-          <MaterialIcons name="facebook" size={52} color="#4267B2" />
+          <MaterialIcons name="facebook" size={24} color="#4267B2" />
         </TouchableOpacity>
       </View>
 
@@ -124,41 +137,66 @@ export default function SignIn() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
     padding: 20,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: "#FFFFFF",
+    justifyContent: "center",
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#2E7D32",
+    textAlign: "center",
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: "#757575",
+    textAlign: "center",
+    marginBottom: 20,
   },
   inputContainer: {
     marginBottom: 20,
-    borderRadius: 10,
-    backgroundColor: "#FFFFFF",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 5,
-    padding: 15,
   },
-  button: {
-    borderRadius: 24,
-    marginVertical: 15,
-    paddingVertical: 12,
+  label: {
+    fontSize: 16,
+    color: "#2E7D32",
+    marginBottom: 8,
   },
-  footerContainer: {
-    marginTop: 30,
+  textInput: {
+    height: 50,
+    borderWidth: 1,
+    borderColor: "#A3A3A3",
+    borderRadius: 8,
+    paddingHorizontal: 15,
+    fontSize: 16,
+    color: "#333",
+    backgroundColor: "#F9F9F9",
+  },
+  passwordContainer: {
     flexDirection: "row",
-    justifyContent: "center",
     alignItems: "center",
   },
-  footerText: {
-    color: "#666",
-    marginRight: 5,
+  passwordInput: {
+    flex: 1,
   },
-  linkText: {
-    color: "#007BFF",
+  visibilityButton: {
+    position: "absolute",
+    right: 15,
+    padding: 10,
+  },
+  button: {
+    backgroundColor: "#2E7D32",
+    paddingVertical: 15,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  buttonDisabled: {
+    backgroundColor: "#81C784",
+  },
+  buttonText: {
+    color: "#FFF",
+    fontSize: 18,
     fontWeight: "bold",
   },
   socialButtonsContainer: {
@@ -173,6 +211,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginHorizontal: 10,
+    backgroundColor: "#FFFFFF",
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -181,5 +220,20 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 5,
+  },
+  footerContainer: {
+    marginTop: 20,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  footerText: {
+    color: "#757575",
+    fontSize: 16,
+  },
+  linkText: {
+    color: "#2E7D32",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });
