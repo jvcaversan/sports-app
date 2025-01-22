@@ -8,7 +8,7 @@ export const useClubMembers = (clubId: string) => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("club_members")
-        .select("*")
+        .select("*, profiles(name)")
         .eq("club_id", clubId);
       if (error) {
         throw new Error(error.message);

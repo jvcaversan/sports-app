@@ -4,7 +4,6 @@ import {
   ActivityIndicator,
   Text,
   TouchableOpacity,
-  TextInput,
   StyleSheet,
 } from "react-native";
 import { TabRoute } from "@/components/ClubsTabs/TabSection";
@@ -27,7 +26,7 @@ export const TabMembers = ({ members, isMembersLoading }: TabMembersProps) => {
 
   const handleSelectUser = (user: Tables<"club_members">) => {
     console.log(
-      `Clicado no usuário com id = ${user.player_id}, nome: ${user.name}`
+      `Clicado no usuário com id = ${user.player_id}, nome: ${user.profiles.name}`
     );
     router.navigate(
       `/(user)/(clubs)/(listTeams)/(perfilbyclub)/${user.player_id}`
@@ -36,7 +35,7 @@ export const TabMembers = ({ members, isMembersLoading }: TabMembersProps) => {
 
   const filteredMembers = useMemo(() => {
     return members.filter((member) =>
-      member.name.toLowerCase().includes(searchQuery.toLowerCase())
+      member.profiles.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [members, searchQuery]);
 

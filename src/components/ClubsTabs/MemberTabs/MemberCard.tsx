@@ -14,7 +14,7 @@ export const MemberCard = ({ member }: { member: Tables<"club_members"> }) => {
         />
       </View>
       <View style={styles.memberInfo}>
-        <Text style={styles.memberName}>{member.name}</Text>
+        <Text style={styles.memberName}>{member.profiles.name}</Text>
         <Text style={styles.memberRole}>{member.role}</Text>
       </View>
     </View>
