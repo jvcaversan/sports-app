@@ -1,8 +1,10 @@
-import React, { useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import InviteClubModal from "../modal/modalinviteuserclub";
+import { useSessionStore } from "@/store/useSessionStore";
+import { useIsClubAdmin } from "@/api/club_members";
 
 interface ClubHeaderProps {
   clubName: string;
@@ -11,14 +13,20 @@ interface ClubHeaderProps {
 
 export const ClubHeader = ({ clubName, clubId }: ClubHeaderProps) => {
   const [modalVisible, setModalVisible] = useState(false);
+  const { session } = useSessionStore();
+  const userId = session?.user.id;
 
-  const handleOpenModal = () => {
+  const {
+    data: isAdmin,
+    isLoading,
+    error,
+  } = useIsClubAdmin(clubId, userId || "");
+
+  const handleAddUserPress = () => {
     setModalVisible(true);
   };
 
-  const handleCloseModal = () => {
-    setModalVisible(false);
-  };
+  if (isLoading) return null;
 
   return (
     <View style={styles.header}>
@@ -32,24 +40,33 @@ export const ClubHeader = ({ clubName, clubId }: ClubHeaderProps) => {
         </Text>
       </View>
 
-      <View style={styles.actionButtons}>
-        <TouchableOpacity
-          style={styles.iconButton}
-          onPress={() => {
-            router.navigate(
-              `/(user)/(clubs)/(listTeams)/createMatch?clubId=${clubId}`
-            );
-          }}
-        >
-          <Ionicons name="add" size={20} color="#FFFFFF" />
-        </TouchableOpacity>
+      {isAdmin && (
+        <View style={styles.actionButtons}>
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() => {
+              router.navigate(
+                `/(user)/(clubs)/(listTeams)/createMatch?clubId=${clubId}`
+              );
+            }}
+          >
+            <Ionicons name="add" size={20} color="#FFFFFF" />
+          </TouchableOpacity>
 
-        <TouchableOpacity style={styles.iconButton} onPress={handleOpenModal}>
-          <MaterialIcons name="person-add" size={20} color="#FFFFFF" />
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={handleAddUserPress}
+          >
+            <MaterialIcons name="person-add" size={20} color="#FFFFFF" />
+          </TouchableOpacity>
 
-        <InviteClubModal visible={modalVisible} onClose={handleCloseModal} />
-      </View>
+          <InviteClubModal
+            visible={modalVisible}
+            onClose={() => setModalVisible(false)}
+            clubId={clubId}
+          />
+        </View>
+      )}
     </View>
   );
 };

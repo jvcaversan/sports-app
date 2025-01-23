@@ -100,7 +100,8 @@ export const InvitationsByUserLogged = (userId: string) => {
           club_id:clubs!club_id (name, photo, id)            
         `
         )
-        .eq("user_id", userId);
+        .eq("user_id", userId)
+        .eq("status", "pending");
 
       if (error) {
         throw new Error(error.message);
@@ -117,30 +118,27 @@ export const acceptClubInvitation = () => {
     async mutationFn(data: {
       invitation_id: string;
       club_id: string;
-      user_id: string;
+      player_id: string;
     }) {
-      const { data: updatedInvitation, error: updateError } = await supabase
-        .from("club_invitations")
-        .update({ status: "accepted" })
-        .eq("id", data.invitation_id);
+      const { data: result, error } = await supabase.rpc(
+        "handle_accept_invitation",
+        {
+          p_invitation_id: data.invitation_id,
+          p_club_id: data.club_id,
+          p_user_id: data.player_id,
+        }
+      );
 
-      if (updateError) {
-        throw new Error(updateError.message);
-      }
-
-      const { data: membership, error: insertError } = await supabase
-        .from("club_members")
-        .insert({ club_id: data.club_id, user_id: data.user_id });
-
-      if (insertError) {
-        throw new Error(insertError.message);
-      }
-
-      return { updatedInvitation, membership };
+      if (error) throw new Error(error.message);
+      return result;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["club_invitations"] });
-      queryClient.invalidateQueries({ queryKey: ["club_members"] });
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["club_invitations", variables.player_id],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["club_members", variables.club_id],
+      });
     },
   });
 };

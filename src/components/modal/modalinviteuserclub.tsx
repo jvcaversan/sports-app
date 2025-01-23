@@ -11,6 +11,7 @@ import { router } from "expo-router";
 interface InviteClubModalProps {
   visible: boolean;
   onClose: () => void;
+  clubId: string;
 }
 
 export default function InviteClubModal({

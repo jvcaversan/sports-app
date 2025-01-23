@@ -58,3 +58,20 @@ export const useClubsByUserAdminId = (adminId: string) => {
     },
   });
 };
+
+export const useIsClubAdmin = (clubId: string, userId: string) => {
+  return useQuery({
+    queryKey: ["club_admin", clubId, userId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("club_members")
+        .select("role")
+        .eq("club_id", clubId)
+        .eq("player_id", userId)
+        .single();
+
+      return data?.role === "admin";
+    },
+    enabled: !!userId,
+  });
+};

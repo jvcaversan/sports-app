@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Alert } from "react-native";
 // Importando o componente de item
 import { useSessionStore } from "@/store/useSessionStore";
 import {
+  acceptClubInvitation,
   InvitationsByUserLogged,
   rejectClubInvitation,
 } from "@/api/club_invitation";
@@ -26,12 +27,35 @@ export default function InvitationsScreen() {
   } = InvitationsByUserLogged(userId);
 
   const { mutate: rejectInvite } = rejectClubInvitation();
+  const { mutate: acceptInvite } = acceptClubInvitation();
 
   if (isLoading) {
     <LoadingState color="green" message="Aguarde" />;
   }
 
-  const handleAcceptInvitation = async (inviteId: string, clubId: string) => {};
+  const handleAcceptInvitation = async (inviteId: string, clubId: string) => {
+    if (!session?.user.id) return;
+
+    acceptInvite(
+      {
+        invitation_id: inviteId,
+        club_id: clubId,
+        player_id: session.user.id,
+      },
+      {
+        onSuccess: () => {
+          Alert.alert("Sucesso", "Você entrou no clube com sucesso!");
+        },
+        onError: (error) => {
+          console.log(error);
+          Alert.alert(
+            "Erro",
+            error.message || "Não foi possível aceitar o convite."
+          );
+        },
+      }
+    );
+  };
 
   const handleRejectInvitation = (inviteId: string) => {
     rejectInvite(inviteId, {

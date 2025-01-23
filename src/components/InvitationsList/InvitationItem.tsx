@@ -6,7 +6,7 @@ type InvitationItemProps = {
   invite: {
     id: string;
     created_at: string;
-    club_id: { id: string; name: string; photo: string | null }; // Tipagem esperada
+    club_id: { id: string; name: string; photo: string | null };
     invited_by: { name: string };
     status: string;
     user_id: string;
@@ -21,39 +21,48 @@ const InvitationItem = ({
   onReject,
 }: InvitationItemProps) => {
   return (
-    <View style={styles.invitationItem}>
-      {/* Informações do Clube e Quem Convidou */}
-      <View style={styles.clubInfo}>
+    <View style={styles.container}>
+      <View style={styles.header}>
         <Image
           source={{
-            uri: invite.club_id.photo || "https://via.placeholder.com/50", // Foto do clube
+            uri: invite.club_id.photo || "https://via.placeholder.com/50",
           }}
           style={styles.clubImage}
         />
-        <View style={styles.clubText}>
-          <Text style={styles.clubName}>{invite.club_id.name}</Text>
-          <Text style={styles.invitedBy}>
-            Convidado por: {invite.invited_by.name}
+        <Text style={styles.clubName}>{invite.club_id.name}</Text>
+      </View>
+
+      <View style={styles.body}>
+        <View style={styles.detailItem}>
+          <Ionicons name="person-outline" size={18} color="#4A5568" />
+          <Text style={styles.detailText}>{invite.invited_by.name}</Text>
+        </View>
+
+        <View style={styles.detailItem}>
+          <Ionicons name="calendar-outline" size={18} color="#4A5568" />
+          <Text style={styles.detailText}>
+            {new Date(invite.created_at).toLocaleDateString()}
           </Text>
         </View>
       </View>
 
-      {/* Botões de Ação */}
-      <View style={styles.buttonsContainer}>
+      <View style={styles.actions}>
         <TouchableOpacity
           style={[styles.button, styles.acceptButton]}
-          onPress={() => onAccept(invite.id, invite.club_id.id)} // Passando o ID do clube
+          onPress={() => onAccept(invite.id, invite.club_id.id)}
         >
-          <Ionicons name="checkmark" size={20} color="#FFF" />
-          <Text style={styles.buttonText}>Aceitar</Text>
+          <Ionicons name="checkmark-circle" size={20} color="#16A34A" />
+          <Text style={[styles.buttonText, styles.acceptText]}>
+            Aceitar Convite
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={[styles.button, styles.rejectButton]}
           onPress={() => onReject(invite.id)}
         >
-          <Ionicons name="close" size={20} color="#FFF" />
-          <Text style={styles.buttonText}>Rejeitar</Text>
+          <Ionicons name="close-circle" size={20} color="#DC2626" />
+          <Text style={[styles.buttonText, styles.rejectText]}>Recusar</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -61,64 +70,82 @@ const InvitationItem = ({
 };
 
 const styles = StyleSheet.create({
-  invitationItem: {
+  container: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 12,
+    borderRadius: 16,
     marginBottom: 16,
     padding: 16,
     shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
     shadowOffset: { width: 0, height: 4 },
-    elevation: 2,
+    elevation: 3,
   },
-  clubInfo: {
+  header: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: 16,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F1F5F9",
   },
   clubImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 48,
+    height: 48,
+    borderRadius: 12,
     marginRight: 12,
-  },
-  clubText: {
-    flex: 1,
+    backgroundColor: "#F8FAFC",
   },
   clubName: {
     fontSize: 18,
-    fontWeight: "bold",
-    color: "#333",
+    fontWeight: "600",
+    color: "#1A202C",
+    flexShrink: 1,
   },
-  invitedBy: {
+  body: {
+    marginBottom: 16,
+  },
+  detailItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  detailText: {
     fontSize: 14,
-    color: "#666",
+    color: "#4A5568",
+    marginLeft: 8,
   },
-  buttonsContainer: {
+  actions: {
     flexDirection: "row",
     justifyContent: "space-between",
+    gap: 12,
   },
   button: {
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 8,
     flex: 1,
-    alignItems: "center",
     flexDirection: "row",
+    alignItems: "center",
     justifyContent: "center",
+    paddingVertical: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    backgroundColor: "#FFFFFF",
   },
   acceptButton: {
-    backgroundColor: "#16A34A",
-    marginRight: 8,
+    borderColor: "#16A34A",
   },
   rejectButton: {
-    backgroundColor: "#DC2626",
+    borderColor: "#FECACA",
   },
   buttonText: {
-    color: "#FFFFFF",
-    fontWeight: "bold",
+    fontSize: 14,
+    fontWeight: "600",
     marginLeft: 8,
+  },
+  acceptText: {
+    color: "#16A34A",
+  },
+  rejectText: {
+    color: "#DC2626",
   },
 });
 

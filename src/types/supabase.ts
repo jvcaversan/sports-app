@@ -269,7 +269,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      handle_accept_invitation: {
+        Args: {
+          p_invitation_id: string
+          p_club_id: string
+          p_user_id: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
