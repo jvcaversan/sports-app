@@ -2,11 +2,13 @@ import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, Alert } from "react-native";
 // Importando o componente de item
 import { useSessionStore } from "@/store/useSessionStore";
-import { InvitationsByUserLogged } from "@/api/club_invitation"; // API para buscar os convites
+import {
+  InvitationsByUserLogged,
+  rejectClubInvitation,
+} from "@/api/club_invitation";
 import FlatListWrapper from "@/components/ClubsTabs/FlatListComponent";
 import InvitationItem from "@/components/InvitationsList/InvitationItem";
 import { LoadingState } from "@/components/Erros/LoadingState";
-// import { acceptInvitation, rejectInvitation } from "@/api/club_invitation"; // Funções para aceitar e rejeitar o convite
 
 export default function InvitationsScreen() {
   const { session } = useSessionStore();
@@ -23,26 +25,23 @@ export default function InvitationsScreen() {
     error,
   } = InvitationsByUserLogged(userId);
 
+  const { mutate: rejectInvite } = rejectClubInvitation();
+
   if (isLoading) {
     <LoadingState color="green" message="Aguarde" />;
   }
 
-  const handleAcceptInvitation = async (inviteId: string, clubId: string) => {
-    // try {
-    //   await acceptInvitation(inviteId, clubId);
-    //   Alert.alert("Convite Aceito", "Você foi adicionado ao clube!");
-    // } catch (error) {
-    //   Alert.alert("Erro", "Não foi possível aceitar o convite.");
-    // }
-  };
+  const handleAcceptInvitation = async (inviteId: string, clubId: string) => {};
 
-  const handleRejectInvitation = async (inviteId: string) => {
-    // try {
-    //   await rejectInvitation(inviteId);
-    //   Alert.alert("Convite Rejeitado", "Você não foi adicionado ao clube.");
-    // } catch (error) {
-    //   Alert.alert("Erro", "Não foi possível rejeitar o convite.");
-    // }
+  const handleRejectInvitation = (inviteId: string) => {
+    rejectInvite(inviteId, {
+      onError: (error) => {
+        Alert.alert(
+          "Erro",
+          error.message || "Não foi possível recusar o convite."
+        );
+      },
+    });
   };
 
   return (

@@ -10,17 +10,16 @@ export const useCreateClubHandler = () => {
 
   const { mutate: createClub } = useCreateClub();
   const { session } = useSessionStore();
+
+  if (!session) {
+    throw new Error("no session");
+  }
+
   const userId = session?.user.id;
   const { data: profile } = useProfile(userId);
 
   const onCreate = async () => {
     setIsSubmitting(true);
-
-    if (!session) {
-      console.error("Usuário não autenticado.");
-      setIsSubmitting(false);
-      return;
-    }
 
     if (!userId) {
       console.error("Usuário não encontrado.");

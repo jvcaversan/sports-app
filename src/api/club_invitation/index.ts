@@ -33,31 +33,6 @@ export const useCreateInvitation = () => {
   });
 };
 
-export const useUpdateInvitationStatus = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    async mutationFn(data: {
-      invitation_id: string;
-      status: "accepted" | "rejected";
-    }) {
-      const { data: updatedInvitation, error } = await supabase
-        .from("club_invitations")
-        .update({ status: data.status })
-        .eq("id", data.invitation_id);
-
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      return updatedInvitation;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["club_invitations"] });
-    },
-  });
-};
-
 export const useAddMemberToClub = () => {
   const queryClient = useQueryClient();
 
@@ -145,6 +120,63 @@ export const InvitationsByUserLogged = (userId: string) => {
         throw new Error(error.message);
       }
       return data;
+    },
+  });
+};
+
+export const acceptClubInvitation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    async mutationFn(data: {
+      invitation_id: string;
+      club_id: string;
+      user_id: string;
+    }) {
+      const { data: updatedInvitation, error: updateError } = await supabase
+        .from("club_invitations")
+        .update({ status: "accepted" })
+        .eq("id", data.invitation_id);
+
+      if (updateError) {
+        throw new Error(updateError.message);
+      }
+
+      const { data: membership, error: insertError } = await supabase
+        .from("club_members")
+        .insert({ club_id: data.club_id, user_id: data.user_id });
+
+      if (insertError) {
+        throw new Error(insertError.message);
+      }
+
+      return { updatedInvitation, membership };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["club_invitations"] });
+      queryClient.invalidateQueries({ queryKey: ["club_members"] });
+    },
+  });
+};
+
+export const rejectClubInvitation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    async mutationFn(invite_id: string) {
+      const { data, error } = await supabase
+        .from("club_invitations")
+        .delete()
+        .eq("id", invite_id);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["club_invitations"] });
     },
   });
 };

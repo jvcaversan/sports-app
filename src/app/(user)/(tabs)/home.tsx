@@ -7,13 +7,6 @@ import CustomScreen from "@/components/CustomView";
 import { useProfile } from "@/api/profiles";
 import { useSessionStore } from "@/store/useSessionStore";
 
-interface Game {
-  id: number;
-  date: string;
-  time: string;
-  opponent: string;
-}
-
 export default function Home() {
   const { session } = useSessionStore();
 
@@ -23,11 +16,6 @@ export default function Home() {
   const userId = session.user.id;
 
   const { data: profile } = useProfile(userId);
-
-  const upcomingGames = [
-    { id: 1, date: "2024-03-25", time: "19:00", opponent: "Time A" },
-    { id: 2, date: "2024-03-28", time: "20:00", opponent: "Time B" },
-  ];
 
   return (
     <CustomScreen>
@@ -42,7 +30,7 @@ export default function Home() {
       </View>
       <Pressable
         style={styles.statsContainer}
-        onPress={() => router.navigate("/estatisticas")}
+        onPress={() => router.navigate("/statics")}
       >
         <Text style={styles.sectionTitle}>Estatísticas</Text>
         <View style={styles.statsGrid}>
@@ -64,16 +52,6 @@ export default function Home() {
       <Pressable onPress={() => router.navigate("/(user)/accepted")}>
         <Text>Accepted Page</Text>
       </Pressable>
-
-      {/* <View style={styles.upcomingGames}>
-        <Text style={styles.sectionTitle}>Próximos Jogos</Text>
-        <Pressable>
-          <Text>{upcomingGames[0].id}</Text>
-          <Text>{upcomingGames[0].date}</Text>
-          <Text>{upcomingGames[0].opponent}</Text>
-          <Text>{upcomingGames[0].time}</Text>
-        </Pressable>
-      </View> */}
     </CustomScreen>
   );
 }
