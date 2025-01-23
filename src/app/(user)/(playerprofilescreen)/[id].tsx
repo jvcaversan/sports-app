@@ -32,13 +32,14 @@ export default function PlayerProfileScreen() {
 
   const { data: profile } = useProfile(userId);
   const { session } = useSessionStore();
+
+  if (!session) {
+    throw new Error("no session");
+  }
+
   const adminId = session?.user.id;
 
-  const {
-    data: clubs,
-    isLoading,
-    error,
-  } = useClubsByUserAdminId(adminId || "");
+  const { data: clubs, isLoading, error } = useClubsByUserAdminId(adminId);
 
   const { mutate: createInvitation } = useCreateInvitation();
 
@@ -58,20 +59,17 @@ export default function PlayerProfileScreen() {
   const handleInviteToClub = async (clubInviteId: string) => {
     if (!adminId || !userId) {
       Alert.alert("Você não é administrador de nenhum clube");
-      console.log("chegou aqui");
       return;
     }
 
     try {
       if (isMember) {
         Alert.alert("Erro", "O usuário já é membro do clube.");
-        console.log("chegou aqui 2");
         return;
       }
 
       if (hasInvitation) {
         Alert.alert("Erro", "O usuário já possui um convite pendente.");
-        console.log("chegou aqui 3");
         return;
       }
 

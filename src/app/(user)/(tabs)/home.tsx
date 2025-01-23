@@ -16,9 +16,13 @@ interface Game {
 
 export default function Home() {
   const { session } = useSessionStore();
-  const userId = session?.user.id;
 
-  const { data: profile } = useProfile(userId || undefined);
+  if (!session) {
+    throw new Error("No Session");
+  }
+  const userId = session.user.id;
+
+  const { data: profile } = useProfile(userId);
 
   const upcomingGames = [
     { id: 1, date: "2024-03-25", time: "19:00", opponent: "Time A" },
@@ -55,6 +59,10 @@ export default function Home() {
             <Text style={styles.statLabel}>Derrotas</Text>
           </View>
         </View>
+      </Pressable>
+
+      <Pressable onPress={() => router.navigate("/(user)/accepted")}>
+        <Text>Accepted Page</Text>
       </Pressable>
 
       {/* <View style={styles.upcomingGames}>

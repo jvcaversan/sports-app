@@ -125,3 +125,26 @@ export const hasPendingInvitation = (clubId: string, userId: string) => {
     },
   });
 };
+
+export const InvitationsByUserLogged = (userId: string) => {
+  return useQuery({
+    queryKey: ["club_invitations", userId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("club_invitations")
+        .select(
+          `
+          *,
+          invited_by:profiles!invited_by (name),  
+          club_id:clubs!club_id (name, photo, id)            
+        `
+        )
+        .eq("user_id", userId);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+      return data;
+    },
+  });
+};

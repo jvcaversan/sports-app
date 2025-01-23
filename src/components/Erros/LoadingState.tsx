@@ -3,12 +3,13 @@ import { View, ActivityIndicator, Text, StyleSheet } from "react-native";
 
 interface LoadingStateProps {
   message: string;
+  color: string;
 }
 
-export const LoadingState = ({ message }: LoadingStateProps) => {
+export const LoadingState = ({ message, color }: LoadingStateProps) => {
   return (
     <View style={styles.loadingContainer}>
-      <ActivityIndicator size="large" color="#3498db" />
+      <ActivityIndicator size="large" color={color} />
       <Text style={styles.loadingText}>{message}</Text>
     </View>
   );
