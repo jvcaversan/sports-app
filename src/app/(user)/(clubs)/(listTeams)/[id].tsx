@@ -7,15 +7,35 @@ import { LoadingState } from "@/components/Erros/LoadingState";
 import { ErrorState } from "@/components/Erros/ErroState";
 import CustomScreen from "@/components/CustomView";
 import { ClubTabs } from "@/components/ClubsTabs/Tabs";
+import { useIsClubAdmin } from "@/api/club_members";
+import { useSessionStore } from "@/store/useSessionStore";
 
 export default function ClubDetails() {
   const { id } = useLocalSearchParams();
   const clubId = Array.isArray(id) ? id[0] : id;
 
-  const { club, members, matchs, isLoading, isError } = useClubDetails(clubId);
+  const { session } = useSessionStore();
+  const userId = session?.user.id;
+
+  const {
+    club,
+    members,
+    matchs,
+    isLoading: clubLoading,
+    isError: clubError,
+  } = useClubDetails(clubId);
+
+  const {
+    data: isAdmin,
+    isLoading: adminLoading,
+    isError: adminError,
+  } = useIsClubAdmin(clubId, userId || "");
+
+  const isLoading = clubLoading || adminLoading;
+  const isError = clubError || adminError;
 
   if (isLoading) {
-    return <LoadingState message="Carregando clube..." />;
+    return <LoadingState message="Carregando clube..." color="green" />;
   }
 
   if (isError) {
@@ -29,7 +49,7 @@ export default function ClubDetails() {
   return (
     <CustomScreen>
       <View style={styles.container}>
-        <ClubHeader clubName={club.name} clubId={clubId} />
+        <ClubHeader clubName={club.name} clubId={clubId} isAdmin={!!isAdmin} />
 
         <View style={styles.mainContent}>
           <ClubTabs

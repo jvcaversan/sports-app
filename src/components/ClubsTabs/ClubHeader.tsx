@@ -9,15 +9,16 @@ import { useIsClubAdmin } from "@/api/club_members";
 interface ClubHeaderProps {
   clubName: string;
   clubId: string;
+  isAdmin: boolean;
 }
 
-export const ClubHeader = ({ clubName, clubId }: ClubHeaderProps) => {
+export const ClubHeader = ({ clubName, clubId, isAdmin }: ClubHeaderProps) => {
   const [modalVisible, setModalVisible] = useState(false);
   const { session } = useSessionStore();
   const userId = session?.user.id;
 
   const {
-    data: isAdmin,
+    data: clubAdmin,
     isLoading,
     error,
   } = useIsClubAdmin(clubId, userId || "");
@@ -40,7 +41,7 @@ export const ClubHeader = ({ clubName, clubId }: ClubHeaderProps) => {
         </Text>
       </View>
 
-      {isAdmin && (
+      {clubAdmin && (
         <View style={styles.actionButtons}>
           <TouchableOpacity
             style={styles.iconButton}
