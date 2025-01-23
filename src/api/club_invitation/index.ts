@@ -61,44 +61,30 @@ export const useAddMemberToClub = () => {
   });
 };
 
-export const isUserClubMember = (clubId: string, userId: string) => {
-  return useQuery({
-    queryKey: ["club_members", clubId, userId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("club_members")
-        .select("*")
-        .eq("club_id", clubId)
-        .eq("player_id", userId)
-        .single();
+export const checkIsClubMember = async (clubId: string, userId: string) => {
+  const { data, error } = await supabase
+    .from("club_members")
+    .select("*")
+    .eq("club_id", clubId)
+    .eq("player_id", userId)
+    .single();
 
-      if (error && error.code !== "PGRST116") {
-        throw new Error(error.message);
-      }
-      return !!data;
-    },
-  });
+  return !!data && !error;
 };
 
-export const hasPendingInvitation = (clubId: string, userId: string) => {
-  return useQuery({
-    queryKey: ["club_invitations", clubId, userId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("club_invitations")
-        .select("*")
-        .eq("club_id", clubId)
-        .eq("user_id", userId)
-        .eq("status", "pending")
-        .single();
+export const checkPendingInvitation = async (
+  clubId: string,
+  userId: string
+) => {
+  const { data, error } = await supabase
+    .from("club_invitations")
+    .select("*")
+    .eq("club_id", clubId)
+    .eq("user_id", userId)
+    .eq("status", "pending")
+    .single();
 
-      if (error && error.code !== "PGRST116") {
-        throw new Error(error.message);
-      }
-
-      return !!data;
-    },
-  });
+  return !!data && !error;
 };
 
 export const InvitationsByUserLogged = (userId: string) => {
