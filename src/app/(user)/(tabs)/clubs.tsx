@@ -1,5 +1,11 @@
 import React from "react";
-import { View, Text, TouchableOpacity, FlatList } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  FlatList,
+  ActivityIndicator,
+} from "react-native";
 import { StyleSheet } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -22,7 +28,10 @@ export default function Groups() {
   if (isLoading) {
     return (
       <CustomScreen>
-        <Text style={styles.message}>Carregando clubes...</Text>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#16A34A" />
+          <Text style={styles.loadingText}>Carregando seus clubes...</Text>
+        </View>
       </CustomScreen>
     );
   }
@@ -30,9 +39,12 @@ export default function Groups() {
   if (error) {
     return (
       <CustomScreen>
-        <Text style={styles.message}>
-          Erro ao carregar clubes: {error?.message || "Erro desconhecido"}
-        </Text>
+        <View style={styles.errorContainer}>
+          <Ionicons name="warning" size={40} color="#DC2626" />
+          <Text style={styles.errorText}>
+            Ocorreu um erro ao carregar os clubes
+          </Text>
+        </View>
       </CustomScreen>
     );
   }
@@ -46,15 +58,18 @@ export default function Groups() {
             style={styles.addButton}
             onPress={() => router.navigate("/(clubs)/createTeam")}
           >
-            <Ionicons name="add" size={24} color="#fff" />
+            <Ionicons name="add" size={28} color="#fff" />
           </TouchableOpacity>
         </View>
+
         {!clubs || clubs.length === 0 ? (
-          <CustomScreen>
-            <Text style={styles.message}>
-              Você ainda não faz parte de nenhum grupo.
+          <View style={styles.emptyState}>
+            <Ionicons name="people-outline" size={64} color="#CBD5E1" />
+            <Text style={styles.emptyText}>Nenhum clube encontrado</Text>
+            <Text style={styles.emptySubtext}>
+              Crie um novo clube ou peça para ser adicionado
             </Text>
-          </CustomScreen>
+          </View>
         ) : (
           <FlatList
             data={clubs}
@@ -72,37 +87,90 @@ export default function Groups() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#F8FAFC",
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 16,
+    paddingVertical: 18,
+    paddingHorizontal: 24,
+    backgroundColor: "#FFFFFF",
     borderBottomWidth: 1,
-    borderBottomColor: "#eee",
+    borderBottomColor: "#F1F5F9",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 6,
+    elevation: 3,
   },
   title: {
-    fontSize: 24,
-    fontWeight: "bold",
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#0F172A",
+    letterSpacing: 0.2,
+    fontFamily: "Inter-SemiBold",
   },
   addButton: {
-    backgroundColor: "#2196F3",
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    backgroundColor: "#16A34A",
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     justifyContent: "center",
     alignItems: "center",
+    shadowColor: "#059669",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 4,
+    transform: [{ scale: 1 }],
   },
-
   listContainer: {
-    paddingVertical: 8,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 32,
   },
-  message: {
+  emptyState: {
     flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 40,
+  },
+  emptyText: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#64748B",
+    marginTop: 16,
+  },
+  emptySubtext: {
+    fontSize: 14,
+    color: "#94A3B8",
     textAlign: "center",
-    marginTop: 20,
+    marginTop: 8,
+    lineHeight: 20,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 16,
+  },
+  loadingText: {
     fontSize: 16,
-    color: "#555",
+    color: "#475569",
+    fontWeight: "500",
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 16,
+    padding: 24,
+  },
+  errorText: {
+    fontSize: 18,
+    color: "#DC2626",
+    fontWeight: "500",
+    textAlign: "center",
   },
 });

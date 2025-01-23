@@ -149,8 +149,26 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     padding: 16,
+    backgroundColor: "#FFF",
     borderBottomWidth: 1,
-    borderBottomColor: "#E0E0E0",
+    borderBottomColor: "#F1F5F9",
+  },
+  inviteButton: {
+    backgroundColor: "#16A34A",
+    borderRadius: 14,
+    padding: 18,
+    alignItems: "center",
+    shadowColor: "#16A34A",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  inviteButtonText: {
+    color: "#FFF",
+    fontSize: 16,
+    fontWeight: "600",
+    letterSpacing: 0.5,
   },
   backButton: {
     marginRight: 16,
@@ -161,16 +179,5 @@ const styles = StyleSheet.create({
   },
   container: {
     padding: 16,
-  },
-  inviteButton: {
-    backgroundColor: "#16A34A",
-    borderRadius: 8,
-    padding: 16,
-    alignItems: "center",
-  },
-  inviteButtonText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "bold",
   },
 });

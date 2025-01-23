@@ -15,7 +15,7 @@ export default function Stats() {
         colors={["#2E7D32", "#1B5E20"]}
         style={[styles.header, { width }]}
       >
-        <View style={[styles.headerContent, { paddingTop: insets.top + 16 }]}>
+        <View style={[styles.headerContent]}>
           <Text style={styles.headerTitle}>Estatísticas</Text>
           <View style={styles.subtitleContainer}>
             <View style={styles.dot} />
@@ -37,11 +37,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#FAFAFA",
   },
   header: {
-    paddingHorizontal: 24,
-    paddingBottom: 32,
+    paddingHorizontal: 12,
+    paddingBottom: 16,
   },
   headerContent: {
     paddingVertical: 16,
+    paddingTop: 37,
   },
   headerTitle: {
     fontSize: 34,

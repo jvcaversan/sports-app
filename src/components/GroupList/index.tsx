@@ -14,6 +14,7 @@ export default function ClubListItem({ club }: ClubListItemProps) {
     <Link href={`/(user)/(clubs)/(listTeams)/${club.club_id}`} asChild>
       <TouchableOpacity style={styles.clubCard}>
         <Text style={styles.clubName}>{club.clubs.name}</Text>
+        <Text style={styles.moreInfo}>→</Text>
       </TouchableOpacity>
     </Link>
   );
@@ -24,23 +25,32 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#f5f5f5",
-    padding: 16,
+    backgroundColor: "#FFFFFF",
+    padding: 20,
     marginHorizontal: 16,
     marginVertical: 8,
-    borderRadius: 12,
-    elevation: 2,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 3,
   },
   clubName: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#333",
+    color: "#1E293B",
+    letterSpacing: 0.2,
+  },
+  moreInfo: {
+    color: "#64748B",
+    fontSize: 18,
+    fontWeight: "700",
+    marginLeft: 10,
   },
 });
