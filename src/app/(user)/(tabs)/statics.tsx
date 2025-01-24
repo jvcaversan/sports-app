@@ -1,80 +1,192 @@
 import React from "react";
-import { View, Text, StyleSheet, useWindowDimensions } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import UserStats from "@/components/UserStatistics/user-stats";
-import { LinearGradient } from "expo-linear-gradient";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import CustomScreen from "@/components/CustomView";
+import { useStats } from "@/api/stats";
+import { useSessionStore } from "@/store/useSessionStore";
+import LoadingIndicator from "@/components/ActivityIndicator";
+import { StatCard } from "@/components/UserStatistics/StatCard";
+import { StatItem } from "@/components/UserStatistics/StatItem";
 
 export default function Stats() {
-  const insets = useSafeAreaInsets();
-  const { width } = useWindowDimensions();
+  const { session } = useSessionStore();
+
+  if (!session) {
+    throw new Error("no session");
+  }
+
+  const userId = session?.user.id;
+
+  const { data: statsData, isLoading, isError, error } = useStats(userId);
+
+  if (!userId) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>Usuário não autenticado</Text>
+      </View>
+    );
+  }
+
+  if (isLoading) {
+    return <LoadingIndicator message="Carregando estatísticas..." />;
+  }
+
+  if (isError || !statsData) {
+    return (
+      <View style={styles.errorContainer}>
+        <MaterialCommunityIcons name="alert-circle" size={40} color="#dc2626" />
+        <Text style={styles.errorText}>
+          {error?.message || "Erro ao carregar dados"}
+        </Text>
+      </View>
+    );
+  }
 
   return (
     <CustomScreen>
-      <LinearGradient
-        colors={["#2E7D32", "#1B5E20"]}
-        style={[styles.header, { width }]}
+      <ScrollView
+        contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={false}
       >
-        <View style={[styles.headerContent]}>
-          <Text style={styles.headerTitle}>Estatísticas</Text>
-          <View style={styles.subtitleContainer}>
-            <View style={styles.dot} />
-            <Text style={styles.headerSubtitle}>Visão Geral</Text>
+        <View style={styles.header}>
+          <Text style={styles.title}>Estatísticas Gerais</Text>
+        </View>
+
+        <View style={styles.mainCard}>
+          <View style={styles.cardHeader}>
+            <Ionicons name="person" size={24} color="#4f46e5" />
+            <Text style={styles.cardTitle}>Desempenho Geral</Text>
+          </View>
+
+          <View style={styles.statsGrid}>
+            <StatItem
+              icon="soccer"
+              label="Gols"
+              value={statsData.gols || 0}
+              color="#10b981"
+            />
+            <StatItem
+              icon="shoe-cleat"
+              label="Assistências"
+              value={statsData.assistencias || 0}
+              color="black"
+            />
           </View>
         </View>
-      </LinearGradient>
 
-      <View style={styles.content}>
-        <UserStats />
-      </View>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Defensivos</Text>
+          <View style={styles.statsRow}>
+            <StatCard
+              icon="shield"
+              value={statsData.defesas || 0}
+              label="Defesas"
+            />
+            <StatCard
+              icon="alert"
+              value={statsData.faltas || 0}
+              label="Faltas"
+            />
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Disciplina</Text>
+          <View style={styles.statsRow}>
+            <StatCard
+              icon="card"
+              value={statsData.cartoes_amarelos || 0}
+              label="Amarelos"
+              iconColor="#eab308"
+            />
+            <StatCard
+              icon="card"
+              value={statsData.cartoes_vermelhos || 0}
+              label="Vermelhos"
+              iconColor="#ef4444"
+            />
+          </View>
+        </View>
+      </ScrollView>
     </CustomScreen>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: "#FAFAFA",
+    flexGrow: 1,
+    paddingHorizontal: 16,
+    paddingBottom: 20,
+    backgroundColor: "#f8fafc",
+    paddingTop: 20,
   },
   header: {
-    paddingHorizontal: 12,
-    paddingBottom: 16,
+    marginBottom: 24,
+    paddingHorizontal: 8,
+    alignItems: "center",
   },
-  headerContent: {
-    paddingVertical: 16,
-    paddingTop: 37,
-  },
-  headerTitle: {
-    fontSize: 34,
+  title: {
+    fontSize: 32,
     fontWeight: "800",
-    color: "#FFFFFF",
-    letterSpacing: 0.5,
+    color: "#1e293b",
+    marginBottom: 4,
   },
-  subtitleContainer: {
+
+  mainCard: {
+    backgroundColor: "#ffffff",
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 24,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  cardHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 8,
+    marginBottom: 20,
+    gap: 12,
   },
-  dot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: "#4CAF50",
-    marginRight: 8,
+  cardTitle: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#1e293b",
   },
-  headerSubtitle: {
-    fontSize: 16,
-    color: "#FFFFFF",
-    opacity: 0.9,
-    fontWeight: "500",
+  statsGrid: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 16,
   },
-  content: {
+
+  section: {
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#1e293b",
+    marginBottom: 16,
+    paddingHorizontal: 8,
+  },
+  statsRow: {
+    flexDirection: "row",
+    gap: 16,
+    justifyContent: "space-between",
+  },
+
+  errorContainer: {
     flex: 1,
-    marginTop: -20,
-    backgroundColor: "#FAFAFA",
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    paddingTop: 20,
-    paddingHorizontal: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 24,
+    backgroundColor: "#fff",
+  },
+  errorText: {
+    fontSize: 18,
+    color: "#dc2626",
+    textAlign: "center",
+    marginTop: 16,
   },
 });

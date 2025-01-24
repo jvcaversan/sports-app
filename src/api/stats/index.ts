@@ -1,24 +1,19 @@
 import { supabase } from "@/database/supabase";
 import { useQuery } from "@tanstack/react-query";
 
-export const useStats = (userId?: string) => {
+export const useStats = (userId: string) => {
   return useQuery({
-    queryKey: ["profiles", userId],
+    queryKey: ["user_stats", userId],
     queryFn: async () => {
-      if (!userId) {
-        throw new Error("Usuário não autenticado");
-      }
-
       const { data, error } = await supabase
-        .from("profiles")
-        .select("*, statistics(*)")
-        .eq("id", userId)
+        .from("statistics")
+        .select("*")
+        .eq("profile_id", userId)
         .single();
 
-      if (error) {
-        throw new Error(error.message);
-      }
+      if (error) throw new Error(error.message);
       return data;
     },
+    enabled: !!userId,
   });
 };
