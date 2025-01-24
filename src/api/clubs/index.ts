@@ -84,3 +84,28 @@ export const useClubsByUserId = (userId: string) => {
     },
   });
 };
+
+export const useDeleteClub = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    async mutationFn(clubId: string) {
+      const { error } = await supabase.from("clubs").delete().eq("id", clubId);
+
+      if (error) {
+        throw new Error(`Erro ao excluir clube: ${error.message}`);
+      }
+      return true;
+    },
+    onSuccess: (_, clubId) => {
+      queryClient.invalidateQueries({ queryKey: ["clubs"] });
+      queryClient.invalidateQueries({ queryKey: ["club_members", clubId] });
+
+      queryClient.removeQueries({ queryKey: ["clubs", clubId] });
+    },
+    onError: (error) => {
+      console.error("Erro na exclusão:", error);
+      throw error;
+    },
+  });
+};

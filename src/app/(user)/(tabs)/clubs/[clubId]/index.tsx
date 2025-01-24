@@ -1,6 +1,6 @@
 import { useClubDetails } from "@/hooks/Clubs/ClubDetails";
-import { useLocalSearchParams } from "expo-router";
-import { View, StyleSheet } from "react-native";
+import { router, useLocalSearchParams } from "expo-router";
+import { View, StyleSheet, Alert, Button } from "react-native";
 import { ClubHeader } from "@/components/ClubsTabs/ClubHeader";
 import { Tables } from "@/types/supabase";
 import { LoadingState } from "@/components/Erros/LoadingState";
@@ -9,12 +9,17 @@ import CustomScreen from "@/components/CustomView";
 import { ClubTabs } from "@/components/ClubsTabs/Tabs";
 import { useIsClubAdmin } from "@/api/club_members";
 import { useSessionStore } from "@/store/useSessionStore";
+import { useDeleteClub } from "@/api/clubs";
 
 export default function ClubDetails() {
   const { clubId: clubIdParam } = useLocalSearchParams<{ clubId: string }>();
   const clubId = Array.isArray(clubIdParam) ? clubIdParam[0] : clubIdParam;
 
   const { session } = useSessionStore();
+
+  if (!session) {
+    throw new Error("no session");
+  }
   const userId = session?.user.id;
 
   const {
@@ -29,7 +34,9 @@ export default function ClubDetails() {
     data: isAdmin,
     isLoading: adminLoading,
     isError: adminError,
-  } = useIsClubAdmin(clubId, userId || "");
+  } = useIsClubAdmin(clubId, userId);
+
+  const { mutate: deleteClub } = useDeleteClub();
 
   const isLoading = clubLoading || adminLoading;
   const isError = clubError || adminError;
@@ -45,6 +52,26 @@ export default function ClubDetails() {
   if (!club) {
     return <ErrorState message="Clube não encontrado." />;
   }
+
+  const handleDelete = () => {
+    Alert.alert(
+      "Confirmar Exclusão",
+      "Tem certeza que deseja excluir este clube permanentemente? Todas estatisticas salvas serão perdidas.",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Excluir",
+          onPress: () =>
+            deleteClub(clubId, {
+              onSuccess: () => {
+                router.back();
+                Alert.alert("Sucesso", "Clube excluído com sucesso!");
+              },
+            }),
+        },
+      ]
+    );
+  };
 
   return (
     <CustomScreen>
@@ -62,6 +89,8 @@ export default function ClubDetails() {
             isMembersLoading={isLoading}
           />
         </View>
+
+        <Button title="Excluir Clube" onPress={handleDelete} color="#ef4444" />
       </View>
     </CustomScreen>
   );
