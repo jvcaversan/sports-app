@@ -9,7 +9,7 @@ import { LoadingState } from "@/components/Erros/LoadingState";
 import { ProfileHeader } from "@/components/MemberProfile/ProfileHeader";
 import { AdminActions } from "@/components/MemberProfile/AdminActions";
 
-export const MemberProfileScreen = () => {
+export default function MemberProfileScreen() {
   const { memberId: playerId, clubId } = useLocalSearchParams<{
     memberId: string;
     clubId: string;
@@ -89,7 +89,7 @@ export const MemberProfileScreen = () => {
       )}
     </CustomScreen>
   );
-};
+}
 const styles = StyleSheet.create({
   container: {
     flex: 1,

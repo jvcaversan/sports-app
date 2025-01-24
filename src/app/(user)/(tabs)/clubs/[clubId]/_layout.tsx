@@ -7,7 +7,7 @@ export default function UserLayout() {
         headerShown: false,
       }}
     >
-      <Stack.Screen name="index" />
+      <Stack.Screen name="(members)/[memberId]" />
       <Stack.Screen name="(partidas)" />
       <Stack.Screen name="create-match" />
     </Stack>

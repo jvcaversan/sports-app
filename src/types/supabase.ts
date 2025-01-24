@@ -106,27 +106,24 @@ export type Database = {
       }
       clubs: {
         Row: {
+          club_name: string
           created_at: string
           created_by: string
-          creator_name: string | null
           id: string
-          name: string
           photo: string | null
         }
         Insert: {
+          club_name: string
           created_at?: string
           created_by?: string
-          creator_name?: string | null
           id?: string
-          name: string
           photo?: string | null
         }
         Update: {
+          club_name?: string
           created_at?: string
           created_by?: string
-          creator_name?: string | null
           id?: string
-          name?: string
           photo?: string | null
         }
         Relationships: [

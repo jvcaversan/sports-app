@@ -39,9 +39,7 @@ export const useCreateMatchHandler = () => {
       },
       {
         onSuccess: async (newMatch) => {
-          router.replace(
-            `/(user)/(clubs)/(listTeams)/(partidas)/${newMatch.id}`
-          );
+          router.replace(`/(user)/clubs/${clubId}/(partidas)/${newMatch.id}`);
         },
         onError: (err) => {
           console.error("Erro ao criar partida:", err.message);

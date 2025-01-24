@@ -10,7 +10,7 @@ type ClubItemProps = {
   item: {
     club_id: string;
     clubs: {
-      name: string;
+      club_name: string;
     };
   };
   onPress: () => void;
@@ -28,7 +28,7 @@ export const ProfileInviteClubItem = memo(
         {processingClubId === item.club_id && (
           <ActivityIndicator color="#666" style={styles.loadingIndicator} />
         )}
-        <Text style={styles.clubName}>{item.clubs.name}</Text>
+        <Text style={styles.clubName}>{item.clubs.club_name}</Text>
       </TouchableOpacity>
     );
   }

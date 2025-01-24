@@ -7,7 +7,7 @@ import CustomScreen from "@/components/CustomView";
 import { useStaticsByMatchId } from "@/api/createMatch";
 
 export default function PreMatch() {
-  const { id } = useLocalSearchParams();
+  const { id, clubId } = useLocalSearchParams();
 
   const matchId = Array.isArray(id) ? id[0] : id;
 
@@ -42,6 +42,8 @@ export default function PreMatch() {
         </View>
 
         <Text>{match?.local}</Text>
+        <Text>{match?.id}</Text>
+        <Text>{clubId}</Text>
       </ScrollView>
     </CustomScreen>
   );

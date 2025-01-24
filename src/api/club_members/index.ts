@@ -31,7 +31,7 @@ export const useClubMembersByQuery = (clubId: string, searchQuery: string) => {
         .from("club_members")
         .select("*")
         .eq("club_id", clubId)
-        .ilike("name", `%${debouncedQuery}%`);
+        .ilike("club_name", `%${debouncedQuery}%`);
       if (error) {
         throw new Error(error.message);
       }
@@ -50,7 +50,7 @@ export const useClubsByUserAdminId = (adminId: string) => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("club_members")
-        .select("*, clubs(name)")
+        .select("*, clubs(club_name)")
         .eq("player_id", adminId)
         .eq("role", "admin");
 

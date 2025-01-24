@@ -46,9 +46,7 @@ export const ClubHeader = ({ clubName, clubId, isAdmin }: ClubHeaderProps) => {
           <TouchableOpacity
             style={styles.iconButton}
             onPress={() => {
-              router.navigate(
-                `/(user)/(clubs)/(listTeams)/createMatch?clubId=${clubId}`
-              );
+              router.navigate(`/(user)/(tabs)/clubs/${clubId}/create-match`);
             }}
           >
             <Ionicons name="add" size={20} color="#FFFFFF" />

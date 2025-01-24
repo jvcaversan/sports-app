@@ -1,4 +1,4 @@
-import { Link } from "expo-router";
+import { Link, useLocalSearchParams } from "expo-router";
 import { Text, TouchableOpacity, StyleSheet, View } from "react-native";
 import { Tables } from "@/types/supabase";
 import { Ionicons } from "@expo/vector-icons";
@@ -8,6 +8,8 @@ type MatchListItemProps = {
 };
 
 export default function MatchListItem({ match }: MatchListItemProps) {
+  const { clubId } = useLocalSearchParams();
+
   if (!match) {
     return (
       <View style={styles.matchItemUnavailable}>
@@ -18,7 +20,7 @@ export default function MatchListItem({ match }: MatchListItemProps) {
 
   return (
     <Link
-      href={`/(user)/(clubs)/(listTeams)/(partidas)/${match.id || "unknown"}`}
+      href={`/(user)/(tabs)/clubs/${clubId}/(partidas)/${match.id}`}
       asChild
     >
       <TouchableOpacity

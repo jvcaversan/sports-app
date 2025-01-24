@@ -40,7 +40,7 @@ export default function InvitationsScreen() {
       {
         invitation_id: inviteId,
         club_id: clubId,
-        player_id: session.user.id,
+        userId: userId,
       },
       {
         onSuccess: () => {

@@ -49,7 +49,11 @@ export default function ClubDetails() {
   return (
     <CustomScreen>
       <View style={styles.container}>
-        <ClubHeader clubName={club.name} clubId={clubId} isAdmin={!!isAdmin} />
+        <ClubHeader
+          clubName={club.club_name}
+          clubId={clubId}
+          isAdmin={!!isAdmin}
+        />
 
         <View style={styles.mainContent}>
           <ClubTabs

@@ -11,10 +11,9 @@ export const useCreateClub = () => {
       const { error, data: newClub } = await supabase
         .from("clubs")
         .insert({
-          name: data.name,
+          club_name: data.name,
           photo: data.photo || null,
           created_by: data.created_by,
-          creator_name: data.creator_name,
         })
         .select()
         .single();
@@ -71,7 +70,7 @@ export const useClubsByUserId = (userId: string) => {
           club_id,
           clubs (
             id,
-            name,
+            club_name,
             created_at
           )
         `

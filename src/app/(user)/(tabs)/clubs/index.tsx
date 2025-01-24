@@ -56,7 +56,7 @@ export default function Groups() {
           <Text style={styles.title}>Meus Clubes</Text>
           <TouchableOpacity
             style={styles.addButton}
-            onPress={() => router.navigate("/(clubs)/createTeam")}
+            onPress={() => router.navigate("/(user)/(tabs)/clubs/create-team")}
           >
             <Ionicons name="add" size={28} color="#fff" />
           </TouchableOpacity>

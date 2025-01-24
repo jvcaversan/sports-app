@@ -10,7 +10,7 @@ type ClubListItemProps = {
 };
 
 export default function ClubListItem({ club }: ClubListItemProps) {
-  if (!club?.club_id || !club?.clubs?.name) {
+  if (!club?.club_id || !club?.clubs?.club_name) {
     return null;
   }
   return (
@@ -22,7 +22,7 @@ export default function ClubListItem({ club }: ClubListItemProps) {
       asChild
     >
       <TouchableOpacity style={styles.clubCard}>
-        <Text style={styles.clubName}>{club.clubs.name}</Text>
+        <Text style={styles.clubName}>{club.clubs.club_name}</Text>
         <Text style={styles.moreInfo}>→</Text>
       </TouchableOpacity>
     </Link>

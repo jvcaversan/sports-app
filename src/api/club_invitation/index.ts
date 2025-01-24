@@ -97,7 +97,7 @@ export const InvitationsByUserLogged = (userId: string) => {
           `
           *,
           invited_by:profiles!invited_by (name),  
-          club_id:clubs!club_id (name, photo, id)            
+          club_id:clubs!club_id (club_name, photo, id)            
         `
         )
         .eq("user_id", userId)
@@ -118,14 +118,14 @@ export const acceptClubInvitation = () => {
     async mutationFn(data: {
       invitation_id: string;
       club_id: string;
-      player_id: string;
+      userId: string;
     }) {
       const { data: result, error } = await supabase.rpc(
         "handle_accept_invitation",
         {
           p_invitation_id: data.invitation_id,
           p_club_id: data.club_id,
-          p_user_id: data.player_id,
+          p_user_id: data.userId,
         }
       );
 
@@ -134,10 +134,13 @@ export const acceptClubInvitation = () => {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["club_invitations", variables.player_id],
+        queryKey: ["club_invitations", variables.userId],
       });
       queryClient.invalidateQueries({
         queryKey: ["club_members", variables.club_id],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["clubs", variables.userId],
       });
     },
   });

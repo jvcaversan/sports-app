@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useCreateClub } from "@/api/clubs";
 import { useSessionStore } from "@/store/useSessionStore";
-import { useProfile } from "@/api/profiles";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 
 export const useCreateClubHandler = () => {
   const [clubName, setClubName] = useState("");
@@ -16,7 +15,6 @@ export const useCreateClubHandler = () => {
   }
 
   const userId = session?.user.id;
-  const { data: profile } = useProfile(userId);
 
   const onCreate = async () => {
     setIsSubmitting(true);
@@ -28,10 +26,15 @@ export const useCreateClubHandler = () => {
     }
 
     createClub(
-      { name: clubName, created_by: userId, creator_name: profile?.name },
+      { name: clubName, created_by: userId },
       {
-        onSuccess: async (newClub) => {
-          router.replace(`/(user)/(clubs)/(listTeams)/${newClub.id}`);
+        onSuccess: (newClub) => {
+          router.replace({
+            pathname: "/(user)/(tabs)/clubs/[clubId]",
+            params: {
+              clubId: newClub.id,
+            },
+          });
         },
         onError: (err) => {
           console.error("Erro ao criar clube:", err.message);

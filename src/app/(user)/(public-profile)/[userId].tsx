@@ -32,7 +32,7 @@ type ClubType = {
   player_id: string;
   role: string;
   clubs: {
-    name: string;
+    club_name: string;
   };
 };
 

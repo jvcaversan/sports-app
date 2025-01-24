@@ -6,7 +6,7 @@ type InvitationItemProps = {
   invite: {
     id: string;
     created_at: string;
-    club_id: { id: string; name: string; photo: string | null };
+    club_id: { id: string; club_name: string; photo: string | null };
     invited_by: { name: string };
     status: string;
     user_id: string;
@@ -29,7 +29,7 @@ const InvitationItem = ({
           }}
           style={styles.clubImage}
         />
-        <Text style={styles.clubName}>{invite.club_id.name}</Text>
+        <Text style={styles.clubName}>{invite.club_id.club_name}</Text>
       </View>
 
       <View style={styles.body}>
