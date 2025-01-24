@@ -90,22 +90,23 @@ export const useDeleteClub = () => {
 
   return useMutation({
     async mutationFn(clubId: string) {
-      const { error } = await supabase.from("clubs").delete().eq("id", clubId);
+      const { error: updateError } = await supabase
+        .from("matches")
+        .update({ clubid: null })
+        .eq("clubid", clubId);
 
-      if (error) {
-        throw new Error(`Erro ao excluir clube: ${error.message}`);
-      }
-      return true;
+      if (updateError) throw new Error("Falha ao desvincular partidas");
+
+      const { error: deleteError } = await supabase
+        .from("clubs")
+        .delete()
+        .eq("id", clubId);
+
+      if (deleteError) throw new Error("Falha ao excluir clube");
     },
-    onSuccess: (_, clubId) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["clubs"] });
-      queryClient.invalidateQueries({ queryKey: ["club_members", clubId] });
-
-      queryClient.removeQueries({ queryKey: ["clubs", clubId] });
-    },
-    onError: (error) => {
-      console.error("Erro na exclusão:", error);
-      throw error;
+      queryClient.invalidateQueries({ queryKey: ["matches"] });
     },
   });
 };

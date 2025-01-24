@@ -138,7 +138,7 @@ export type Database = {
       }
       matches: {
         Row: {
-          clubid: string
+          clubid: string | null
           createdby: string
           data: string
           horario: string
@@ -148,7 +148,7 @@ export type Database = {
           team2: string
         }
         Insert: {
-          clubid: string
+          clubid?: string | null
           createdby: string
           data: string
           horario: string
@@ -158,7 +158,7 @@ export type Database = {
           team2: string
         }
         Update: {
-          clubid?: string
+          clubid?: string | null
           createdby?: string
           data?: string
           horario?: string

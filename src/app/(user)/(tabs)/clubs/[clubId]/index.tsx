@@ -56,7 +56,7 @@ export default function ClubDetails() {
   const handleDelete = () => {
     Alert.alert(
       "Confirmar Exclusão",
-      "Tem certeza que deseja excluir este clube permanentemente? Todas estatisticas salvas serão perdidas.",
+      "Tem certeza que deseja excluir este clube permanentemente?",
       [
         { text: "Cancelar", style: "cancel" },
         {
