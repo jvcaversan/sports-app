@@ -11,8 +11,8 @@ import { useIsClubAdmin } from "@/api/club_members";
 import { useSessionStore } from "@/store/useSessionStore";
 
 export default function ClubDetails() {
-  const { id } = useLocalSearchParams();
-  const clubId = Array.isArray(id) ? id[0] : id;
+  const { clubId: clubIdParam } = useLocalSearchParams<{ clubId: string }>();
+  const clubId = Array.isArray(clubIdParam) ? clubIdParam[0] : clubIdParam;
 
   const { session } = useSessionStore();
   const userId = session?.user.id;

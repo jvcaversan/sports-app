@@ -1,17 +1,26 @@
+import { Tables } from "@/types/supabase";
 import { Link } from "expo-router";
 import { Text } from "react-native";
 import { TouchableOpacity, StyleSheet } from "react-native";
 
 type ClubListItemProps = {
-  club: {
-    club_id: string;
-    clubs: { name: string };
+  club: Tables<"club_members"> & {
+    clubs: Tables<"clubs"> | null;
   };
 };
 
 export default function ClubListItem({ club }: ClubListItemProps) {
+  if (!club?.club_id || !club?.clubs?.name) {
+    return null;
+  }
   return (
-    <Link href={`/(user)/(clubs)/(listTeams)/${club.club_id}`} asChild>
+    <Link
+      href={{
+        pathname: "/(user)/(tabs)/clubs/[clubId]",
+        params: { clubId: club.club_id },
+      }}
+      asChild
+    >
       <TouchableOpacity style={styles.clubCard}>
         <Text style={styles.clubName}>{club.clubs.name}</Text>
         <Text style={styles.moreInfo}>→</Text>

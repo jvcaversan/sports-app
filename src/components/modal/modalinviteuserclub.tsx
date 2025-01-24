@@ -29,7 +29,7 @@ export default function InviteClubModal({
 
   const handleProfilePress = (user: Tables<"profiles">) => {
     onClose();
-    router.navigate(`/(playerprofilescreen)/${user.id}`);
+    router.navigate(`/(public-profile)/${user.id}`);
   };
 
   useEffect(() => {

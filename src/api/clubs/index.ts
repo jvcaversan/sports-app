@@ -1,4 +1,5 @@
 import { supabase } from "@/database/supabase";
+import { Tables } from "@/types/supabase";
 import { Club } from "@/types/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -65,15 +66,22 @@ export const useClubsByUserId = (userId: string) => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("club_members")
-        .select("club_id, joined_at, clubs(name)")
-        .eq("player_id", userId)
-        .order("joined_at", { ascending: false });
+        .select(
+          `
+          club_id,
+          clubs (
+            id,
+            name,
+            created_at
+          )
+        `
+        )
+        .eq("player_id", userId);
 
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      return data;
+      if (error) throw error;
+      return data as (Tables<"club_members"> & {
+        clubs: Tables<"clubs">;
+      })[];
     },
   });
 };

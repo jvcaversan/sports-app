@@ -1,20 +1,23 @@
 import { supabase } from "@/database/supabase";
+import { Tables } from "@/types/supabase";
 import { useQuery } from "@tanstack/react-query";
 import { useDebounce } from "use-debounce";
 
 export const useClubMembers = (clubId: string) => {
   return useQuery({
-    queryKey: ["club_members"],
+    queryKey: ["clubMembers", clubId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("club_members")
-        .select("*, profiles(name)")
+        .select("*, profiles(*)")
         .eq("club_id", clubId);
-      if (error) {
-        throw new Error(error.message);
-      }
-      return data;
+
+      if (error) throw error;
+      return data as (Tables<"club_members"> & {
+        profiles: Tables<"profiles"> | null;
+      })[];
     },
+    enabled: !!clubId,
   });
 };
 
@@ -63,6 +66,7 @@ export const useIsClubAdmin = (clubId: string, userId: string) => {
   return useQuery({
     queryKey: ["club_admin", clubId, userId],
     queryFn: async () => {
+      if (!clubId || !userId) return false;
       const { data, error } = await supabase
         .from("club_members")
         .select("role")

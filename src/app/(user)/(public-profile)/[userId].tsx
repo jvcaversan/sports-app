@@ -39,8 +39,7 @@ type ClubType = {
 export default function PlayerProfileScreen() {
   const [isModalVisible, setModalVisible] = useState(false);
   const [processingClubId, setProcessingClubId] = useState<string | null>(null);
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const userId = id;
+  const { userId } = useLocalSearchParams<{ userId: string }>();
   const { data: profile } = useProfile(userId);
   const queryClient = useQueryClient();
   const { session } = useSessionStore();

@@ -9,33 +9,51 @@ import {
 import { TabRoute } from "@/components/ClubsTabs/TabSection";
 import { Tables } from "@/types/supabase";
 import { MemberCard } from "./MemberCard";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { SearchInput } from "../SearchInput";
+import { useClubMembers } from "@/api/club_members";
 
 interface TabMembersProps {
-  members: Tables<"club_members">[];
+  members: (Tables<"club_members"> & {
+    profiles: Tables<"profiles"> | null;
+  })[];
   isMembersLoading: boolean;
 }
 
-export const TabMembers = ({ members, isMembersLoading }: TabMembersProps) => {
+export const TabMembers = () => {
+  const { clubId } = useLocalSearchParams<{ clubId: string }>();
+
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Use o hook para buscar os membros
+  const {
+    data: members,
+    isLoading: isMembersLoading,
+    error,
+  } = useClubMembers(clubId);
 
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
   };
 
   const handleSelectUser = (user: Tables<"club_members">) => {
-    console.log(
-      `Clicado no usuário com id = ${user.player_id}, nome: ${user.profiles.name}`
-    );
-    router.navigate(
-      `/(user)/(clubs)/(listTeams)/(perfilbyclub)/${user.player_id}`
-    );
+    if (!clubId || !user.player_id) {
+      console.error("IDs necessários não encontrados");
+      return;
+    }
+
+    router.navigate({
+      pathname: "/(user)/(tabs)/clubs/[clubId]/(members)/[memberId]",
+      params: {
+        clubId,
+        memberId: user.player_id,
+      },
+    });
   };
 
   const filteredMembers = useMemo(() => {
-    return members.filter((member) =>
-      member.profiles.name.toLowerCase().includes(searchQuery.toLowerCase())
+    return (members || []).filter((member) =>
+      member.profiles?.name?.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [members, searchQuery]);
 
@@ -44,6 +62,16 @@ export const TabMembers = ({ members, isMembersLoading }: TabMembersProps) => {
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#16A34A" />
         <Text style={styles.loadingText}>Carregando membros...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text style={[styles.loadingText, { color: "#DC2626" }]}>
+          Erro ao carregar membros
+        </Text>
       </View>
     );
   }
@@ -88,7 +116,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 8,
   },
-
   membersSection: {
     flex: 1,
     paddingTop: 4,
