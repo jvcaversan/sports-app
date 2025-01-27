@@ -7,6 +7,7 @@ import { useSessionStore } from "@/store/useSessionStore";
 import { useIsClubAdmin } from "@/api/club_members";
 import PreMatchTab from "@/components/Matchs/pre-match";
 import LiveMatchTab from "@/components/Matchs/match";
+import ConvocacaoTab from "@/components/Matchs/convocacao";
 
 export default function MatchScreen() {
   const { id, clubId } = useLocalSearchParams();
@@ -28,7 +29,10 @@ export default function MatchScreen() {
     const baseRoutes = [{ key: "liveMatch", title: "Partida" }];
 
     if (isAdmin) {
-      baseRoutes.unshift({ key: "preMatch", title: "Pré-Partida" });
+      baseRoutes.unshift(
+        { key: "convocacao", title: "Convocação" },
+        { key: "preMatch", title: "Pré-Partida" }
+      );
     }
 
     setRoutes(baseRoutes);
@@ -60,15 +64,16 @@ export default function MatchScreen() {
 
   const renderScene = ({ route }: { route: { key: string } }) => {
     switch (route.key) {
+      case "convocacao":
+        return <ConvocacaoTab matchId={matchId} clubId={normalizedClubId!} />;
       case "preMatch":
-        return <PreMatchTab matchId={matchId} clubId={normalizedClubId} />;
+        return <PreMatchTab matchId={matchId} clubId={normalizedClubId!} />;
       case "liveMatch":
         return <LiveMatchTab matchId={matchId} />;
       default:
         return null;
     }
   };
-
   return (
     <CustomScreen>
       <TabView
@@ -80,7 +85,6 @@ export default function MatchScreen() {
             {...props}
             indicatorStyle={styles.indicator}
             style={styles.tabBar}
-            labelStyle={styles.label}
             activeColor="#2F80ED"
             inactiveColor="#828282"
           />
@@ -97,10 +101,7 @@ const styles = StyleSheet.create({
   tabBar: {
     backgroundColor: "#FFFFFF",
   },
-  label: {
-    fontWeight: "bold",
-    textTransform: "capitalize",
-  },
+
   campoContainer: {
     width: "100%",
     height: 260,

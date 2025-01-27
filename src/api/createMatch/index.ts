@@ -1,7 +1,9 @@
 import { supabase } from "@/database/supabase";
+import { Tables } from "@/types/supabase";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 
 export const useCreateMatch = () => {
   const queryClient = useQueryClient();
@@ -65,6 +67,106 @@ export const useStaticsByMatchId = (matchId: string) => {
         throw new Error(error.message);
       }
       return data;
+    },
+  });
+};
+
+export const useMatchInvitations = (matchId: string) => {
+  const queryClient = useQueryClient();
+
+  const { data, ...rest } = useQuery({
+    queryKey: ["matchInvitations", matchId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("match_invitations")
+        .select("*, profiles(*)")
+        .eq("match_id", matchId)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!matchId,
+  });
+
+  useEffect(() => {
+    if (!matchId) return;
+
+    const channel = supabase
+      .channel("match-invites-real-time")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "match_invitations",
+          filter: `match_id=eq.${matchId}`,
+        },
+        () => {
+          queryClient.invalidateQueries({
+            queryKey: ["matchInvitations", matchId],
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      channel.unsubscribe();
+    };
+  }, [matchId, queryClient]);
+
+  return {
+    data: data || [],
+    ...rest,
+  };
+};
+
+export const useSendSuplentesInvites = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      matchId,
+      clubId,
+    }: {
+      matchId: string;
+      clubId: string;
+    }) => {
+      const { data: suplentes, error } = await supabase
+        .from("club_members")
+        .select("player_id")
+        .eq("club_id", clubId)
+        .eq("mensalistas", false);
+
+      if (error) throw error;
+      if (!suplentes?.length) throw new Error("Nenhum suplente encontrado");
+
+      const { data: existing } = await supabase
+        .from("match_invitations")
+        .select("player_id")
+        .eq("match_id", matchId);
+
+      const existingIds = existing?.map((i) => i.player_id) || [];
+      const filtered = suplentes.filter(
+        (s) => !existingIds.includes(s.player_id)
+      );
+
+      const { data: invitations, error: insertError } = await supabase
+        .from("match_invitations")
+        .insert(
+          filtered.map((s) => ({
+            match_id: matchId,
+            player_id: s.player_id,
+            status: "pending",
+          }))
+        )
+        .select();
+
+      if (insertError) throw insertError;
+      return invitations;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["matchInvitations"] });
     },
   });
 };

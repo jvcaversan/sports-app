@@ -8,7 +8,6 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
-
 export default function PreMatchTab({
   matchId,
   clubId,
@@ -34,7 +33,11 @@ export default function PreMatchTab({
           Alert.alert("Sucesso", "Convites enviados para os mensalistas!");
         },
         onError: (error) => {
-          Alert.alert("Erro", error.message);
+          const friendlyMessage = error.message.includes("já possuem convites")
+            ? "Os mensalistas já estão convidados"
+            : error.message;
+
+          Alert.alert(friendlyMessage);
         },
       }
     );
@@ -51,10 +54,6 @@ export default function PreMatchTab({
           {isPending ? "Enviando..." : "Convidar Mensalistas"}
         </Text>
       </TouchableOpacity>
-
-      {isError && (
-        <Text style={styles.errorText}>Erro ao enviar: {error?.message}</Text>
-      )}
     </ScrollView>
   );
 }
