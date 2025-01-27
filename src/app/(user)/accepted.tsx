@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { View, Text, StyleSheet, Alert } from "react-native";
-// Importando o componente de item
 import { useSessionStore } from "@/store/useSessionStore";
 import {
   acceptClubInvitation,
@@ -10,8 +9,12 @@ import {
 import FlatListWrapper from "@/components/ClubsTabs/FlatListComponent";
 import InvitationItem from "@/components/InvitationsList/InvitationItem";
 import { LoadingState } from "@/components/Erros/LoadingState";
+import CustomView from "@/components/CustomView";
 
 export default function InvitationsScreen() {
+  const [processingInvites, setProcessingInvites] = useState<Set<string>>(
+    new Set()
+  );
   const { session } = useSessionStore();
 
   if (!session) {
@@ -34,7 +37,9 @@ export default function InvitationsScreen() {
   }
 
   const handleAcceptInvitation = async (inviteId: string, clubId: string) => {
-    if (!session?.user.id) return;
+    if (!session?.user.id || processingInvites.has(inviteId)) return;
+
+    setProcessingInvites((prev) => new Set(prev.add(inviteId)));
 
     acceptInvite(
       {
@@ -44,9 +49,19 @@ export default function InvitationsScreen() {
       },
       {
         onSuccess: () => {
+          setProcessingInvites((prev) => {
+            const next = new Set(prev);
+            next.delete(inviteId);
+            return next;
+          });
           Alert.alert("Sucesso", "Você entrou no clube com sucesso!");
         },
         onError: (error) => {
+          setProcessingInvites((prev) => {
+            const next = new Set(prev);
+            next.delete(inviteId);
+            return next;
+          });
           console.log(error);
           Alert.alert(
             "Erro",
@@ -69,22 +84,25 @@ export default function InvitationsScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Convites para o Clube</Text>
+    <CustomView>
+      <View style={styles.container}>
+        <Text style={styles.header}>Convites para o Clube</Text>
 
-      <FlatListWrapper
-        data={invitations || []}
-        renderItem={({ item }) => (
-          <InvitationItem
-            invite={item}
-            onAccept={handleAcceptInvitation}
-            onReject={handleRejectInvitation}
-          />
-        )}
-        keyExtractor={(item) => item.id.toString()}
-        emptyMessage="Você não tem convites pendentes."
-      />
-    </View>
+        <FlatListWrapper
+          data={invitations || []}
+          renderItem={({ item }) => (
+            <InvitationItem
+              invite={item}
+              onAccept={handleAcceptInvitation}
+              onReject={handleRejectInvitation}
+              isProcessing={processingInvites.has(item.id)}
+            />
+          )}
+          keyExtractor={(item) => item.id.toString()}
+          emptyMessage="Você não tem convites pendentes."
+        />
+      </View>
+    </CustomView>
   );
 }
 

@@ -13,12 +13,14 @@ type InvitationItemProps = {
   };
   onAccept: (inviteId: string, clubId: string) => void;
   onReject: (inviteId: string) => void;
+  isProcessing: boolean;
 };
 
 const InvitationItem = ({
   invite,
   onAccept,
   onReject,
+  isProcessing,
 }: InvitationItemProps) => {
   return (
     <View style={styles.container}>
@@ -50,16 +52,16 @@ const InvitationItem = ({
         <TouchableOpacity
           style={[styles.button, styles.acceptButton]}
           onPress={() => onAccept(invite.id, invite.club_id.id)}
+          disabled={isProcessing}
         >
           <Ionicons name="checkmark-circle" size={20} color="#16A34A" />
-          <Text style={[styles.buttonText, styles.acceptText]}>
-            Aceitar Convite
-          </Text>
+          <Text style={[styles.buttonText, styles.acceptText]}>Aceitar</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={[styles.button, styles.rejectButton]}
           onPress={() => onReject(invite.id)}
+          disabled={isProcessing}
         >
           <Ionicons name="close-circle" size={20} color="#DC2626" />
           <Text style={[styles.buttonText, styles.rejectText]}>Recusar</Text>

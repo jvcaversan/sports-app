@@ -25,7 +25,6 @@ export const TabMembers = () => {
 
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Use o hook para buscar os membros
   const {
     data: members,
     isLoading: isMembersLoading,

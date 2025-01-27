@@ -30,7 +30,7 @@ export const ClubTabs = ({
           <TabMembers members={members} isMembersLoading={isMembersLoading} />
         );
       case "matches":
-        return <TabMatches matchs={matchs} />;
+        return <TabMatches matchs={matchs} key={matchs.id} />;
       default:
         return null;
     }
