@@ -80,26 +80,17 @@ export const useIsClubAdmin = (clubId: string, userId: string) => {
   });
 };
 
-export const useSendMensalistasInvites = () => {
+export const useSendPlayersInvites = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({
       matchId,
-      clubId,
+      playerIds,
     }: {
       matchId: string;
-      clubId: string;
+      playerIds: string[];
     }) => {
-      const { data: mensalistas, error } = await supabase
-        .from("club_members")
-        .select("player_id")
-        .eq("club_id", clubId)
-        .eq("mensalista", true);
-
-      if (error) throw error;
-      if (!mensalistas?.length) throw new Error("Nenhum mensalista encontrado");
-
       const { data: existingInvites, error: invitesError } = await supabase
         .from("match_invitations")
         .select("id, player_id, status")
@@ -115,15 +106,15 @@ export const useSendMensalistasInvites = () => {
       const toUpdate: string[] = [];
       const toInsert: string[] = [];
 
-      mensalistas.forEach((member) => {
-        const existing = existingPlayers?.[member.player_id];
+      playerIds.forEach((playerId) => {
+        const existing = existingPlayers?.[playerId];
 
         if (existing) {
           if (existing.status === "rejected") {
             toUpdate.push(existing.id);
           }
         } else {
-          toInsert.push(member.player_id);
+          toInsert.push(playerId);
         }
       });
 

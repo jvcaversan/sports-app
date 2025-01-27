@@ -1,20 +1,12 @@
-import {
-  FlatList,
-  View,
-  Text,
-  TouchableOpacity,
-  Alert,
-  StyleSheet,
-} from "react-native";
-import { useIsClubAdmin, useSendMensalistasInvites } from "@/api/club_members";
+import { FlatList, View, Text, StyleSheet } from "react-native";
+import { useIsClubAdmin } from "@/api/club_members";
 import { useSessionStore } from "@/store/useSessionStore";
-import {
-  useMatchInvitations,
-  useSendSuplentesInvites,
-} from "@/api/createMatch";
+import { useMatchInvitations } from "@/api/createMatch";
 import { Ionicons } from "@expo/vector-icons";
 import LoadingIndicator from "../ActivityIndicator";
 import { InviteItem } from "./inviteitem";
+import { InviteMensalistasButton } from "./invitemensalistabutton";
+import { InviteSuplentesButton } from "./invitesuplentesbutton";
 
 const STATUS_ORDER = ["pending", "accepted", "rejected"];
 
@@ -35,11 +27,6 @@ export default function ConvocacaoTab({
   const { session } = useSessionStore();
   const { data: isAdmin } = useIsClubAdmin(clubId, session?.user.id || "");
   const { data: invitations, isLoading } = useMatchInvitations(matchId);
-
-  const { mutate: inviteMensalistas, isPending: mensalistasLoading } =
-    useSendMensalistasInvites();
-  const { mutate: inviteSuplentes, isPending: suplentesLoading } =
-    useSendSuplentesInvites();
 
   const transformData = (): SectionData[] => {
     if (!invitations) return [];
@@ -85,41 +72,11 @@ export default function ConvocacaoTab({
     }
   };
 
-  const handleResendInvite = (inviteId: string) => {
-    Alert.alert("Reenviar convite", "Funcionalidade em desenvolvimento");
-  };
-
   const ListHeader = (
     <View style={styles.buttonGroup}>
-      <TouchableOpacity
-        style={[styles.button, mensalistasLoading && styles.disabledButton]}
-        onPress={() => inviteMensalistas({ matchId, clubId })}
-        disabled={mensalistasLoading}
-      >
-        {mensalistasLoading ? (
-          <LoadingIndicator message="Carregando" color="green" />
-        ) : (
-          <>
-            <Ionicons name="people-outline" size={20} color="white" />
-            <Text style={styles.buttonText}>Convidar Mensalistas</Text>
-          </>
-        )}
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={[styles.button, suplentesLoading && styles.disabledButton]}
-        onPress={() => inviteSuplentes({ matchId, clubId })}
-        disabled={suplentesLoading}
-      >
-        {suplentesLoading ? (
-          <LoadingIndicator message="Carregando" color="green" />
-        ) : (
-          <>
-            <Ionicons name="person-add-outline" size={20} color="white" />
-            <Text style={styles.buttonText}>Convidar Suplentes</Text>
-          </>
-        )}
-      </TouchableOpacity>
+      <InviteMensalistasButton matchId={matchId} clubId={clubId} />
+      <View style={{ width: 12 }} />
+      <InviteSuplentesButton matchId={matchId} clubId={clubId} />
     </View>
   );
 
@@ -158,12 +115,7 @@ export default function ConvocacaoTab({
           <FlatList
             data={item.data}
             keyExtractor={(invite) => invite.id}
-            renderItem={({ item: invite }) => (
-              <InviteItem
-                invite={invite}
-                onResend={() => handleResendInvite(invite.id)}
-              />
-            )}
+            renderItem={({ item: invite }) => <InviteItem invite={invite} />}
             scrollEnabled={false}
           />
         </View>
@@ -195,26 +147,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   buttonGroup: {
-    gap: 12,
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 32,
   },
-  button: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    backgroundColor: "#2F80ED",
-    padding: 16,
-    borderRadius: 8,
-  },
-  disabledButton: {
-    backgroundColor: "#BDBDBD",
-  },
-  buttonText: {
-    color: "white",
-    fontWeight: "600",
-    fontSize: 16,
-  },
+
   section: {
     marginBottom: 24,
   },

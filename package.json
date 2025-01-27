@@ -50,7 +50,8 @@
     "react-native-web": "~0.19.13",
     "use-debounce": "^10.0.4",
     "zod": "^3.23.8",
-    "zustand": "^5.0.1"
+    "zustand": "^5.0.1",
+    "expo-checkbox": "~4.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

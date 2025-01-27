@@ -4,15 +4,10 @@ import { useResendPlayerInvite } from "@/api/club_members";
 
 type InviteItemProps = {
   invite: any;
-  onResend?: () => void;
   isResending?: boolean;
 };
 
-export const InviteItem = ({
-  invite,
-  onResend,
-  isResending,
-}: InviteItemProps) => {
+export const InviteItem = ({ invite, isResending }: InviteItemProps) => {
   const { mutate: resendInvite, isPending } = useResendPlayerInvite();
 
   const getStatusDetails = (status: string) => {
