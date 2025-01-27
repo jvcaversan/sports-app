@@ -35,9 +35,7 @@ export default function Stats() {
     return (
       <View style={styles.errorContainer}>
         <MaterialCommunityIcons name="alert-circle" size={40} color="#dc2626" />
-        <Text style={styles.errorText}>
-          {error?.message || "Erro ao carregar dados"}
-        </Text>
+        <Text style={styles.errorText}>Usuário sem Estatisticas</Text>
       </View>
     );
   }

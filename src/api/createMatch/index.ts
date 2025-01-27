@@ -32,7 +32,6 @@ export const useCreateMatch = () => {
       return newMatch;
     },
     onSuccess: () => {
-      // Invalida o cache para "clubs" e força o refetch
       queryClient.invalidateQueries({ queryKey: ["matches"] });
     },
   });

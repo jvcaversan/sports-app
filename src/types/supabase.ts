@@ -70,6 +70,7 @@ export type Database = {
           club_id: string
           id: string
           joined_at: string
+          mensalista: boolean | null
           player_id: string
           role: string
         }
@@ -77,6 +78,7 @@ export type Database = {
           club_id?: string
           id?: string
           joined_at?: string
+          mensalista?: boolean | null
           player_id?: string
           role?: string
         }
@@ -84,6 +86,7 @@ export type Database = {
           club_id?: string
           id?: string
           joined_at?: string
+          mensalista?: boolean | null
           player_id?: string
           role?: string
         }
@@ -130,6 +133,48 @@ export type Database = {
           {
             foreignKeyName: "clubs_created_by_fkey"
             columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      match_invitations: {
+        Row: {
+          created_at: string
+          id: string
+          match_id: string
+          player_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          match_id?: string
+          player_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          match_id?: string
+          player_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_invitations_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "matches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "match_invitations_player_id_fkey"
+            columns: ["player_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -190,7 +235,7 @@ export type Database = {
           email: string
           id: string
           name: string
-          phone: string
+          phone: string | null
           photo: string | null
         }
         Insert: {
@@ -198,7 +243,7 @@ export type Database = {
           email?: string
           id: string
           name?: string
-          phone?: string
+          phone?: string | null
           photo?: string | null
         }
         Update: {
@@ -206,7 +251,7 @@ export type Database = {
           email?: string
           id?: string
           name?: string
-          phone?: string
+          phone?: string | null
           photo?: string | null
         }
         Relationships: []
