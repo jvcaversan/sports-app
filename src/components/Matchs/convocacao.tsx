@@ -36,7 +36,6 @@ export default function ConvocacaoTab({
   const { data: isAdmin } = useIsClubAdmin(clubId, session?.user.id || "");
   const { data: invitations, isLoading } = useMatchInvitations(matchId);
 
-  // Mutations
   const { mutate: inviteMensalistas, isPending: mensalistasLoading } =
     useSendMensalistasInvites();
   const { mutate: inviteSuplentes, isPending: suplentesLoading } =

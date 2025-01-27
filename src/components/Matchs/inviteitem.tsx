@@ -1,5 +1,6 @@
 import { StyleSheet, View, Text, TouchableOpacity, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useResendPlayerInvite } from "@/api/club_members";
 
 type InviteItemProps = {
   invite: any;
@@ -12,6 +13,8 @@ export const InviteItem = ({
   onResend,
   isResending,
 }: InviteItemProps) => {
+  const { mutate: resendInvite, isPending } = useResendPlayerInvite();
+
   const getStatusDetails = (status: string) => {
     switch (status) {
       case "pending":
@@ -39,6 +42,16 @@ export const InviteItem = ({
 
   const status = getStatusDetails(invite.status);
 
+  const handleResend = () => {
+    resendInvite(
+      { matchId: invite.match_id, playerId: invite.player_id },
+      {
+        onSuccess: () => Alert.alert("Convite reenviado!"),
+        onError: (error) => Alert.alert("Erro", error.message),
+      }
+    );
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.userInfo}>
@@ -56,7 +69,7 @@ export const InviteItem = ({
       {(invite.status === "pending" || invite.status === "rejected") && (
         <TouchableOpacity
           style={styles.resendButton}
-          onPress={onResend}
+          onPress={handleResend}
           disabled={isResending}
         >
           {isResending ? (

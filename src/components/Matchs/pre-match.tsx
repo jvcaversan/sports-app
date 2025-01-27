@@ -1,81 +1,10 @@
-import { useSendMensalistasInvites } from "@/api/club_members";
-import { useStaticsByMatchId } from "@/api/createMatch";
-import { useState } from "react";
-import {
-  Text,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  Alert,
-} from "react-native";
-export default function PreMatchTab({
-  matchId,
-  clubId,
-}: {
-  matchId: string;
-  clubId: string;
-}) {
-  const { data: matchs } = useStaticsByMatchId(matchId);
-  const {
-    mutate: createMensalistasInvites,
-    isPending,
-    isError,
-    error,
-  } = useSendMensalistasInvites();
-  const match = matchs?.[0];
-  const [selectedTeam, setSelectedTeam] = useState<"time1" | "time2">("time1");
-
-  const handleInviteMensalistas = () => {
-    createMensalistasInvites(
-      { matchId, clubId },
-      {
-        onSuccess: () => {
-          Alert.alert("Sucesso", "Convites enviados para os mensalistas!");
-        },
-        onError: (error) => {
-          const friendlyMessage = error.message.includes("já possuem convites")
-            ? "Os mensalistas já estão convidados"
-            : error.message;
-
-          Alert.alert(friendlyMessage);
-        },
-      }
-    );
-  };
-
+import { Text, ScrollView, StyleSheet } from "react-native";
+export default function PreMatchTab() {
   return (
     <ScrollView>
-      <TouchableOpacity
-        style={[styles.button, isPending && styles.disabledButton]}
-        onPress={handleInviteMensalistas}
-        disabled={isPending}
-      >
-        <Text style={styles.buttonText}>
-          {isPending ? "Enviando..." : "Convidar Mensalistas"}
-        </Text>
-      </TouchableOpacity>
+      <Text>OLA</Text>
     </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
-  button: {
-    backgroundColor: "#007AFF",
-    padding: 15,
-    borderRadius: 8,
-    margin: 16,
-    alignItems: "center",
-  },
-  disabledButton: {
-    backgroundColor: "#B3B3B3",
-  },
-  buttonText: {
-    color: "white",
-    fontWeight: "600",
-  },
-  errorText: {
-    color: "red",
-    padding: 16,
-    textAlign: "center",
-  },
-});
+const styles = StyleSheet.create({});

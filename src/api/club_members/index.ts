@@ -102,35 +102,115 @@ export const useSendMensalistasInvites = () => {
 
       const { data: existingInvites, error: invitesError } = await supabase
         .from("match_invitations")
-        .select("player_id")
-        .eq("match_id", matchId)
-        .eq("status", "pending");
+        .select("id, player_id, status")
+        .eq("match_id", matchId);
 
       if (invitesError) throw invitesError;
 
-      const existingPlayerIds =
-        existingInvites?.map((invite) => invite.player_id) || [];
-      const filteredMensalistas = mensalistas.filter(
-        (member) => !existingPlayerIds.includes(member.player_id)
-      );
+      const existingPlayers = existingInvites?.reduce((acc, invite) => {
+        acc[invite.player_id] = invite;
+        return acc;
+      }, {} as Record<string, (typeof existingInvites)[number]>);
 
-      if (filteredMensalistas.length === 0) {
-        throw new Error("Todos os mensalistas já possuem convites pendentes");
+      const toUpdate: string[] = [];
+      const toInsert: string[] = [];
+
+      mensalistas.forEach((member) => {
+        const existing = existingPlayers?.[member.player_id];
+
+        if (existing) {
+          if (existing.status === "rejected") {
+            toUpdate.push(existing.id);
+          }
+        } else {
+          toInsert.push(member.player_id);
+        }
+      });
+
+      if (toUpdate.length > 0) {
+        const { error: updateError } = await supabase
+          .from("match_invitations")
+          .update({ status: "pending", updated_at: new Date().toISOString() })
+          .in("id", toUpdate);
+
+        if (updateError) throw updateError;
       }
 
-      const { data: invitations, error: insertError } = await supabase
-        .from("match_invitations")
-        .insert(
-          filteredMensalistas.map((member) => ({
-            match_id: matchId,
-            player_id: member.player_id,
-            status: "pending",
-          }))
-        )
-        .select();
+      if (toInsert.length > 0) {
+        const { error: insertError } = await supabase
+          .from("match_invitations")
+          .insert(
+            toInsert.map((player_id) => ({
+              match_id: matchId,
+              player_id,
+              status: "pending",
+            }))
+          );
 
-      if (insertError) throw insertError;
-      return invitations;
+        if (insertError) throw insertError;
+      }
+
+      return { updated: toUpdate.length, inserted: toInsert.length };
+    },
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["matchInvitations", variables.matchId],
+      });
+    },
+  });
+};
+
+export const useResendPlayerInvite = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      matchId,
+      playerId,
+    }: {
+      matchId: string;
+      playerId: string;
+    }) => {
+      const { data: existingInvite, error: inviteError } = await supabase
+        .from("match_invitations")
+        .select("id, status")
+        .eq("match_id", matchId)
+        .eq("player_id", playerId)
+        .single();
+
+      if (inviteError && !inviteError.details?.includes("0 rows")) {
+        throw inviteError;
+      }
+
+      if (existingInvite?.status === "rejected") {
+        const { error: updateError } = await supabase
+          .from("match_invitations")
+          .update({
+            status: "pending",
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", existingInvite.id);
+
+        if (updateError) throw updateError;
+        return { action: "updated", id: existingInvite.id };
+      }
+
+      if (!existingInvite || existingInvite.status !== "pending") {
+        const { error: insertError, data: newInvite } = await supabase
+          .from("match_invitations")
+          .insert({
+            match_id: matchId,
+            player_id: playerId,
+            status: "pending",
+          })
+          .select()
+          .single();
+
+        if (insertError) throw insertError;
+        return { action: "created", id: newInvite.id };
+      }
+
+      return { action: "no_action" };
     },
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({
