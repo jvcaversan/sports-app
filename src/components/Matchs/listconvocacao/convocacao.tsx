@@ -3,10 +3,10 @@ import { useIsClubAdmin } from "@/api/club_members";
 import { useSessionStore } from "@/store/useSessionStore";
 import { useMatchInvitations } from "@/api/createMatch";
 import { Ionicons } from "@expo/vector-icons";
-import LoadingIndicator from "../ActivityIndicator";
+import LoadingIndicator from "../../ActivityIndicator";
 import { InviteItem } from "./inviteitem";
-import { InviteMensalistasButton } from "./invitemensalistabutton";
 import { InviteSuplentesButton } from "./invitesuplentesbutton";
+import { InviteMensalistasButton } from "./invitemensalistabutton";
 
 const STATUS_ORDER = ["pending", "accepted", "rejected"];
 

@@ -229,6 +229,69 @@ export type Database = {
           },
         ]
       }
+      player_ratings: {
+        Row: {
+          club_id: string | null
+          created_at: string | null
+          id: string
+          player_id: string | null
+          position: string
+          rating: number
+          updated_at: string | null
+        }
+        Insert: {
+          club_id?: string | null
+          created_at?: string | null
+          id?: string
+          player_id?: string | null
+          position: string
+          rating: number
+          updated_at?: string | null
+        }
+        Update: {
+          club_id?: string | null
+          created_at?: string | null
+          id?: string
+          player_id?: string | null
+          position?: string
+          rating?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "player_ratings_club_id_fkey"
+            columns: ["club_id"]
+            isOneToOne: false
+            referencedRelation: "clubs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "player_ratings_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      positions: {
+        Row: {
+          created_at: string | null
+          id: number
+          position_name: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          position_name: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          position_name?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string

@@ -5,9 +5,9 @@ import { useEffect, useState } from "react";
 import CustomScreen from "@/components/CustomView";
 import { useSessionStore } from "@/store/useSessionStore";
 import { useIsClubAdmin } from "@/api/club_members";
-import PreMatchTab from "@/components/Matchs/pre-match";
+import PreMatchTab from "@/components/Matchs/listprematch/pre-match";
 import LiveMatchTab from "@/components/Matchs/match";
-import ConvocacaoTab from "@/components/Matchs/convocacao";
+import ConvocacaoTab from "@/components/Matchs/listconvocacao/convocacao";
 
 export default function MatchScreen() {
   const { id, clubId } = useLocalSearchParams();

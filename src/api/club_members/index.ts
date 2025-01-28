@@ -1,6 +1,7 @@
 import { supabase } from "@/database/supabase";
 import { Tables } from "@/types/supabase";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { useDebounce } from "use-debounce";
 
 export const useClubMembers = (clubId: string) => {
@@ -207,6 +208,78 @@ export const useResendPlayerInvite = () => {
       queryClient.invalidateQueries({
         queryKey: ["matchInvitations", variables.matchId],
       });
+    },
+  });
+};
+
+export const useConfirmedPlayers = (matchId: string) => {
+  const queryClient = useQueryClient();
+
+  const { data, ...rest } = useQuery({
+    queryKey: ["match-confirmed-players", matchId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("match_invitations")
+        .select(
+          `
+          player_id,
+          status,
+          profiles (
+            name,
+            photo
+          )
+        `
+        )
+        .eq("match_id", matchId)
+        .eq("status", "accepted");
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!matchId,
+  });
+
+  useEffect(() => {
+    if (!matchId) return;
+
+    const channel = supabase
+      .channel("match-invites-real-time")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "match_invitations",
+          filter: `match_id=eq.${matchId}`,
+        },
+        () => {
+          queryClient.invalidateQueries({
+            queryKey: ["match-confirmed-players", matchId],
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      channel.unsubscribe();
+    };
+  }, [matchId, queryClient]);
+
+  return {
+    data: data || [],
+    ...rest,
+  };
+};
+
+export const usePositions = () => {
+  return useQuery({
+    queryKey: ["positions"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("positions")
+        .select("id, position_name");
+      if (error) throw error;
+      return data;
     },
   });
 };
