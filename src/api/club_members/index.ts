@@ -283,3 +283,19 @@ export const usePositions = () => {
     },
   });
 };
+
+export const usePlayerRatings = (clubId: string) => {
+  return useQuery({
+    queryKey: ["player_ratings", clubId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("player_ratings")
+        .select("*")
+        .eq("club_id", clubId);
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!clubId,
+  });
+};

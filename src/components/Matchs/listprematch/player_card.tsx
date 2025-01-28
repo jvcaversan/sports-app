@@ -1,75 +1,71 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   StyleSheet,
   TextInput,
   TouchableOpacity,
-  ScrollView,
   Modal,
+  ScrollView,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/database/supabase";
+
+type Position = {
+  id: number;
+  position_name: string;
+};
+
+type PlayerCardProps = {
+  player: any;
+  positions: Position[];
+  initialRating: string;
+  initialPosition: string;
+  onDataChange: (field: "rating" | "position", value: string) => void;
+};
 
 export default function PlayerCard({
   player,
-  clubId,
   positions,
-}: {
-  player: any;
-  clubId: string;
-  positions: any[];
-}) {
-  const [rating, setRating] = useState("");
-  const [position, setPosition] = useState("");
-  const [showPositionMenu, setShowPositionMenu] = useState(false);
-  const queryClient = useQueryClient();
-
-  const { data: existingRating } = useQuery({
-    queryKey: ["player_rating", player.player_id, clubId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("player_ratings")
-        .select("rating, position")
-        .eq("player_id", player.player_id)
-        .eq("club_id", clubId)
-        .single();
-
-      return error ? null : data;
-    },
-  });
+  initialRating,
+  initialPosition,
+  onDataChange,
+}: PlayerCardProps) {
+  const [showPositionModal, setShowPositionModal] = useState(false);
+  const [rating, setRating] = useState(initialRating.replace(".", ","));
+  const [position, setPosition] = useState(initialPosition);
 
   useEffect(() => {
-    if (existingRating) {
-      setRating(existingRating.rating?.toString() || "");
-      setPosition(existingRating.position?.toString() || "");
+    setRating(initialRating.replace(".", ","));
+    setPosition(initialPosition);
+  }, [initialRating, initialPosition]);
+
+  const handleRatingChange = (text: string) => {
+    let sanitizedText = text.replace(/[^0-9,]/g, "");
+
+    const commaCount = (sanitizedText.match(/,/g) || []).length;
+    if (commaCount > 1) {
+      return;
     }
-  }, [existingRating]);
 
-  const saveRating = useMutation({
-    mutationFn: async () => {
-      const payload = {
-        club_id: clubId,
-        player_id: player.player_id,
-        rating: Number(rating),
-        position: position,
-      };
+    setRating(sanitizedText);
 
-      const { error } = await supabase.from("player_ratings").upsert(payload, {
-        onConflict: "player_id,club_id",
-      });
+    if (sanitizedText !== "," && sanitizedText !== "") {
+      const numericValue = parseFloat(sanitizedText.replace(",", "."));
+      if (!isNaN(numericValue)) {
+        const clampedValue = Math.min(10, Math.max(0, numericValue));
+        onDataChange("rating", clampedValue.toString());
+      }
+    }
+  };
+  const selectPosition = (posId: string) => {
+    setPosition(posId);
+    onDataChange("position", posId);
+    setShowPositionModal(false);
+  };
 
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["player_ratings"] });
-    },
-  });
-
-  const getPositionName = (id: string) => {
+  const getPositionName = () => {
     return (
-      positions.find((p) => p.id.toString() === id)?.position_name ||
+      positions.find((p) => p.id.toString() === position)?.position_name ||
       "Selecione"
     );
   };
@@ -77,130 +73,114 @@ export default function PlayerCard({
   return (
     <View style={styles.card}>
       <MaterialIcons name="person" size={24} color="#2ecc71" />
-      <View style={styles.row}>
-        <Text style={styles.name}>{player.profiles.name}</Text>
 
-        <View style={styles.positionContainer}>
-          <TouchableOpacity
-            style={styles.positionButton}
-            onPress={() => setShowPositionMenu(true)}
-          >
-            <Text style={styles.positionButtonText}>
-              {getPositionName(position)}
-            </Text>
-            <MaterialIcons name="arrow-drop-down" size={24} color="#2c3e50" />
-          </TouchableOpacity>
+      <Text style={styles.name} numberOfLines={1}>
+        {player.profiles.name}
+      </Text>
 
-          <Modal
-            visible={showPositionMenu}
-            transparent={true}
-            animationType="slide"
-            onRequestClose={() => setShowPositionMenu(false)}
-          >
-            <TouchableOpacity
-              style={styles.modalBackdrop}
-              activeOpacity={1}
-              onPress={() => setShowPositionMenu(false)}
-            >
-              <View style={styles.modalContent}>
-                <ScrollView>
-                  {positions.map((pos) => (
-                    <TouchableOpacity
-                      key={pos.id}
-                      style={styles.positionItem}
-                      onPress={() => {
-                        setPosition(pos.id.toString());
-                        setShowPositionMenu(false);
-                        saveRating.mutate();
-                      }}
-                    >
-                      <Text style={styles.positionItemText}>
-                        {pos.position_name}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-              </View>
-            </TouchableOpacity>
-          </Modal>
-        </View>
+      <TouchableOpacity
+        style={styles.positionButton}
+        onPress={() => setShowPositionModal(true)}
+      >
+        <Text style={styles.positionText}>{getPositionName()}</Text>
+        <MaterialIcons name="arrow-drop-down" size={24} color="#666" />
+      </TouchableOpacity>
 
-        <TextInput
-          style={[styles.input, styles.smallInput]}
-          value={rating}
-          keyboardType="numeric"
-          placeholder="Nota"
-          onChangeText={setRating}
-          onBlur={() => saveRating.mutate()}
-        />
-      </View>
+      <TextInput
+        style={styles.ratingInput}
+        value={rating}
+        keyboardType="numeric"
+        placeholder="0,0"
+        onChangeText={handleRatingChange}
+        maxLength={4}
+      />
+
+      <PositionModal
+        visible={showPositionModal}
+        positions={positions}
+        onSelect={selectPosition}
+        onClose={() => setShowPositionModal(false)}
+      />
     </View>
   );
 }
 
+const PositionModal = ({
+  visible,
+  positions,
+  onSelect,
+  onClose,
+}: {
+  visible: boolean;
+  positions: Position[];
+  onSelect: (positionId: string) => void;
+  onClose: () => void;
+}) => (
+  <Modal visible={visible} transparent animationType="slide">
+    <TouchableOpacity
+      style={styles.modalOverlay}
+      activeOpacity={1}
+      onPress={onClose}
+    >
+      <View style={styles.modalContent}>
+        <ScrollView>
+          {positions.map((pos) => (
+            <TouchableOpacity
+              key={pos.id}
+              style={styles.positionItem}
+              onPress={() => onSelect(pos.id.toString())}
+            >
+              <Text style={styles.positionItemText}>{pos.position_name}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
+    </TouchableOpacity>
+  </Modal>
+);
+
 const styles = StyleSheet.create({
   card: {
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: "white",
     borderRadius: 8,
     padding: 12,
-    marginVertical: 4,
-    flexDirection: "row",
-    alignItems: "center",
+    marginBottom: 8,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 2,
   },
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-    gap: 8,
-  },
   name: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "#2c3e50",
-    flexShrink: 1,
-    minWidth: "30%",
-    marginLeft: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 6,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    fontSize: 14,
-    height: 40,
-    color: "#2c3e50",
-  },
-  smallInput: {
-    width: 70,
-    textAlign: "center",
-  },
-  positionContainer: {
     flex: 1,
-    marginHorizontal: 4,
-    maxWidth: 140,
+    marginLeft: 8,
+    fontSize: 16,
+    color: "#333",
   },
   positionButton: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    backgroundColor: "#f0f0f0",
+    borderRadius: 6,
+    padding: 8,
+    marginHorizontal: 8,
+    minWidth: 100,
+  },
+  positionText: {
+    color: "#333",
+    fontSize: 14,
+  },
+  ratingInput: {
     borderWidth: 1,
     borderColor: "#ddd",
     borderRadius: 6,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    height: 40,
-  },
-  positionButtonText: {
-    color: "#2c3e50",
+    padding: 8,
+    width: 70,
+    textAlign: "center",
     fontSize: 14,
   },
-  modalBackdrop: {
+  modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.5)",
     justifyContent: "center",
@@ -209,7 +189,6 @@ const styles = StyleSheet.create({
   modalContent: {
     backgroundColor: "white",
     borderRadius: 8,
-    padding: 16,
     maxHeight: "60%",
     width: "80%",
   },
@@ -219,7 +198,7 @@ const styles = StyleSheet.create({
     borderBottomColor: "#eee",
   },
   positionItemText: {
-    color: "#2c3e50",
     fontSize: 16,
+    color: "#333",
   },
 });
