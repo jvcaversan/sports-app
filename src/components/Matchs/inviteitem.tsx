@@ -2,6 +2,8 @@ import { StyleSheet, View, Text, TouchableOpacity, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useResendPlayerInvite } from "@/api/club_members";
 
+type IoniconsName = React.ComponentProps<typeof Ionicons>["name"];
+
 type InviteItemProps = {
   invite: any;
   isResending?: boolean;
@@ -10,10 +12,16 @@ type InviteItemProps = {
 export const InviteItem = ({ invite, isResending }: InviteItemProps) => {
   const { mutate: resendInvite, isPending } = useResendPlayerInvite();
 
-  const getStatusDetails = (status: string) => {
+  const getStatusDetails = (
+    status: string
+  ): { color: string; icon: IoniconsName; label: string } => {
     switch (status) {
       case "pending":
-        return { color: "#F2994A", icon: "time-outline", label: "Pendente" };
+        return {
+          color: "#F2994A",
+          icon: "time-outline",
+          label: "Pendente",
+        };
       case "accepted":
         return {
           color: "#27AE60",
@@ -67,11 +75,7 @@ export const InviteItem = ({ invite, isResending }: InviteItemProps) => {
           onPress={handleResend}
           disabled={isResending}
         >
-          {isResending ? (
-            <Ionicons name="refresh-outline" size={16} color="#2F80ED" />
-          ) : (
-            <Ionicons name="send-outline" size={16} color="#2F80ED" />
-          )}
+          <Ionicons name={isResending ? "refresh-outline" : "send-outline"} />
         </TouchableOpacity>
       )}
     </View>

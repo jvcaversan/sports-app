@@ -137,17 +137,18 @@ export const InvitePlayersModal = ({
             </View>
           ) : (
             <>
-              <TouchableOpacity
-                style={styles.selectAllButton}
-                onPress={toggleSelectAll}
-              >
-                <Text style={styles.selectAllText}>
-                  {selectedPlayers.length === players?.length
-                    ? "Desmarcar todos"
-                    : "Selecionar todos"}
-                </Text>
-              </TouchableOpacity>
-
+              {players && players.length > 0 && (
+                <TouchableOpacity
+                  style={styles.selectAllButton}
+                  onPress={toggleSelectAll}
+                >
+                  <Text style={styles.selectAllText}>
+                    {selectedPlayers.length === players.length
+                      ? "Desmarcar todos"
+                      : "Selecionar todos"}
+                  </Text>
+                </TouchableOpacity>
+              )}
               <FlatList
                 data={players}
                 keyExtractor={(item) => item.player_id}
