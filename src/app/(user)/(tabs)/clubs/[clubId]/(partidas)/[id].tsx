@@ -1,5 +1,5 @@
 import { useLocalSearchParams } from "expo-router";
-import { StyleSheet, Text } from "react-native";
+import { StyleSheet, Text, View, ActivityIndicator } from "react-native";
 import { TabView, TabBar } from "react-native-tab-view";
 import { useEffect, useState } from "react";
 import CustomScreen from "@/components/CustomView";
@@ -14,6 +14,7 @@ export default function MatchScreen() {
   const { session } = useSessionStore();
   const [index, setIndex] = useState(0);
   const [routes, setRoutes] = useState<{ key: string; title: string }[]>([]);
+  const [isCreating, setIsCreating] = useState(true); // Novo estado para controle do loading
 
   const normalizedClubId = Array.isArray(clubId) ? clubId[0] : clubId;
   const matchId = Array.isArray(id) ? id[0] : id;
@@ -24,6 +25,15 @@ export default function MatchScreen() {
     isLoading: adminLoading,
     isError: adminError,
   } = useIsClubAdmin(normalizedClubId || "", userId || "");
+
+  useEffect(() => {
+    // Simula o tempo de criação da partida
+    const creationTimer = setTimeout(() => {
+      setIsCreating(false);
+    }, 1000);
+
+    return () => clearTimeout(creationTimer);
+  }, []);
 
   useEffect(() => {
     const baseRoutes = [{ key: "liveMatch", title: "Partida" }];
@@ -38,6 +48,18 @@ export default function MatchScreen() {
     setRoutes(baseRoutes);
   }, [isAdmin]);
 
+  // Tela de loading global
+  if (isCreating) {
+    return (
+      <CustomScreen>
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color="#2F80ED" />
+          <Text style={styles.loadingText}>Criando Partida...</Text>
+        </View>
+      </CustomScreen>
+    );
+  }
+
   if (!session) {
     return (
       <CustomScreen>
@@ -49,7 +71,10 @@ export default function MatchScreen() {
   if (!matchId || !normalizedClubId) {
     return (
       <CustomScreen>
-        <Text>Partida não encontrada</Text>
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color="#2F80ED" />
+          <Text style={styles.loadingText}>Carregando Partida...</Text>
+        </View>
       </CustomScreen>
     );
   }
@@ -57,7 +82,10 @@ export default function MatchScreen() {
   if (adminLoading) {
     return (
       <CustomScreen>
-        <Text>Verificando permissões...</Text>
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color="#2F80ED" />
+          <Text style={styles.loadingText}>Verificando Permissões...</Text>
+        </View>
       </CustomScreen>
     );
   }
@@ -74,6 +102,7 @@ export default function MatchScreen() {
         return null;
     }
   };
+
   return (
     <CustomScreen>
       <TabView
@@ -101,7 +130,17 @@ const styles = StyleSheet.create({
   tabBar: {
     backgroundColor: "#FFFFFF",
   },
-
+  loadingOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "white",
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: "#2F80ED",
+  },
   campoContainer: {
     width: "100%",
     height: 260,
