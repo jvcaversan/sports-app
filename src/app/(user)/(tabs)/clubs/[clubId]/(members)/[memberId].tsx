@@ -2,7 +2,7 @@ import React from "react";
 import { StyleSheet, Alert } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import CustomScreen from "@/components/CustomView";
-import { ErrorState } from "@/components/Erros/ErroState";
+import { ErrorState } from "@/components/Erros/Error";
 import { useMemberProfile } from "@/hooks/Member/useMemberProfile";
 import { useMemberMutations } from "@/hooks/Member/useMemberMutations";
 import { LoadingState } from "@/components/Erros/LoadingState";

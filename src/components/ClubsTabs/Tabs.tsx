@@ -6,7 +6,9 @@ import { TabMembers } from "./MemberTabs/TabMembers";
 import { TabMatches } from "./MatchesTab/TabMatches";
 
 interface ClubTabsProps {
-  members: Tables<"club_members">[];
+  members: (Tables<"club_members"> & {
+    profiles: Tables<"profiles"> | null;
+  })[];
   matchs: Tables<"matches">[];
   isMembersLoading: boolean;
 }
@@ -30,7 +32,7 @@ export const ClubTabs = ({
           <TabMembers members={members} isMembersLoading={isMembersLoading} />
         );
       case "matches":
-        return <TabMatches matchs={matchs} key={matchs.id} />;
+        return <TabMatches matchs={matchs} />;
       default:
         return null;
     }

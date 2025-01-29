@@ -11,7 +11,6 @@ import { Tables } from "@/types/supabase";
 import { MemberCard } from "./MemberCard";
 import { router, useLocalSearchParams } from "expo-router";
 import { SearchInput } from "../SearchInput";
-import { useClubMembers } from "@/api/club_members";
 
 interface TabMembersProps {
   members: (Tables<"club_members"> & {
@@ -20,16 +19,10 @@ interface TabMembersProps {
   isMembersLoading: boolean;
 }
 
-export const TabMembers = () => {
+export const TabMembers = ({ members, isMembersLoading }: TabMembersProps) => {
   const { clubId } = useLocalSearchParams<{ clubId: string }>();
 
   const [searchQuery, setSearchQuery] = useState("");
-
-  const {
-    data: members,
-    isLoading: isMembersLoading,
-    error,
-  } = useClubMembers(clubId);
 
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
@@ -61,16 +54,6 @@ export const TabMembers = () => {
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#16A34A" />
         <Text style={styles.loadingText}>Carregando membros...</Text>
-      </View>
-    );
-  }
-
-  if (error) {
-    return (
-      <View style={styles.loadingContainer}>
-        <Text style={[styles.loadingText, { color: "#DC2626" }]}>
-          Erro ao carregar membros
-        </Text>
       </View>
     );
   }

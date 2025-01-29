@@ -10,29 +10,27 @@ interface ClubHeaderProps {
   clubName: string;
   clubId: string;
   isAdmin: boolean;
+  onDelete: () => void;
 }
 
-export const ClubHeader = ({ clubName, clubId, isAdmin }: ClubHeaderProps) => {
+export const ClubHeader = ({
+  clubName,
+  clubId,
+  isAdmin,
+  onDelete,
+}: ClubHeaderProps) => {
   const [modalVisible, setModalVisible] = useState(false);
   const { session } = useSessionStore();
   const userId = session?.user.id;
-
-  const {
-    data: clubAdmin,
-    isLoading,
-    error,
-  } = useIsClubAdmin(clubId, userId || "");
 
   const handleAddUserPress = () => {
     setModalVisible(true);
   };
 
-  if (isLoading) return null;
-
   return (
     <View style={styles.header}>
       <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-        <Ionicons name="arrow-back" size={20} color="#FFFFFF" />
+        <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
       </TouchableOpacity>
 
       <View style={styles.headerCenter}>
@@ -41,22 +39,29 @@ export const ClubHeader = ({ clubName, clubId, isAdmin }: ClubHeaderProps) => {
         </Text>
       </View>
 
-      {clubAdmin && (
+      {isAdmin && (
         <View style={styles.actionButtons}>
           <TouchableOpacity
-            style={styles.iconButton}
-            onPress={() => {
-              router.navigate(`/(user)/(tabs)/clubs/${clubId}/create-match`);
-            }}
+            style={[styles.iconButton, styles.dangerButton]}
+            onPress={onDelete}
           >
-            <Ionicons name="add" size={20} color="#FFFFFF" />
+            <Ionicons name="trash-outline" size={20} color="#FFFFFF" />
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.iconButton}
             onPress={handleAddUserPress}
           >
-            <MaterialIcons name="person-add" size={20} color="#FFFFFF" />
+            <MaterialIcons name="group-add" size={24} color="#16A34A" />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() =>
+              router.navigate(`/(user)/(tabs)/clubs/${clubId}/create-match`)
+            }
+          >
+            <Ionicons name="add-circle-outline" size={24} color="#16A34A" />
           </TouchableOpacity>
 
           <InviteClubModal
@@ -74,43 +79,45 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: "#0B4619",
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#0A3D15",
+    backgroundColor: "#22C55E",
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
   },
   backButton: {
-    padding: 8,
+    padding: 5,
   },
   headerCenter: {
     flex: 1,
-    alignItems: "center",
-    marginHorizontal: 10,
+    marginHorizontal: 0,
   },
   clubName: {
-    fontSize: 16,
-    fontWeight: "bold",
+    fontSize: 20,
+    fontWeight: "600",
     color: "#FFFFFF",
-    letterSpacing: 0.3,
+    textAlign: "center",
+    letterSpacing: 0.5,
   },
   actionButtons: {
     flexDirection: "row",
-    alignItems: "center",
-  },
-  iconButton: {
-    backgroundColor: "#16A34A",
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    justifyContent: "center",
+    gap: 12,
     alignItems: "center",
     marginLeft: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
+  },
+  iconButton: {
+    backgroundColor: "#FFFFFF",
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 8,
+  },
+  dangerButton: {
+    backgroundColor: "#ef4444",
   },
 });

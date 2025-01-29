@@ -4,7 +4,7 @@ import { View, StyleSheet, Alert, Button } from "react-native";
 import { ClubHeader } from "@/components/ClubsTabs/ClubHeader";
 import { Tables } from "@/types/supabase";
 import { LoadingState } from "@/components/Erros/LoadingState";
-import { ErrorState } from "@/components/Erros/ErroState";
+import { ErrorState } from "@/components/Erros/Error";
 import CustomScreen from "@/components/CustomView";
 import { ClubTabs } from "@/components/ClubsTabs/Tabs";
 import { useIsClubAdmin } from "@/api/club_members";
@@ -80,6 +80,7 @@ export default function ClubDetails() {
           clubName={club.club_name}
           clubId={clubId}
           isAdmin={!!isAdmin}
+          onDelete={handleDelete}
         />
 
         <View style={styles.mainContent}>
@@ -89,8 +90,6 @@ export default function ClubDetails() {
             isMembersLoading={isLoading}
           />
         </View>
-
-        <Button title="Excluir Clube" onPress={handleDelete} color="#ef4444" />
       </View>
     </CustomScreen>
   );

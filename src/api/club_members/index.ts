@@ -243,7 +243,7 @@ export const useConfirmedPlayers = (matchId: string) => {
     if (!matchId) return;
 
     const channel = supabase
-      .channel("match-invites-real-time")
+      .channel("confirmed-players-real-time")
       .on(
         "postgres_changes",
         {

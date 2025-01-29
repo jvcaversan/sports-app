@@ -1,16 +1,19 @@
 import React, { useState, useCallback } from "react";
 import { useConfirmedPlayers } from "@/api/club_members";
-import { useLocalSearchParams } from "expo-router";
 import { View, StyleSheet, Dimensions } from "react-native";
 import { TabView, TabBar } from "react-native-tab-view";
 import LoadingIndicator from "@/components/ActivityIndicator";
 import OrganizationTab from "./organizationtab";
 import LineUpTab from "./lineuptab";
-import { ErrorState } from "@/components/Erros/ErroState";
+import { ErrorState } from "@/components/Erros/Error";
 
-export default function PreMatch() {
-  const { id } = useLocalSearchParams();
-  const matchId = Array.isArray(id) ? id[0] : id;
+export default function PreMatch({
+  matchId,
+  clubId,
+}: {
+  matchId: string;
+  clubId: string;
+}) {
   const { data: players = [], isLoading, error } = useConfirmedPlayers(matchId);
   const [tabIndex, setTabIndex] = useState(0);
   const [routes] = useState([
