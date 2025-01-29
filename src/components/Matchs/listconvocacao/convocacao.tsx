@@ -89,14 +89,6 @@ export default function ConvocacaoTab({
     );
   }
 
-  if (isLoading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <LoadingIndicator message="Carregando" color="green" />
-      </View>
-    );
-  }
-
   return (
     <FlatList
       data={transformData()}

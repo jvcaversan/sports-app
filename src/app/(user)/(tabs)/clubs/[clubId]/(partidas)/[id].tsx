@@ -8,6 +8,7 @@ import { useIsClubAdmin } from "@/api/club_members";
 import PreMatchTab from "@/components/Matchs/listprematch/pre-match";
 import LiveMatchTab from "@/components/Matchs/match";
 import ConvocacaoTab from "@/components/Matchs/listconvocacao/convocacao";
+import LoadingIndicator from "@/components/ActivityIndicator";
 
 export default function MatchScreen() {
   const { id, clubId } = useLocalSearchParams();
@@ -48,16 +49,8 @@ export default function MatchScreen() {
     setRoutes(baseRoutes);
   }, [isAdmin]);
 
-  // Tela de loading global
   if (isCreating) {
-    return (
-      <CustomScreen>
-        <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color="#2F80ED" />
-          <Text style={styles.loadingText}>Criando Partida...</Text>
-        </View>
-      </CustomScreen>
-    );
+    return <LoadingIndicator message="Criando Partida" color="green" />;
   }
 
   if (!session) {
@@ -69,25 +62,11 @@ export default function MatchScreen() {
   }
 
   if (!matchId || !normalizedClubId) {
-    return (
-      <CustomScreen>
-        <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color="#2F80ED" />
-          <Text style={styles.loadingText}>Carregando Partida...</Text>
-        </View>
-      </CustomScreen>
-    );
+    return <LoadingIndicator message="Carregando partida" color="green" />;
   }
 
   if (adminLoading) {
-    return (
-      <CustomScreen>
-        <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color="#2F80ED" />
-          <Text style={styles.loadingText}>Verificando Permissões...</Text>
-        </View>
-      </CustomScreen>
-    );
+    return <LoadingIndicator message="Verificando permissões" color="green" />;
   }
 
   const renderScene = ({ route }: { route: { key: string } }) => {
@@ -130,17 +109,7 @@ const styles = StyleSheet.create({
   tabBar: {
     backgroundColor: "#FFFFFF",
   },
-  loadingOverlay: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "white",
-  },
-  loadingText: {
-    marginTop: 16,
-    fontSize: 16,
-    color: "#2F80ED",
-  },
+
   campoContainer: {
     width: "100%",
     height: 260,
