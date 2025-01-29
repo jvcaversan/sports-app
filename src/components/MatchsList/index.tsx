@@ -29,14 +29,12 @@ export default function MatchListItem({ match }: MatchListItemProps) {
         accessibilityLabel={`Partida entre ${match.team1} e ${match.team2}`}
         accessibilityRole="button"
       >
-        {/* Cabeçalho da Partida */}
         <View style={styles.matchHeader}>
           <Text style={styles.matchTeams}>
             {match.team1 || "Time 1"} vs {match.team2 || "Time 2"}
           </Text>
         </View>
 
-        {/* Detalhes da Partida */}
         <View style={styles.matchDetails}>
           <View style={styles.detailItem}>
             <Ionicons name="location" size={16} color="#64748B" />

@@ -1,44 +1,47 @@
-import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useCreateMatch } from "@/api/createMatch";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSessionStore } from "@/store/useSessionStore";
+import {
+  createMatchSchema,
+  CreateMatchFormData,
+} from "@/schemas/createMatchSchema";
 
 export const useCreateMatchHandler = () => {
-  const [team1Name, setTeam1Name] = useState("");
-  const [team2Name, setTeam2Name] = useState("");
-  const [local, setLocal] = useState("");
-  const [horario, setHorario] = useState("");
-  const [dia, setDia] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
   const { mutate: createMatch, error } = useCreateMatch();
   const { session } = useSessionStore();
-
   const { clubId } = useLocalSearchParams();
 
-  const onCreate = async () => {
-    setIsSubmitting(true);
+  const form = useForm<CreateMatchFormData>({
+    resolver: zodResolver(createMatchSchema),
+    defaultValues: {
+      team1Name: "",
+      team2Name: "",
+      local: "",
+      horario: "",
+      dia: "",
+    },
+  });
 
+  const onSubmit = (data: CreateMatchFormData) => {
     if (!session) {
       console.error("Usuário não autenticado:");
-      setIsSubmitting(false);
       return;
     }
 
-    const userId = session.user.id;
-
     createMatch(
       {
-        time1: team1Name,
-        time2: team2Name,
-        local,
-        horario,
-        data: dia,
-        userId,
+        time1: data.team1Name,
+        time2: data.team2Name,
+        local: data.local,
+        horario: data.horario,
+        data: data.dia,
+        userId: session.user.id,
         clubId,
       },
       {
-        onSuccess: async (newMatch) => {
+        onSuccess: (newMatch) => {
           router.replace(`/(user)/clubs/${clubId}/(partidas)/${newMatch.id}`);
         },
         onError: (err) => {
@@ -46,22 +49,12 @@ export const useCreateMatchHandler = () => {
         },
       }
     );
-
-    setIsSubmitting(false);
   };
 
   return {
-    team1Name,
-    setTeam1Name,
-    isSubmitting,
-    team2Name,
-    setTeam2Name,
-    local,
-    setLocal,
-    horario,
-    setHorario,
-    dia,
-    setDia,
-    onCreate,
+    form,
+    onSubmit,
+    isSubmitting: form.formState.isSubmitting,
+    error,
   };
 };

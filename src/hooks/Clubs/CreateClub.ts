@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useCreateClub } from "@/api/clubs";
 import { useSessionStore } from "@/store/useSessionStore";
-import { router, useLocalSearchParams } from "expo-router";
+import { router } from "expo-router";
 
 export const useCreateClubHandler = () => {
   const [clubName, setClubName] = useState("");
