@@ -1,10 +1,12 @@
 import React, { useState, useCallback } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
-import { useLocalSearchParams, router } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { useConfirmedPlayers, usePlayerRatings } from "@/api/club_members";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Tables } from "@/types/supabase";
-import Lottie from "lottie-react-native";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/database/supabase";
+
 type PlayerRating = Tables<"player_ratings">;
 
 interface TeamPlayer {
@@ -14,7 +16,6 @@ interface TeamPlayer {
   rating: number;
 }
 
-// Tipagem para a configuração de posições
 type PositionConfig = {
   abbreviation: string;
   quantity: number;
@@ -30,16 +31,6 @@ const POSITION_CONFIG: Record<string, PositionConfig> = {
   ATA: { abbreviation: "ATA", quantity: 3, order: 5 },
 } as const;
 
-// Componente extraído para o texto do jogador formatado
-const PlayerName = ({ name }: { name: string }) => (
-  <Text style={styles.playerName}>
-    {name
-      ? name.charAt(0).toUpperCase() + name.slice(1).toLowerCase()
-      : "Vaga disponível"}
-  </Text>
-);
-
-// Função utilitária para ordenação de jogadores
 const sortPlayersByPosition = (players: TeamPlayer[]) => {
   return [...players].sort((a, b) => {
     const aOrder = POSITION_CONFIG[a.position].order;
@@ -78,20 +69,15 @@ const TeamColumn = ({
   team,
   total,
   title,
+  teamColor,
 }: {
   team: TeamPlayer[];
   total: number;
   title: string;
+  teamColor: string;
 }) => (
   <View style={[styles.teamColumn]}>
-    <Text
-      style={[
-        styles.teamTitle,
-        { color: title === "Time A" ? "#2196f3" : "#f44336" },
-      ]}
-    >
-      {title}
-    </Text>
+    <Text style={[styles.teamTitle, { color: teamColor }]}>{title}</Text>
 
     {Object.entries(POSITION_CONFIG).map(([position, config]) => (
       <PositionGroup
@@ -117,13 +103,24 @@ export default function LineUpTab() {
   const { data: confirmedPlayers } = useConfirmedPlayers(matchId);
   const { data: existingRatings } = usePlayerRatings(clubIdStr);
 
+  const { data: matchData } = useQuery({
+    queryKey: ["match", matchId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("matches")
+        .select("team1, team2")
+        .eq("id", matchId)
+        .single();
+      return data;
+    },
+  });
+
   const [teams, setTeams] = useState<{
     teamA: TeamPlayer[];
     teamB: TeamPlayer[];
     totalA: number;
     totalB: number;
   } | null>(null);
-  const [isConfirmed, setIsConfirmed] = useState(false);
 
   const mapPlayers = useCallback((): TeamPlayer[] => {
     if (!confirmedPlayers || !existingRatings) return [];
@@ -143,8 +140,6 @@ export default function LineUpTab() {
 
   const handleTeamShuffle = useCallback(() => {
     const players = mapPlayers();
-
-    // Separação da lógica de distribuição de jogadores
     const { teamA, teamB } = distributePlayers(players);
 
     setTeams({
@@ -156,9 +151,16 @@ export default function LineUpTab() {
   }, [mapPlayers]);
 
   const handleConfirmLineup = () => {
-    setIsConfirmed(true);
-    // Add your API call logic here when ready
+    Alert.alert("Escalação Confirmada", "Continue na aba Partida", [
+      {
+        text: "OK",
+      },
+    ]);
   };
+
+  // Memoize team data to prevent unnecessary re-renders
+  const teamAColor = "#2196f3";
+  const teamBColor = "#f44336";
 
   if (!confirmedPlayers?.length) {
     return (
@@ -172,31 +174,23 @@ export default function LineUpTab() {
     );
   }
 
-  if (isConfirmed) {
-    return (
-      <View style={styles.confirmationOverlay}>
-        <View style={styles.confirmationContent}>
-          <Lottie
-            source={require("../../../../assets/success.json")}
-            autoPlay
-            loop={false}
-            style={styles.fullscreenAnimation}
-          />
-          <Text style={styles.fullscreenConfirmationText}>
-            Escalação confirmada, vá para a aba de partida
-          </Text>
-        </View>
-      </View>
-    );
-  }
-
   return (
     <View style={styles.container}>
       {teams && (
         <View style={styles.teamsContainer}>
-          <TeamColumn team={teams.teamA} total={teams.totalA} title="Time A" />
+          <TeamColumn
+            team={teams.teamA}
+            total={teams.totalA}
+            title={matchData?.team1 || "Time 1"}
+            teamColor={teamAColor}
+          />
           <View style={styles.separator} />
-          <TeamColumn team={teams.teamB} total={teams.totalB} title="Time B" />
+          <TeamColumn
+            team={teams.teamB}
+            total={teams.totalB}
+            title={matchData?.team2 || "Time 2"}
+            teamColor={teamBColor}
+          />
         </View>
       )}
 
@@ -221,7 +215,6 @@ export default function LineUpTab() {
   );
 }
 
-// Lógica de distribuição extraída para função separada
 const distributePlayers = (players: TeamPlayer[]) => {
   const teamA: TeamPlayer[] = [];
   const teamB: TeamPlayer[] = [];
@@ -249,7 +242,6 @@ const distributePlayers = (players: TeamPlayer[]) => {
   return { teamA, teamB };
 };
 
-// Função utilitária para cálculo do total
 const calculateTeamTotal = (team: TeamPlayer[]) =>
   team.reduce((sum, p) => sum + p.rating, 0);
 
@@ -258,6 +250,8 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 8,
     backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
   },
   teamsContainer: {
     flex: 1,
@@ -270,7 +264,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
     backgroundColor: "#fff",
   },
-
   teamTitle: {
     fontSize: 16,
     fontWeight: "800",
@@ -347,26 +340,5 @@ const styles = StyleSheet.create({
     color: "#7f8c8d",
     marginTop: 8,
     textAlign: "center",
-  },
-  confirmationOverlay: {
-    flex: 1,
-    backgroundColor: "white",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  confirmationContent: {
-    alignItems: "center",
-  },
-  fullscreenAnimation: {
-    width: 300,
-    height: 300,
-  },
-  fullscreenConfirmationText: {
-    fontSize: 20,
-    fontWeight: "800",
-    color: "#2ecc71",
-    marginTop: 20,
-    textAlign: "center",
-    paddingHorizontal: 40,
   },
 });
