@@ -50,7 +50,7 @@ export default function MatchScreen() {
   }, [isAdmin]);
 
   if (isCreating) {
-    return <LoadingIndicator message="Criando Partida" color="green" />;
+    return <LoadingIndicator message="Carregando Partida" color="green" />;
   }
 
   if (!session) {

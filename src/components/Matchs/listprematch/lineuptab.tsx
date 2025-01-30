@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { useConfirmedPlayers, usePlayerRatings } from "@/api/club_members";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Tables } from "@/types/supabase";
+import Lottie from "lottie-react-native";
 type PlayerRating = Tables<"player_ratings">;
 
 interface TeamPlayer {
@@ -13,7 +14,14 @@ interface TeamPlayer {
   rating: number;
 }
 
-const POSITION_CONFIG = {
+// Tipagem para a configuração de posições
+type PositionConfig = {
+  abbreviation: string;
+  quantity: number;
+  order: number;
+};
+
+const POSITION_CONFIG: Record<string, PositionConfig> = {
   GOL: { abbreviation: "GOL", quantity: 1, order: 0 },
   LAD: { abbreviation: "LAD", quantity: 1, order: 1 },
   LAE: { abbreviation: "LAE", quantity: 1, order: 2 },
@@ -21,6 +29,24 @@ const POSITION_CONFIG = {
   MEI: { abbreviation: "MEI", quantity: 3, order: 4 },
   ATA: { abbreviation: "ATA", quantity: 3, order: 5 },
 } as const;
+
+// Componente extraído para o texto do jogador formatado
+const PlayerName = ({ name }: { name: string }) => (
+  <Text style={styles.playerName}>
+    {name
+      ? name.charAt(0).toUpperCase() + name.slice(1).toLowerCase()
+      : "Vaga disponível"}
+  </Text>
+);
+
+// Função utilitária para ordenação de jogadores
+const sortPlayersByPosition = (players: TeamPlayer[]) => {
+  return [...players].sort((a, b) => {
+    const aOrder = POSITION_CONFIG[a.position].order;
+    const bOrder = POSITION_CONFIG[b.position].order;
+    return aOrder - bOrder;
+  });
+};
 
 const PositionGroup = ({
   position,
@@ -97,8 +123,9 @@ export default function LineUpTab() {
     totalA: number;
     totalB: number;
   } | null>(null);
+  const [isConfirmed, setIsConfirmed] = useState(false);
 
-  const mapPlayers = (): TeamPlayer[] => {
+  const mapPlayers = useCallback((): TeamPlayer[] => {
     if (!confirmedPlayers || !existingRatings) return [];
 
     return confirmedPlayers.map((player) => {
@@ -112,56 +139,25 @@ export default function LineUpTab() {
         rating: rating?.rating || 0,
       };
     });
-  };
+  }, [confirmedPlayers, existingRatings]);
 
-  const handleTeamShuffle = () => {
+  const handleTeamShuffle = useCallback(() => {
     const players = mapPlayers();
 
-    const teamA: TeamPlayer[] = [];
-    const teamB: TeamPlayer[] = [];
-
-    Object.entries(POSITION_CONFIG).forEach(([position, config]) => {
-      const positionPlayers = players
-        .filter((p) => p.position === position)
-        .sort(() => Math.random() - 0.5);
-
-      positionPlayers.forEach((player, index) => {
-        if (index % 2 === 0) {
-          teamA.push(player);
-        } else {
-          teamB.push(player);
-        }
-      });
-    });
-
-    const remainingPlayers = players.filter(
-      (p) => !teamA.includes(p) && !teamB.includes(p)
-    );
-    remainingPlayers
-      .sort(() => Math.random() - 0.5)
-      .forEach((player, index) => {
-        index % 2 === 0 ? teamA.push(player) : teamB.push(player);
-      });
-
-    const sortTeam = (team: TeamPlayer[]) =>
-      [...team].sort((a, b) => {
-        const aOrder =
-          POSITION_CONFIG[a.position as keyof typeof POSITION_CONFIG].order;
-        const bOrder =
-          POSITION_CONFIG[b.position as keyof typeof POSITION_CONFIG].order;
-        return aOrder - bOrder;
-      });
+    // Separação da lógica de distribuição de jogadores
+    const { teamA, teamB } = distributePlayers(players);
 
     setTeams({
-      teamA: sortTeam(teamA),
-      teamB: sortTeam(teamB),
-      totalA: teamA.reduce((sum, p) => sum + p.rating, 0),
-      totalB: teamB.reduce((sum, p) => sum + p.rating, 0),
+      teamA: sortPlayersByPosition(teamA),
+      teamB: sortPlayersByPosition(teamB),
+      totalA: calculateTeamTotal(teamA),
+      totalB: calculateTeamTotal(teamB),
     });
-  };
+  }, [mapPlayers]);
 
   const handleConfirmLineup = () => {
-    console.log("enviar para a tab view de partida");
+    setIsConfirmed(true);
+    // Add your API call logic here when ready
   };
 
   if (!confirmedPlayers?.length) {
@@ -172,6 +168,24 @@ export default function LineUpTab() {
         <Text style={styles.subtitle}>
           Em breve você poderá montar seu time!
         </Text>
+      </View>
+    );
+  }
+
+  if (isConfirmed) {
+    return (
+      <View style={styles.confirmationOverlay}>
+        <View style={styles.confirmationContent}>
+          <Lottie
+            source={require("../../../../assets/success.json")}
+            autoPlay
+            loop={false}
+            style={styles.fullscreenAnimation}
+          />
+          <Text style={styles.fullscreenConfirmationText}>
+            Escalação confirmada, vá para a aba de partida
+          </Text>
+        </View>
       </View>
     );
   }
@@ -206,6 +220,38 @@ export default function LineUpTab() {
     </View>
   );
 }
+
+// Lógica de distribuição extraída para função separada
+const distributePlayers = (players: TeamPlayer[]) => {
+  const teamA: TeamPlayer[] = [];
+  const teamB: TeamPlayer[] = [];
+
+  Object.keys(POSITION_CONFIG).forEach((position) => {
+    const positionPlayers = players
+      .filter((p) => p.position === position)
+      .sort(() => Math.random() - 0.5);
+
+    positionPlayers.forEach((player, index) => {
+      index % 2 === 0 ? teamA.push(player) : teamB.push(player);
+    });
+  });
+
+  const remainingPlayers = players.filter(
+    (p) => !teamA.includes(p) && !teamB.includes(p)
+  );
+
+  remainingPlayers
+    .sort(() => Math.random() - 0.5)
+    .forEach((player, index) => {
+      index % 2 === 0 ? teamA.push(player) : teamB.push(player);
+    });
+
+  return { teamA, teamB };
+};
+
+// Função utilitária para cálculo do total
+const calculateTeamTotal = (team: TeamPlayer[]) =>
+  team.reduce((sum, p) => sum + p.rating, 0);
 
 const styles = StyleSheet.create({
   container: {
@@ -301,5 +347,26 @@ const styles = StyleSheet.create({
     color: "#7f8c8d",
     marginTop: 8,
     textAlign: "center",
+  },
+  confirmationOverlay: {
+    flex: 1,
+    backgroundColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  confirmationContent: {
+    alignItems: "center",
+  },
+  fullscreenAnimation: {
+    width: 300,
+    height: 300,
+  },
+  fullscreenConfirmationText: {
+    fontSize: 20,
+    fontWeight: "800",
+    color: "#2ecc71",
+    marginTop: 20,
+    textAlign: "center",
+    paddingHorizontal: 40,
   },
 });
