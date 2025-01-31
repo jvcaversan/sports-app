@@ -28,8 +28,11 @@ export const useSaveLineup = () => {
       if (playersError) throw playersError;
       return lineup;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["match-lineups"] });
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["match-lineups", variables.match_id],
+        exact: true,
+      });
     },
   });
 };
@@ -42,10 +45,12 @@ export const useUpdateLineup = () => {
       lineup_id,
       team_name,
       players,
+      match_id,
     }: {
       lineup_id: string;
       team_name: string;
       players: Array<{ id: string; position: string }>;
+      match_id: string;
     }) => {
       const { error: updateError } = await supabase
         .from("match_lineups")
@@ -74,8 +79,11 @@ export const useUpdateLineup = () => {
       if (insertError) throw insertError;
       return { lineup_id };
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["match-lineups"] });
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["match-lineups", variables.match_id],
+        exact: true,
+      });
     },
   });
 };

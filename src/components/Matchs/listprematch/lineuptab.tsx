@@ -111,14 +111,14 @@ export default function LineUpTab() {
         existingLineups?.find((l) => l.team_name === teamName)?.id;
 
       const teamAPayload = {
-        lineup_id: getLineupId(matchData?.team1 || "Time 1"),
+        lineup_id: getLineupId(matchData?.team1 || "Time 1")!,
         team_name: matchData?.team1 || "Time 1",
         players: teams.teamA.map((p) => ({ id: p.id, position: p.position })),
         match_id: matchId,
       };
 
       const teamBPayload = {
-        lineup_id: getLineupId(matchData?.team2 || "Time 2"),
+        lineup_id: getLineupId(matchData?.team2 || "Time 2")!,
         team_name: matchData?.team2 || "Time 2",
         players: teams.teamB.map((p) => ({ id: p.id, position: p.position })),
         match_id: matchId,
@@ -126,16 +126,10 @@ export default function LineUpTab() {
 
       const results = await Promise.allSettled([
         teamAPayload.lineup_id
-          ? updateLineupMutation.mutateAsync({
-              ...teamAPayload,
-              lineup_id: teamAPayload.lineup_id!,
-            })
+          ? updateLineupMutation.mutateAsync(teamAPayload)
           : saveLineupMutation.mutateAsync(teamAPayload),
         teamBPayload.lineup_id
-          ? updateLineupMutation.mutateAsync({
-              ...teamBPayload,
-              lineup_id: teamBPayload.lineup_id!,
-            })
+          ? updateLineupMutation.mutateAsync(teamBPayload)
           : saveLineupMutation.mutateAsync(teamBPayload),
       ]);
 

@@ -1,14 +1,16 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/database/supabase";
 import { useLocalSearchParams } from "expo-router";
 import { ScrollView, View, StyleSheet, Text } from "react-native";
 import { POSITION_CONFIG, TeamPlayer } from "../listprematch/types";
 import LoadingIndicator from "@/components/ActivityIndicator";
 import { LinearGradient } from "expo-linear-gradient";
+import { useState, useEffect } from "react";
 
 export default function LiveMatchTab() {
   const { id } = useLocalSearchParams();
   const matchId = Array.isArray(id) ? id[0] : id;
+  const queryClient = useQueryClient();
 
   const {
     data: existingLineups,
@@ -26,13 +28,40 @@ export default function LiveMatchTab() {
           lineup_players (
             player_id, 
             position, 
-            profiles (name)
+            profiles(name)
           )`
         )
-        .eq("match_id", matchId!);
-      return data;
+        .eq("match_id", matchId!)
+        .not("lineup_players.player_id", "is", null);
+
+      if (error) throw new Error(error.message);
+      return data || [];
     },
+    enabled: !!matchId,
+    initialData: [],
   });
+
+  useEffect(() => {
+    const channel = supabase
+      .channel("realtime-lineups")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "match_lineups",
+          filter: `match_id=eq.${matchId}`,
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["matchLineups"] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      channel.unsubscribe();
+    };
+  }, [matchId, queryClient]);
 
   const formatName = (name: string) => {
     return name
@@ -80,7 +109,7 @@ export default function LiveMatchTab() {
                       id: p.player_id,
                       name: p.profiles?.name
                         ? formatName(p.profiles.name)
-                        : "Jogador",
+                        : "Jogador Desconhecido",
                       position: p.position,
                     }));
 
