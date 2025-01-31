@@ -139,6 +139,45 @@ export type Database = {
           },
         ]
       }
+      lineup_players: {
+        Row: {
+          created_at: string | null
+          id: string
+          lineup_id: string
+          player_id: string
+          position: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          lineup_id: string
+          player_id: string
+          position: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          lineup_id?: string
+          player_id?: string
+          position?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lineup_players_lineup_id_fkey"
+            columns: ["lineup_id"]
+            isOneToOne: false
+            referencedRelation: "match_lineups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lineup_players_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       match_invitations: {
         Row: {
           created_at: string
@@ -177,6 +216,35 @@ export type Database = {
             columns: ["player_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      match_lineups: {
+        Row: {
+          created_at: string | null
+          id: string
+          match_id: string
+          team_name: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          match_id: string
+          team_name: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          match_id?: string
+          team_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_lineups_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "matches"
             referencedColumns: ["id"]
           },
         ]
