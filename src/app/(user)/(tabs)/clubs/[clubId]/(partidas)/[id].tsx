@@ -6,7 +6,7 @@ import CustomScreen from "@/components/CustomView";
 import { useSessionStore } from "@/store/useSessionStore";
 import { useIsClubAdmin } from "@/api/club_members";
 import PreMatchTab from "@/components/Matchs/listprematch/pre-match";
-import LiveMatchTab from "@/components/Matchs/match";
+import LiveMatchTab from "@/components/Matchs/LiveMatch/match";
 import ConvocacaoTab from "@/components/Matchs/listconvocacao/convocacao";
 import LoadingIndicator from "@/components/ActivityIndicator";
 

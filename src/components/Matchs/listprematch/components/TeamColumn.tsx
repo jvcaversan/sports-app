@@ -6,14 +6,14 @@ import PositionGroup from "./PositionGroup";
 
 type TeamColumnProps = {
   team: TeamPlayer[];
-  total: number;
-  title: string;
+  total?: number;
+  title?: string;
   teamColor: string;
-  onRemovePlayer: (player: TeamPlayer) => void;
+  onRemovePlayer?: (player: TeamPlayer) => void;
   teamType: "teamA" | "teamB";
-  onSlotPress: (position: string) => void;
+  onSlotPress?: (position: string) => void;
   substitutes: TeamPlayer[];
-  isEditing: boolean;
+  isEditing?: boolean;
 };
 
 export default function TeamColumn({
@@ -44,7 +44,7 @@ export default function TeamColumn({
           />
         ))}
         <View style={styles.totalContainer}>
-          <Text style={styles.totalRating}>{total.toFixed(1)}</Text>
+          <Text style={styles.totalRating}>{total?.toFixed(1)}</Text>
         </View>
         <View style={styles.substitutesContainer}>
           <Text style={styles.subtitle}>Suplentes</Text>

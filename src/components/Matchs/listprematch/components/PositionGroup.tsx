@@ -9,9 +9,9 @@ type PositionGroupProps = {
   abbreviation: string;
   required: number;
   teamColor: string;
-  onRemovePlayer: (player: TeamPlayer) => void;
-  onSlotPress: (position: string) => void;
-  isEditing: boolean;
+  onRemovePlayer?: (player: TeamPlayer) => void;
+  onSlotPress?: (position: string) => void;
+  isEditing?: boolean;
 };
 
 export default function PositionGroup({
@@ -46,7 +46,9 @@ export default function PositionGroup({
                 </Text>
               ) : (
                 <TouchableOpacity
-                  onPress={isEditing ? () => onSlotPress(position) : undefined}
+                  onPress={
+                    isEditing ? () => onSlotPress?.(position) : undefined
+                  }
                   disabled={!isEditing}
                 >
                   <Text
@@ -63,7 +65,7 @@ export default function PositionGroup({
             </View>
             {player && (
               <TouchableOpacity
-                onPress={isEditing ? () => onRemovePlayer(player) : undefined}
+                onPress={isEditing ? () => onRemovePlayer?.(player) : undefined}
                 disabled={!isEditing}
                 style={{ padding: 4 }}
               >
