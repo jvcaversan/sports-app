@@ -215,6 +215,8 @@ export default function LineUpTab() {
     teamB: TeamPlayer[];
     totalA: number;
     totalB: number;
+    substitutesA: TeamPlayer[];
+    substitutesB: TeamPlayer[];
   } | null>(null);
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -251,6 +253,8 @@ export default function LineUpTab() {
       teamB: sortPlayersByPosition(teamB),
       totalA: calculateTeamTotal(teamA),
       totalB: calculateTeamTotal(teamB),
+      substitutesA: [],
+      substitutesB: [],
     });
   }, [mapPlayers]);
 
@@ -269,9 +273,14 @@ export default function LineUpTab() {
       const sourceTeam = prev.teamA.includes(player) ? "teamA" : "teamB";
       const newSourceTeam = prev[sourceTeam].filter((p) => p.id !== player.id);
 
+      const substituteKey =
+        sourceTeam === "teamA" ? "substitutesA" : "substitutesB";
+      const newSubstitutes = [...prev[substituteKey], player];
+
       return {
         ...prev,
         [sourceTeam]: newSourceTeam,
+        [substituteKey]: newSubstitutes,
         totalA:
           sourceTeam === "teamA"
             ? calculateTeamTotal(newSourceTeam)
@@ -286,6 +295,21 @@ export default function LineUpTab() {
 
   const handleAddPlayer = (player: TeamPlayer) => {
     if (!selectedTeam || !selectedPosition || !teams) return;
+
+    // Check if player is in opposite team's substitutes
+    const oppositeSubstitutesKey =
+      selectedTeam === "teamA" ? "substitutesB" : "substitutesA";
+    const isInOppositeSubstitutes = teams[oppositeSubstitutesKey].some(
+      (p) => p.id === player.id
+    );
+
+    // Remove from opposite substitutes if exists
+    let newOppositeSubstitutes = teams[oppositeSubstitutesKey];
+    if (isInOppositeSubstitutes) {
+      newOppositeSubstitutes = teams[oppositeSubstitutesKey].filter(
+        (p) => p.id !== player.id
+      );
+    }
 
     const currentPlayersInPosition = teams[selectedTeam].filter(
       (p) => p.position === selectedPosition
@@ -307,12 +331,24 @@ export default function LineUpTab() {
       return;
     }
 
+    const substituteKey =
+      selectedTeam === "teamA" ? "substitutesA" : "substitutesB";
+    const isInSubstitutes = teams[substituteKey].some(
+      (p) => p.id === player.id
+    );
+    let newSubstitutes = teams[substituteKey];
+    if (isInSubstitutes) {
+      newSubstitutes = teams[substituteKey].filter((p) => p.id !== player.id);
+    }
+
     const newTeam = [...teams[selectedTeam], player];
     setTeams((prev) => {
       if (!prev) return null;
       return {
         ...prev,
         [selectedTeam]: newTeam,
+        [substituteKey]: newSubstitutes,
+        [oppositeSubstitutesKey]: newOppositeSubstitutes,
         totalA:
           selectedTeam === "teamA" ? calculateTeamTotal(newTeam) : prev.totalA,
         totalB:
@@ -359,11 +395,7 @@ export default function LineUpTab() {
                   setSelectedTeam("teamA");
                   setModalVisible(true);
                 }}
-                substitutes={mapPlayers().filter(
-                  (p) =>
-                    !teams.teamA.some((t) => t.id === p.id) &&
-                    !teams.teamB.some((t) => t.id === p.id)
-                )}
+                substitutes={teams.substitutesA}
               />
               <View style={styles.separator} />
               <TeamColumn
@@ -378,11 +410,7 @@ export default function LineUpTab() {
                   setSelectedTeam("teamB");
                   setModalVisible(true);
                 }}
-                substitutes={mapPlayers().filter(
-                  (p) =>
-                    !teams.teamA.some((t) => t.id === p.id) &&
-                    !teams.teamB.some((t) => t.id === p.id)
-                )}
+                substitutes={teams.substitutesB}
               />
             </>
           )}
