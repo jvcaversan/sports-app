@@ -70,14 +70,20 @@ const PositionGroup = ({
       return (
         <View key={`${position}-${index}`} style={styles.playerRow}>
           <View style={{ flexDirection: "row", alignItems: "center", flex: 1 }}>
-            <Text style={styles.positionText}>{abbreviation}</Text>
+            <Text style={[styles.positionText, { color: teamColor }]}>
+              {abbreviation}
+            </Text>
             {player ? (
-              <Text style={[styles.playerName, { color: teamColor }]}>
+              <Text
+                style={[styles.playerName, { color: teamColor }]}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
                 {player.name}
               </Text>
             ) : (
               <TouchableOpacity onPress={() => onSlotPress(position)}>
-                <Text style={[styles.playerName, { color: teamColor }]}>
+                <Text style={[styles.playerName, styles.availableSlot]}>
                   Vaga disponível
                 </Text>
               </TouchableOpacity>
@@ -88,7 +94,7 @@ const PositionGroup = ({
               onPress={() => onRemovePlayer(player)}
               style={{ padding: 4 }}
             >
-              <AntDesign name="closecircle" size={18} color="#ff4444" />
+              <AntDesign name="closecircle" size={18} color="#FF6B00" />
             </TouchableOpacity>
           )}
         </View>
@@ -116,11 +122,11 @@ const TeamColumn = ({
   onSlotPress: (position: string) => void;
   substitutes: TeamPlayer[];
 }) => (
-  <View style={[styles.teamColumn, { paddingVertical: 8 }]}>
+  <View style={[styles.teamColumn, { backgroundColor: "#FFFFFF" }]}>
     <Text
       style={[
         styles.teamTitle,
-        { color: teamColor, marginBottom: 16, paddingHorizontal: 8 },
+        { color: teamColor, marginBottom: 8, paddingHorizontal: 8 },
       ]}
     >
       {title}
@@ -146,7 +152,16 @@ const TeamColumn = ({
         {substitutes.length > 0 ? (
           substitutes.map((player) => (
             <View key={player.id} style={styles.substitutePlayer}>
-              <Text style={styles.substitutePlayerText}>{player.name}</Text>
+              <Text
+                style={styles.substitutePlayerText}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                {player.name
+                  .split(" ")
+                  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                  .join(" ")}
+              </Text>
               <Text style={styles.positionText}>{player.position}</Text>
             </View>
           ))
@@ -157,6 +172,23 @@ const TeamColumn = ({
     </View>
   </View>
 );
+
+const getPositionName = (position: string | null) => {
+  if (!position) return "";
+  const config = POSITION_CONFIG[position];
+  if (!config) return position;
+
+  const positionNames: { [key: string]: string } = {
+    GOL: "Goleiro",
+    ZAG: "Zagueiro",
+    LAD: "Lateral Direito",
+    LAE: "Lateral Esquerdo",
+    MEI: "Meia",
+    ATA: "Atacante",
+  };
+
+  return `${config.abbreviation} - ${positionNames[position]}`;
+};
 
 export default function LineUpTab() {
   const { id, clubId } = useLocalSearchParams();
@@ -200,7 +232,10 @@ export default function LineUpTab() {
       );
       return {
         id: player.player_id,
-        name: player.profiles.name,
+        name: player.profiles.name
+          .split(" ")
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" "),
         position: rating?.position || "MEI",
         rating: rating?.rating || 0,
       };
@@ -288,8 +323,8 @@ export default function LineUpTab() {
     setModalVisible(false);
   };
 
-  const teamAColor = "#2196f3";
-  const teamBColor = "#f44336";
+  const teamAColor = "#2ecc71";
+  const teamBColor = "#2D3436";
 
   if (!confirmedPlayers?.length) {
     return (
@@ -374,14 +409,14 @@ export default function LineUpTab() {
 
       <Modal
         visible={modalVisible}
-        animationType="fade"
+        animationType="slide"
         transparent={true}
         onRequestClose={() => setModalVisible(false)}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>
-              Selecionar jogador para {selectedPosition}
+              {getPositionName(selectedPosition)}
             </Text>
 
             <ScrollView
@@ -406,16 +441,28 @@ export default function LineUpTab() {
                         styles.modalPlayerItem,
                         isSelected && styles.disabledPlayer,
                       ]}
-                      onPress={() => {
-                        if (!isSelected) {
-                          handleAddPlayer(player);
-                        }
-                      }}
+                      onPress={() => !isSelected && handleAddPlayer(player)}
                       disabled={isSelected}
                     >
-                      <Text style={styles.modalPlayerName}>{player.name}</Text>
+                      <View style={styles.playerInfo}>
+                        <Text style={styles.modalPlayerName}>
+                          {player.name
+                            .split(" ")
+                            .map(
+                              (word) =>
+                                word.charAt(0).toUpperCase() + word.slice(1)
+                            )
+                            .join(" ")}
+                        </Text>
+                        <View style={styles.positionBadge}>
+                          <Text style={styles.positionBadgeText}>
+                            {POSITION_CONFIG[player.position]?.abbreviation}
+                          </Text>
+                        </View>
+                      </View>
+
                       {isSelected && (
-                        <Text style={styles.modalPlayerTeam}>
+                        <Text style={styles.teamLabel}>
                           ({isInTeamA ? matchData?.team1 : matchData?.team2})
                         </Text>
                       )}
@@ -425,10 +472,10 @@ export default function LineUpTab() {
             </ScrollView>
 
             <TouchableOpacity
-              style={styles.modalCloseButton}
+              style={styles.closeButton}
               onPress={() => setModalVisible(false)}
             >
-              <Text style={styles.modalCloseText}>Cancelar</Text>
+              <Text style={styles.closeButtonText}>Fechar</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -470,50 +517,64 @@ const calculateTeamTotal = (team: TeamPlayer[]) =>
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#FFFFFF",
   },
   scrollContainer: {
     flexGrow: 1,
     paddingBottom: 150,
+    backgroundColor: "#FFFFFF",
   },
   teamsContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     paddingHorizontal: 8,
     minHeight: 500,
+    backgroundColor: "#FFFFFF",
   },
   teamColumn: {
     flex: 1,
-    marginHorizontal: 4,
+    marginHorizontal: 0,
     paddingVertical: 8,
+    borderRadius: 0,
+    backgroundColor: "#FFFFFF",
   },
   teamTitle: {
     fontSize: 16,
     fontWeight: "800",
     textAlign: "center",
-    marginBottom: 16,
+    marginBottom: 8,
     paddingHorizontal: 8,
+    backgroundColor: "transparent",
+    paddingVertical: 4,
+    borderRadius: 8,
   },
   positionGroup: {
-    marginBottom: 2,
+    marginBottom: 0,
   },
   playerRow: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 4,
-    minHeight: 32,
+    paddingVertical: 0,
+    minHeight: 24,
+    height: 32,
   },
   positionText: {
     width: 40,
     fontSize: 12,
     fontWeight: "700",
-    color: "#666",
+    lineHeight: 32,
   },
   playerName: {
     flex: 1,
     fontSize: 14,
-    color: "#333",
-    textTransform: "capitalize",
+    color: "#2D3436",
+    fontWeight: "500",
+    height: 32,
+    lineHeight: 32,
+  },
+  availableSlot: {
+    color: "#95a5a6",
+    fontStyle: "italic",
   },
   totalContainer: {
     marginTop: 8,
@@ -523,7 +584,7 @@ const styles = StyleSheet.create({
   totalRating: {
     fontSize: 16,
     fontWeight: "900",
-    color: "#2ecc71",
+    color: "#FF6B00",
   },
   buttonsContainer: {
     position: "absolute",
@@ -533,20 +594,25 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 8,
     padding: 16,
-    backgroundColor: "#fff",
+    backgroundColor: "#FFFFFF",
     borderTopWidth: 1,
-    borderTopColor: "#eee",
+    borderTopColor: "#DFE6E9",
   },
   actionButton: {
     flex: 1,
-    paddingVertical: 12,
-    borderRadius: 20,
+    paddingVertical: 14,
+    borderRadius: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
   },
   shuffleButton: {
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#FF6B00",
   },
   confirmButton: {
-    backgroundColor: "#2196F3",
+    backgroundColor: "#2ecc71",
   },
   buttonText: {
     color: "white",
@@ -555,10 +621,10 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   separator: {
-    width: 2,
-    backgroundColor: "#ced4da",
-    marginHorizontal: 8,
-    marginVertical: 8,
+    width: 1,
+    backgroundColor: "grey",
+    marginHorizontal: 16,
+    height: "100%",
   },
   title: {
     fontSize: 18,
@@ -569,88 +635,122 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 14,
-    color: "#7f8c8d",
-    marginTop: 8,
-    textAlign: "center",
+    color: "#000000",
+    fontWeight: "600",
+    marginBottom: 8,
+    textAlign: "left",
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: "rgba(45,52,54,0.4)",
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
   },
   modalContent: {
-    backgroundColor: "white",
-    borderRadius: 12,
-    padding: 16,
-    width: "100%",
-    maxHeight: "80%",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    padding: 20,
+    width: "90%",
+    maxHeight: "70%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
   },
   modalTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 12,
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#2c3e50",
     textAlign: "center",
-    color: "#333",
+    marginBottom: 20,
   },
   modalScroll: {
-    maxHeight: 300,
-    marginVertical: 8,
+    maxHeight: 400,
   },
   modalPlayersList: {
-    maxHeight: 300,
-    marginVertical: 8,
+    maxHeight: 400,
   },
   modalPlayerItem: {
-    padding: 12,
-    borderRadius: 8,
-    backgroundColor: "#f8f9fa",
-    marginBottom: 8,
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
+    justifyContent: "space-between",
+    padding: 16,
+    marginBottom: 8,
+    backgroundColor: "#F8F9FA",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#EDF2F4",
+  },
+  playerInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
   },
   modalPlayerName: {
-    fontSize: 14,
-    color: "#333",
+    fontSize: 15,
+    fontWeight: "500",
+    color: "#212529",
   },
-  modalPlayerTeam: {
+  positionBadge: {
+    backgroundColor: "#E8F6EF",
+    borderRadius: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  positionBadgeText: {
+    color: "#00B894",
     fontSize: 12,
-    color: "#666",
+    fontWeight: "700",
   },
-  modalCloseButton: {
-    marginTop: 12,
-    padding: 12,
-    backgroundColor: "#e3e3e3",
-    borderRadius: 8,
+  ratingText: {
+    fontSize: 14,
+    color: "#4CAF50",
+    fontWeight: "700",
   },
-  modalCloseText: {
-    color: "#333",
+  teamLabel: {
+    fontSize: 13,
+    color: "#6c757d",
     fontWeight: "600",
-    textAlign: "center",
+    fontStyle: "italic",
   },
   disabledPlayer: {
     opacity: 0.6,
     backgroundColor: "#e9ecef",
   },
+  closeButton: {
+    marginTop: 20,
+    backgroundColor: "#FF6B00",
+    borderRadius: 8,
+    padding: 14,
+    alignItems: "center",
+  },
+  closeButtonText: {
+    color: "white",
+    fontWeight: "600",
+    fontSize: 15,
+  },
   substitutesContainer: {
-    marginTop: 16,
-    padding: 8,
-    backgroundColor: "#f8f9fa",
-    borderRadius: 4,
+    marginTop: 4,
+    padding: 4,
+    backgroundColor: "#FFFFFF",
+    alignItems: "center",
   },
   substitutePlayer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingVertical: 4,
+    paddingVertical: 0,
+    minHeight: 28,
   },
   substitutePlayerText: {
     fontSize: 14,
-    color: "#333",
+    color: "#2D3436",
+    flex: 1,
+    lineHeight: 32,
   },
   emptySubstitutesText: {
-    color: "#999",
+    color: "#95A5A6",
     fontStyle: "italic",
     textAlign: "center",
     paddingVertical: 8,
