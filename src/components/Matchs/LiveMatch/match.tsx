@@ -1,27 +1,20 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/database/supabase";
 import { useLocalSearchParams } from "expo-router";
-import {
-  ScrollView,
-  View,
-  StyleSheet,
-  ActivityIndicator,
-  Text,
-} from "react-native";
-import { useState, useEffect } from "react";
-import { LinearGradient } from "expo-linear-gradient";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-
-import TeamColumn from "../listprematch/components/TeamColumn";
+import { ScrollView, View, StyleSheet, Text } from "react-native";
 import { POSITION_CONFIG, TeamPlayer } from "../listprematch/types";
 import LoadingIndicator from "@/components/ActivityIndicator";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function LiveMatchTab() {
   const { id } = useLocalSearchParams();
   const matchId = Array.isArray(id) ? id[0] : id;
-  const [isLoading, setIsLoading] = useState(true);
 
-  const { data: existingLineups } = useQuery({
+  const {
+    data: existingLineups,
+    isLoading,
+    isRefetching,
+  } = useQuery({
     queryKey: ["match-lineups", matchId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -41,15 +34,6 @@ export default function LiveMatchTab() {
     },
   });
 
-  const formatPlayers = (lineup: any): TeamPlayer[] => {
-    return lineup.lineup_players.map((p: any) => ({
-      id: p.player_id,
-      name: p.profiles?.name ? formatName(p.profiles.name) : "Jogador Sem Nome",
-      position: p.position,
-      rating: 0,
-    }));
-  };
-
   const formatName = (name: string) => {
     return name
       .split(" ")
@@ -57,12 +41,7 @@ export default function LiveMatchTab() {
       .join(" ");
   };
 
-  useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 300);
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (isLoading) {
+  if (isLoading || isRefetching) {
     return <LoadingIndicator color="green" message="Carregando Escalação" />;
   }
 
@@ -73,7 +52,6 @@ export default function LiveMatchTab() {
       <View style={styles.teamsContainer}>
         {existingLineups?.map((lineup, index) => (
           <View key={lineup.id} style={styles.teamCard}>
-            {/* Header do Time */}
             <LinearGradient
               colors={
                 index === 0 ? ["#2ecc71", "#27ae60"] : ["#2D3436", "#636e72"]
@@ -89,7 +67,6 @@ export default function LiveMatchTab() {
               </Text>
             </LinearGradient>
 
-            {/* Lista de Jogadores por Posição */}
             <View style={styles.positionsContainer}>
               {Object.entries(POSITION_CONFIG)
                 .sort(
