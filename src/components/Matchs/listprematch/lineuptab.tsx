@@ -1,20 +1,28 @@
 import React, { useState, useCallback } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+  ScrollView,
+  Modal,
+} from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { useConfirmedPlayers, usePlayerRatings } from "@/api/club_members";
-import { MaterialIcons } from "@expo/vector-icons";
+import { MaterialIcons, AntDesign } from "@expo/vector-icons";
 import { Tables } from "@/types/supabase";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/database/supabase";
 
 type PlayerRating = Tables<"player_ratings">;
 
-interface TeamPlayer {
+type TeamPlayer = {
   id: string;
   name: string;
   position: PlayerRating["position"];
   rating: number;
-}
+};
 
 type PositionConfig = {
   abbreviation: string;
@@ -44,24 +52,48 @@ const PositionGroup = ({
   players,
   abbreviation,
   required,
+  teamColor,
+  onRemovePlayer,
+  onSlotPress,
 }: {
   position: string;
   players: TeamPlayer[];
   abbreviation: string;
   required: number;
+  teamColor: string;
+  onRemovePlayer: (player: TeamPlayer) => void;
+  onSlotPress: (position: string) => void;
 }) => (
   <View style={styles.positionGroup}>
-    {Array.from({ length: required }).map((_, index) => (
-      <View key={`${position}-${index}`} style={styles.playerRow}>
-        <Text style={styles.positionText}>{abbreviation}</Text>
-        <Text style={styles.playerName}>
-          {players[index]?.name
-            ? players[index].name.charAt(0).toUpperCase() +
-              players[index].name.slice(1).toLowerCase()
-            : "Vaga disponível"}
-        </Text>
-      </View>
-    ))}
+    {Array.from({ length: required }).map((_, index) => {
+      const player = players[index];
+      return (
+        <View key={`${position}-${index}`} style={styles.playerRow}>
+          <View style={{ flexDirection: "row", alignItems: "center", flex: 1 }}>
+            <Text style={styles.positionText}>{abbreviation}</Text>
+            {player ? (
+              <Text style={[styles.playerName, { color: teamColor }]}>
+                {player.name}
+              </Text>
+            ) : (
+              <TouchableOpacity onPress={() => onSlotPress(position)}>
+                <Text style={[styles.playerName, { color: teamColor }]}>
+                  Vaga disponível
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
+          {player && (
+            <TouchableOpacity
+              onPress={() => onRemovePlayer(player)}
+              style={{ padding: 4 }}
+            >
+              <AntDesign name="closecircle" size={18} color="#ff4444" />
+            </TouchableOpacity>
+          )}
+        </View>
+      );
+    })}
   </View>
 );
 
@@ -70,27 +102,58 @@ const TeamColumn = ({
   total,
   title,
   teamColor,
+  onRemovePlayer,
+  teamType,
+  onSlotPress,
+  substitutes,
 }: {
   team: TeamPlayer[];
   total: number;
   title: string;
   teamColor: string;
+  onRemovePlayer: (player: TeamPlayer) => void;
+  teamType: "teamA" | "teamB";
+  onSlotPress: (position: string) => void;
+  substitutes: TeamPlayer[];
 }) => (
-  <View style={[styles.teamColumn]}>
-    <Text style={[styles.teamTitle, { color: teamColor }]}>{title}</Text>
-
-    {Object.entries(POSITION_CONFIG).map(([position, config]) => (
-      <PositionGroup
-        key={position}
-        position={position}
-        players={team.filter((p) => p.position === position)}
-        abbreviation={config.abbreviation}
-        required={config.quantity}
-      />
-    ))}
-
-    <View style={styles.totalContainer}>
-      <Text style={styles.totalRating}>{total.toFixed(1)}</Text>
+  <View style={[styles.teamColumn, { paddingVertical: 8 }]}>
+    <Text
+      style={[
+        styles.teamTitle,
+        { color: teamColor, marginBottom: 16, paddingHorizontal: 8 },
+      ]}
+    >
+      {title}
+    </Text>
+    <View style={{ flex: 1 }}>
+      {Object.entries(POSITION_CONFIG).map(([position, config]) => (
+        <PositionGroup
+          key={position}
+          position={position}
+          players={team.filter((p) => p.position === position)}
+          abbreviation={config.abbreviation}
+          required={config.quantity}
+          teamColor={teamColor}
+          onRemovePlayer={onRemovePlayer}
+          onSlotPress={onSlotPress}
+        />
+      ))}
+      <View style={styles.totalContainer}>
+        <Text style={styles.totalRating}>{total.toFixed(1)}</Text>
+      </View>
+      <View style={styles.substitutesContainer}>
+        <Text style={styles.subtitle}>Suplentes</Text>
+        {substitutes.length > 0 ? (
+          substitutes.map((player) => (
+            <View key={player.id} style={styles.substitutePlayer}>
+              <Text style={styles.substitutePlayerText}>{player.name}</Text>
+              <Text style={styles.positionText}>{player.position}</Text>
+            </View>
+          ))
+        ) : (
+          <Text style={styles.emptySubstitutesText}>Sem suplentes</Text>
+        )}
+      </View>
     </View>
   </View>
 );
@@ -122,6 +185,12 @@ export default function LineUpTab() {
     totalB: number;
   } | null>(null);
 
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedPosition, setSelectedPosition] = useState<string | null>(null);
+  const [selectedTeam, setSelectedTeam] = useState<"teamA" | "teamB" | null>(
+    null
+  );
+
   const mapPlayers = useCallback((): TeamPlayer[] => {
     if (!confirmedPlayers || !existingRatings) return [];
 
@@ -132,7 +201,7 @@ export default function LineUpTab() {
       return {
         id: player.player_id,
         name: player.profiles.name,
-        position: rating?.position || "Meio-Campista",
+        position: rating?.position || "MEI",
         rating: rating?.rating || 0,
       };
     });
@@ -158,7 +227,67 @@ export default function LineUpTab() {
     ]);
   };
 
-  // Memoize team data to prevent unnecessary re-renders
+  const handleRemovePlayer = (player: TeamPlayer) => {
+    setTeams((prev) => {
+      if (!prev) return null;
+
+      const sourceTeam = prev.teamA.includes(player) ? "teamA" : "teamB";
+      const newSourceTeam = prev[sourceTeam].filter((p) => p.id !== player.id);
+
+      return {
+        ...prev,
+        [sourceTeam]: newSourceTeam,
+        totalA:
+          sourceTeam === "teamA"
+            ? calculateTeamTotal(newSourceTeam)
+            : prev.totalA,
+        totalB:
+          sourceTeam === "teamB"
+            ? calculateTeamTotal(newSourceTeam)
+            : prev.totalB,
+      };
+    });
+  };
+
+  const handleAddPlayer = (player: TeamPlayer) => {
+    if (!selectedTeam || !selectedPosition || !teams) return;
+
+    const currentPlayersInPosition = teams[selectedTeam].filter(
+      (p) => p.position === selectedPosition
+    ).length;
+    const required = POSITION_CONFIG[selectedPosition].quantity;
+
+    if (currentPlayersInPosition >= required) {
+      Alert.alert("Posição lotada", "Não há vagas disponíveis nesta posição.");
+      setModalVisible(false);
+      return;
+    }
+
+    const isInAnyTeam =
+      teams.teamA.some((p) => p.id === player.id) ||
+      teams.teamB.some((p) => p.id === player.id);
+
+    if (isInAnyTeam) {
+      Alert.alert("Jogador já escalado", "Este jogador já está em um time.");
+      return;
+    }
+
+    const newTeam = [...teams[selectedTeam], player];
+    setTeams((prev) => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        [selectedTeam]: newTeam,
+        totalA:
+          selectedTeam === "teamA" ? calculateTeamTotal(newTeam) : prev.totalA,
+        totalB:
+          selectedTeam === "teamB" ? calculateTeamTotal(newTeam) : prev.totalB,
+      };
+    });
+
+    setModalVisible(false);
+  };
+
   const teamAColor = "#2196f3";
   const teamBColor = "#f44336";
 
@@ -176,23 +305,54 @@ export default function LineUpTab() {
 
   return (
     <View style={styles.container}>
-      {teams && (
+      <ScrollView
+        contentContainerStyle={[styles.scrollContainer]}
+        keyboardShouldPersistTaps="handled"
+      >
         <View style={styles.teamsContainer}>
-          <TeamColumn
-            team={teams.teamA}
-            total={teams.totalA}
-            title={matchData?.team1 || "Time 1"}
-            teamColor={teamAColor}
-          />
-          <View style={styles.separator} />
-          <TeamColumn
-            team={teams.teamB}
-            total={teams.totalB}
-            title={matchData?.team2 || "Time 2"}
-            teamColor={teamBColor}
-          />
+          {teams && (
+            <>
+              <TeamColumn
+                team={teams.teamA}
+                total={teams.totalA}
+                title={matchData?.team1 || "Time 1"}
+                teamColor={teamAColor}
+                onRemovePlayer={handleRemovePlayer}
+                teamType="teamA"
+                onSlotPress={(position) => {
+                  setSelectedPosition(position);
+                  setSelectedTeam("teamA");
+                  setModalVisible(true);
+                }}
+                substitutes={mapPlayers().filter(
+                  (p) =>
+                    !teams.teamA.some((t) => t.id === p.id) &&
+                    !teams.teamB.some((t) => t.id === p.id)
+                )}
+              />
+              <View style={styles.separator} />
+              <TeamColumn
+                team={teams.teamB}
+                total={teams.totalB}
+                title={matchData?.team2 || "Time 2"}
+                teamColor={teamBColor}
+                onRemovePlayer={handleRemovePlayer}
+                teamType="teamB"
+                onSlotPress={(position) => {
+                  setSelectedPosition(position);
+                  setSelectedTeam("teamB");
+                  setModalVisible(true);
+                }}
+                substitutes={mapPlayers().filter(
+                  (p) =>
+                    !teams.teamA.some((t) => t.id === p.id) &&
+                    !teams.teamB.some((t) => t.id === p.id)
+                )}
+              />
+            </>
+          )}
         </View>
-      )}
+      </ScrollView>
 
       <View style={styles.buttonsContainer}>
         <TouchableOpacity
@@ -211,6 +371,68 @@ export default function LineUpTab() {
           </TouchableOpacity>
         )}
       </View>
+
+      <Modal
+        visible={modalVisible}
+        animationType="fade"
+        transparent={true}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>
+              Selecionar jogador para {selectedPosition}
+            </Text>
+
+            <ScrollView
+              contentContainerStyle={styles.modalScroll}
+              style={styles.modalPlayersList}
+            >
+              {mapPlayers()
+                .filter((player) => player.position === selectedPosition)
+                .map((player) => {
+                  const isInTeamA = teams?.teamA.some(
+                    (p) => p.id === player.id
+                  );
+                  const isInTeamB = teams?.teamB.some(
+                    (p) => p.id === player.id
+                  );
+                  const isSelected = isInTeamA || isInTeamB;
+
+                  return (
+                    <TouchableOpacity
+                      key={player.id}
+                      style={[
+                        styles.modalPlayerItem,
+                        isSelected && styles.disabledPlayer,
+                      ]}
+                      onPress={() => {
+                        if (!isSelected) {
+                          handleAddPlayer(player);
+                        }
+                      }}
+                      disabled={isSelected}
+                    >
+                      <Text style={styles.modalPlayerName}>{player.name}</Text>
+                      {isSelected && (
+                        <Text style={styles.modalPlayerTeam}>
+                          ({isInTeamA ? matchData?.team1 : matchData?.team2})
+                        </Text>
+                      )}
+                    </TouchableOpacity>
+                  );
+                })}
+            </ScrollView>
+
+            <TouchableOpacity
+              style={styles.modalCloseButton}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={styles.modalCloseText}>Cancelar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -248,36 +470,38 @@ const calculateTeamTotal = (team: TeamPlayer[]) =>
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 8,
     backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    paddingBottom: 150,
   },
   teamsContainer: {
-    flex: 1,
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 8,
+    paddingHorizontal: 8,
+    minHeight: 500,
   },
   teamColumn: {
     flex: 1,
     marginHorizontal: 4,
-    backgroundColor: "#fff",
+    paddingVertical: 8,
   },
   teamTitle: {
     fontSize: 16,
     fontWeight: "800",
     textAlign: "center",
-    marginBottom: 8,
+    marginBottom: 16,
+    paddingHorizontal: 8,
   },
   positionGroup: {
-    marginBottom: 4,
+    marginBottom: 2,
   },
   playerRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 2,
     paddingVertical: 4,
+    minHeight: 32,
   },
   positionText: {
     width: 40,
@@ -302,9 +526,16 @@ const styles = StyleSheet.create({
     color: "#2ecc71",
   },
   buttonsContainer: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
     flexDirection: "row",
     gap: 8,
-    marginHorizontal: 20,
+    padding: 16,
+    backgroundColor: "#fff",
+    borderTopWidth: 1,
+    borderTopColor: "#eee",
   },
   actionButton: {
     flex: 1,
@@ -324,9 +555,10 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   separator: {
-    width: 1,
-    backgroundColor: "#dee2e6",
+    width: 2,
+    backgroundColor: "#ced4da",
     marginHorizontal: 8,
+    marginVertical: 8,
   },
   title: {
     fontSize: 18,
@@ -340,5 +572,87 @@ const styles = StyleSheet.create({
     color: "#7f8c8d",
     marginTop: 8,
     textAlign: "center",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: "white",
+    borderRadius: 12,
+    padding: 16,
+    width: "100%",
+    maxHeight: "80%",
+  },
+  modalTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 12,
+    textAlign: "center",
+    color: "#333",
+  },
+  modalScroll: {
+    maxHeight: 300,
+    marginVertical: 8,
+  },
+  modalPlayersList: {
+    maxHeight: 300,
+    marginVertical: 8,
+  },
+  modalPlayerItem: {
+    padding: 12,
+    borderRadius: 8,
+    backgroundColor: "#f8f9fa",
+    marginBottom: 8,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  modalPlayerName: {
+    fontSize: 14,
+    color: "#333",
+  },
+  modalPlayerTeam: {
+    fontSize: 12,
+    color: "#666",
+  },
+  modalCloseButton: {
+    marginTop: 12,
+    padding: 12,
+    backgroundColor: "#e3e3e3",
+    borderRadius: 8,
+  },
+  modalCloseText: {
+    color: "#333",
+    fontWeight: "600",
+    textAlign: "center",
+  },
+  disabledPlayer: {
+    opacity: 0.6,
+    backgroundColor: "#e9ecef",
+  },
+  substitutesContainer: {
+    marginTop: 16,
+    padding: 8,
+    backgroundColor: "#f8f9fa",
+    borderRadius: 4,
+  },
+  substitutePlayer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 4,
+  },
+  substitutePlayerText: {
+    fontSize: 14,
+    color: "#333",
+  },
+  emptySubstitutesText: {
+    color: "#999",
+    fontStyle: "italic",
+    textAlign: "center",
+    paddingVertical: 8,
   },
 });
