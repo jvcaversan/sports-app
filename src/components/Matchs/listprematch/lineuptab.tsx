@@ -371,8 +371,13 @@ export default function LineUpTab() {
 
       <View style={LineupStyles.buttonsContainer}>
         <TouchableOpacity
-          style={[LineupStyles.actionButton, LineupStyles.shuffleButton]}
+          style={[
+            LineupStyles.actionButton,
+            LineupStyles.shuffleButton,
+            !isEditing && { opacity: 0.5 },
+          ]}
           onPress={handleTeamShuffle}
+          disabled={!isEditing}
         >
           <Text style={LineupStyles.buttonText}>Sortear Times</Text>
         </TouchableOpacity>

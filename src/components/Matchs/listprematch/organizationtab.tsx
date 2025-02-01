@@ -72,23 +72,36 @@ export default function OrganizationTab() {
 
   const saveAllMutation = useMutation({
     mutationFn: async () => {
-      if (!confirmedPlayers || !positions) return;
+      if (!confirmedPlayers || !positions || !clubIdStr || !playerData) {
+        throw new Error("Dados incompletos para salvar");
+      }
 
       const payload = confirmedPlayers
-        .filter((player) => playerData[player.player_id]?.position)
+        .filter((player) => {
+          const data = playerData[player.player_id];
+          return data?.position && !isNaN(parseFloat(data.rating));
+        })
         .map((player) => {
           const positionId = playerData[player.player_id]?.position;
           const positionName = positions.find(
             (p) => p.id.toString() === positionId
           )?.position_name;
 
+          if (!positionName) {
+            throw new Error(`Posição não encontrada para ID: ${positionId}`);
+          }
+
           return {
             club_id: clubIdStr,
             player_id: player.player_id,
-            rating: parseFloat(playerData[player.player_id]?.rating || "0"),
-            position: positionName || "",
+            rating: parseFloat(playerData[player.player_id]?.rating),
+            position: positionName,
           };
         });
+
+      if (payload.length === 0) {
+        throw new Error("Nenhum dado válido para salvar");
+      }
 
       const { error } = await supabase
         .from("player_ratings")
