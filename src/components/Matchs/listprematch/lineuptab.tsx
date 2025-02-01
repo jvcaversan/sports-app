@@ -60,7 +60,16 @@ export default function LineUpTab() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("match_lineups")
-        .select("id, team_name, lineup_players (player_id, position)")
+        .select(
+          `
+          id, 
+          team_name, 
+          lineup_players (
+            player_id, 
+            position,
+            profiles (id, name)
+          )`
+        )
         .eq("match_id", matchId);
       return data;
     },
@@ -78,10 +87,12 @@ export default function LineUpTab() {
       );
       return {
         id: player.player_id,
-        name: player.profiles.name
-          .split(" ")
-          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(" "),
+        name: player.profiles?.name
+          ? player.profiles.name
+              .split(" ")
+              .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(" ")
+          : "Jogador Desconhecido",
         position: rating?.position || "MEI",
         rating: rating?.rating || 0,
       };
@@ -111,14 +122,14 @@ export default function LineUpTab() {
         existingLineups?.find((l) => l.team_name === teamName)?.id;
 
       const teamAPayload = {
-        lineup_id: getLineupId(matchData?.team1 || "Time 1")!,
+        lineup_id: getLineupId(matchData?.team1 || "Time 1"),
         team_name: matchData?.team1 || "Time 1",
         players: teams.teamA.map((p) => ({ id: p.id, position: p.position })),
         match_id: matchId,
       };
 
       const teamBPayload = {
-        lineup_id: getLineupId(matchData?.team2 || "Time 2")!,
+        lineup_id: getLineupId(matchData?.team2 || "Time 2"),
         team_name: matchData?.team2 || "Time 2",
         players: teams.teamB.map((p) => ({ id: p.id, position: p.position })),
         match_id: matchId,
@@ -126,10 +137,16 @@ export default function LineUpTab() {
 
       const results = await Promise.allSettled([
         teamAPayload.lineup_id
-          ? updateLineupMutation.mutateAsync(teamAPayload)
+          ? updateLineupMutation.mutateAsync({
+              ...teamAPayload,
+              lineup_id: teamAPayload.lineup_id!,
+            })
           : saveLineupMutation.mutateAsync(teamAPayload),
         teamBPayload.lineup_id
-          ? updateLineupMutation.mutateAsync(teamBPayload)
+          ? updateLineupMutation.mutateAsync({
+              ...teamBPayload,
+              lineup_id: teamBPayload.lineup_id!,
+            })
           : saveLineupMutation.mutateAsync(teamBPayload),
       ]);
 
@@ -239,6 +256,13 @@ export default function LineUpTab() {
 
   useEffect(() => {
     if (existingLineups && mapPlayers) {
+      const formatName = (name: string) => {
+        return name
+          .split(" ")
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" ");
+      };
+
       const loadedTeamA = existingLineups.find(
         (l) => l.team_name === matchData?.team1
       );
@@ -246,29 +270,31 @@ export default function LineUpTab() {
         (l) => l.team_name === matchData?.team2
       );
 
-      const allPlayers = mapPlayers();
-
       const teamAPlayers =
         loadedTeamA?.lineup_players.map((p) => ({
           id: p.player_id,
-          name:
-            allPlayers.find((player) => player.id === p.player_id)?.name || "",
+          name: p.profiles?.name
+            ? formatName(p.profiles.name)
+            : "Jogador Desconhecido",
           position: p.position,
           rating:
-            allPlayers.find((player) => player.id === p.player_id)?.rating || 0,
+            existingRatings?.find((r) => r.player_id === p.player_id)?.rating ||
+            0,
         })) || [];
 
       const teamBPlayers =
         loadedTeamB?.lineup_players.map((p) => ({
           id: p.player_id,
-          name:
-            allPlayers.find((player) => player.id === p.player_id)?.name || "",
+          name: p.profiles?.name
+            ? formatName(p.profiles.name)
+            : "Jogador Desconhecido",
           position: p.position,
           rating:
-            allPlayers.find((player) => player.id === p.player_id)?.rating || 0,
+            existingRatings?.find((r) => r.player_id === p.player_id)?.rating ||
+            0,
         })) || [];
 
-      const substitutes = allPlayers.filter(
+      const substitutes = mapPlayers().filter(
         (player) =>
           !teamAPlayers.some((p) => p.id === player.id) &&
           !teamBPlayers.some((p) => p.id === player.id)
@@ -287,7 +313,7 @@ export default function LineUpTab() {
         ),
       });
     }
-  }, [existingLineups, mapPlayers, matchData]);
+  }, [existingLineups, existingRatings, mapPlayers, matchData]);
 
   if (!confirmedPlayers?.length) {
     return (

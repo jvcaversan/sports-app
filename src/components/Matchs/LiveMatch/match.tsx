@@ -53,7 +53,25 @@ export default function LiveMatchTab() {
           filter: `match_id=eq.${matchId}`,
         },
         () => {
-          queryClient.invalidateQueries({ queryKey: ["matchLineups"] });
+          queryClient.invalidateQueries({
+            queryKey: ["match-lineups", matchId],
+          });
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "lineup_players",
+          filter: `lineup_id=in.(${
+            existingLineups?.map((l) => l.id).join(",") || ""
+          })`,
+        },
+        () => {
+          queryClient.invalidateQueries({
+            queryKey: ["match-lineups", matchId],
+          });
         }
       )
       .subscribe();
@@ -61,7 +79,7 @@ export default function LiveMatchTab() {
     return () => {
       channel.unsubscribe();
     };
-  }, [matchId, queryClient]);
+  }, [matchId, queryClient, existingLineups]);
 
   const formatName = (name: string) => {
     return name
