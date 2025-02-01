@@ -2,10 +2,10 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/database/supabase";
 import { useLocalSearchParams } from "expo-router";
 import { ScrollView, View, StyleSheet, Text } from "react-native";
-import { POSITION_CONFIG, TeamPlayer } from "../listprematch/types";
+import { POSITION_CONFIG } from "../listprematch/types";
 import LoadingIndicator from "@/components/ActivityIndicator";
 import { LinearGradient } from "expo-linear-gradient";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 
 export default function LiveMatchTab() {
   const { id } = useLocalSearchParams();
@@ -40,46 +40,6 @@ export default function LiveMatchTab() {
     enabled: !!matchId,
     initialData: [],
   });
-
-  useEffect(() => {
-    const channel = supabase
-      .channel("realtime-lineups")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "match_lineups",
-          filter: `match_id=eq.${matchId}`,
-        },
-        () => {
-          queryClient.invalidateQueries({
-            queryKey: ["match-lineups", matchId],
-          });
-        }
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "lineup_players",
-          filter: `lineup_id=in.(${
-            existingLineups?.map((l) => l.id).join(",") || ""
-          })`,
-        },
-        () => {
-          queryClient.invalidateQueries({
-            queryKey: ["match-lineups", matchId],
-          });
-        }
-      )
-      .subscribe();
-
-    return () => {
-      channel.unsubscribe();
-    };
-  }, [matchId, queryClient, existingLineups]);
 
   const formatName = (name: string) => {
     return name
