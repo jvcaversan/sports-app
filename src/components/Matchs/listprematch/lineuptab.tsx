@@ -118,6 +118,14 @@ export default function LineUpTab() {
     try {
       if (!teams || !matchId) return;
 
+      if (teams.teamA.length < 11 || teams.teamB.length < 11) {
+        Alert.alert(
+          "Times incompletos",
+          "Cada time deve ter pelo menos 11 jogadores."
+        );
+        return;
+      }
+
       const getLineupId = (teamName: string) =>
         existingLineups?.find((l) => l.team_name === teamName)?.id;
 
