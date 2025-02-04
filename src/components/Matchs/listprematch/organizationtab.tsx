@@ -111,6 +111,9 @@ export default function OrganizationTab() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["player_ratings"] });
+      queryClient.invalidateQueries({
+        queryKey: ["confirmedMensalistaPlayers"],
+      });
       Alert.alert("Sucesso", "Dados salvos com sucesso!");
     },
     onError: (error) => {

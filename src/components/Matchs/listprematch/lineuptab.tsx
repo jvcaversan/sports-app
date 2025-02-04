@@ -390,22 +390,23 @@ export default function LineUpTab() {
           <Text style={LineupStyles.buttonText}>Sortear Times</Text>
         </TouchableOpacity>
 
-        {teams && (
+        {!isEditing && (
+          <TouchableOpacity
+            style={[LineupStyles.actionButton, LineupStyles.editButton]}
+            onPress={() => setIsEditing(true)}
+          >
+            <Text style={LineupStyles.buttonText}>Editar</Text>
+          </TouchableOpacity>
+        )}
+
+        {isEditing && (
           <TouchableOpacity
             style={[LineupStyles.actionButton, LineupStyles.confirmButton]}
-            onPress={() => {
-              isEditing ? handleConfirmLineup() : setIsEditing(true);
-            }}
+            onPress={handleConfirmLineup}
             disabled={isSaving}
           >
             <Text style={LineupStyles.buttonText}>
-              {isSaving
-                ? "Salvando..."
-                : isEditing
-                ? "Confirmar"
-                : existingLineups?.length
-                ? "Editar"
-                : "Confirmar"}
+              {isSaving ? "Salvando..." : "Confirmar"}
             </Text>
           </TouchableOpacity>
         )}

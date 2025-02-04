@@ -70,7 +70,7 @@ export type Database = {
           club_id: string
           id: string
           joined_at: string
-          mensalista: boolean | null
+          mensalista: string
           player_id: string
           role: string
         }
@@ -78,7 +78,7 @@ export type Database = {
           club_id?: string
           id?: string
           joined_at?: string
-          mensalista?: boolean | null
+          mensalista?: string
           player_id?: string
           role?: string
         }
@@ -86,7 +86,7 @@ export type Database = {
           club_id?: string
           id?: string
           joined_at?: string
-          mensalista?: boolean | null
+          mensalista?: string
           player_id?: string
           role?: string
         }
@@ -257,6 +257,7 @@ export type Database = {
           horario: string
           id: string
           local: string
+          status: string
           team1: string
           team2: string
         }
@@ -267,6 +268,7 @@ export type Database = {
           horario: string
           id?: string
           local: string
+          status?: string
           team1: string
           team2: string
         }
@@ -277,6 +279,7 @@ export type Database = {
           horario?: string
           id?: string
           local?: string
+          status?: string
           team1?: string
           team2?: string
         }
