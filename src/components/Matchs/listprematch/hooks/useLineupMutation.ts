@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/database/supabase";
 import { SaveLineupPayload } from "../types";
 
@@ -84,6 +84,51 @@ export const useUpdateLineup = () => {
         queryKey: ["match-lineups", variables.match_id],
         exact: true,
       });
+    },
+  });
+};
+
+export const useConfirmedPlayers = (matchId: string) => {
+  return useQuery({
+    queryKey: ["confirmedMensalistaPlayers", matchId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select(
+          `
+          id,
+          name,
+          club_members(membership),
+          player_ratings(position, rating),
+          match_invitations(status, match_id)
+        `
+        )
+        .eq("match_invitations.status", "accepted")
+        .eq("match_invitations.match_id", matchId);
+
+      if (error) throw error;
+      return data;
+    },
+  });
+};
+
+export const useMatchDetails = (matchId: string) => {
+  return useQuery({
+    queryKey: ["matchDetails", matchId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("matches")
+        .select(
+          `
+          team1,
+          team2
+        `
+        )
+        .eq("id", matchId)
+        .single();
+
+      if (error) throw error;
+      return data;
     },
   });
 };

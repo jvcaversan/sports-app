@@ -70,7 +70,7 @@ export type Database = {
           club_id: string
           id: string
           joined_at: string
-          mensalista: string
+          membership: string
           player_id: string
           role: string
         }
@@ -78,7 +78,7 @@ export type Database = {
           club_id?: string
           id?: string
           joined_at?: string
-          mensalista?: string
+          membership?: string
           player_id?: string
           role?: string
         }
@@ -86,7 +86,7 @@ export type Database = {
           club_id?: string
           id?: string
           joined_at?: string
-          mensalista?: string
+          membership?: string
           player_id?: string
           role?: string
         }

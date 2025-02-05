@@ -1,68 +1,125 @@
 import { StyleSheet } from "react-native";
 
 export default StyleSheet.create({
-  container: {
+  mainContainer: {
     flex: 1,
     backgroundColor: "#FFFFFF",
   },
   scrollContainer: {
     flexGrow: 1,
     paddingBottom: 150,
-    backgroundColor: "#FFFFFF",
   },
   teamsContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     paddingHorizontal: 8,
     minHeight: 500,
+  },
+  teamContainer: {
+    flex: 1,
     backgroundColor: "#FFFFFF",
+    borderRadius: 8,
+    padding: 12,
   },
   separator: {
     width: 1,
-    backgroundColor: "grey",
+    backgroundColor: "#ecf0f1",
     marginHorizontal: 16,
     height: "100%",
   },
-  title: {
-    fontSize: 18,
+  teamTitle: {
+    fontSize: 16,
     fontWeight: "600",
     color: "#2c3e50",
-    marginTop: 16,
+    marginBottom: 8,
     textAlign: "center",
+  },
+  teamRating: {
+    fontSize: 14,
+    fontWeight: "700",
+    textAlign: "center",
+    marginBottom: 12,
+  },
+  playersList: {
+    gap: 4,
+  },
+  playerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f8f9fa",
+    borderRadius: 6,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  playerPosition: {
+    color: "#3498db",
+    fontSize: 13,
+    fontWeight: "700",
+    width: 32,
+    marginRight: 8,
+    textAlign: "center",
+  },
+  playerName: {
+    color: "#2c3e50",
+    fontSize: 14,
+    fontWeight: "500",
+    flexShrink: 1,
   },
   buttonsContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 10,
-    marginVertical: 10,
-    gap: 10,
+    paddingHorizontal: 16,
+    marginVertical: 16,
+    gap: 8,
   },
   actionButton: {
-    flex: 1,
-    padding: 15,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  shuffleButton: {
+    flex: 0.48,
+    padding: 16,
+    borderRadius: 8,
     backgroundColor: "#3498db",
+    alignItems: "center",
   },
   editButton: {
-    backgroundColor: "#f1c40f",
-  },
-  confirmButton: {
-    backgroundColor: "#2ecc71",
+    flex: 0.48,
+    padding: 16,
+    borderRadius: 8,
+    backgroundColor: "#7f8c8d",
+    alignItems: "center",
   },
   buttonText: {
     color: "white",
     fontWeight: "800",
     fontSize: 14,
+  },
+  substitutesTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginTop: 10,
     textAlign: "center",
   },
-  subtitle: {
+  emptyState: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 24,
+    marginVertical: 40,
+  },
+  emptyText: {
     fontSize: 16,
-    color: "#95a5a6",
+    color: "#7f8c8d",
     textAlign: "center",
-    marginTop: 8,
+    lineHeight: 24,
+  },
+  errorContainer: {
+    backgroundColor: "#fff3f3",
+    borderWidth: 1,
+    borderColor: "#ffcccc",
+    borderRadius: 8,
+    padding: 16,
+    margin: 16,
+  },
+  errorText: {
+    color: "#e74c3c",
+    fontSize: 14,
+    textAlign: "center",
   },
 });

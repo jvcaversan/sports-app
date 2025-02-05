@@ -3,6 +3,7 @@ export type TeamPlayer = {
   name: string;
   position: string;
   rating: number;
+  membership: string;
 };
 
 export type PositionConfig = {
