@@ -10,6 +10,7 @@ interface LineupPlayerItemProps {
   teamColor: string;
   isSubstitute: boolean;
   onMoveToSubstitutes?: (playerId: string) => void;
+  isEditing: boolean;
 }
 
 export const LineupPlayerItem = ({
@@ -17,6 +18,7 @@ export const LineupPlayerItem = ({
   teamColor,
   isSubstitute,
   onMoveToSubstitutes,
+  isEditing,
 }: LineupPlayerItemProps) => {
   return (
     <View style={lineupstyles.playerRow}>
@@ -34,9 +36,9 @@ export const LineupPlayerItem = ({
         <MaterialCommunityIcons
           name="close-circle-outline"
           size={18}
-          color="#FFB74D"
+          color={isEditing ? "#FFB74D" : "#95a5a6"}
           style={{ marginLeft: 4 }}
-          onPress={() => onMoveToSubstitutes?.(player.id)}
+          onPress={() => isEditing && onMoveToSubstitutes?.(player.id)}
         />
       )}
     </View>

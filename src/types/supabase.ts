@@ -222,19 +222,19 @@ export type Database = {
       }
       match_lineups: {
         Row: {
-          created_at: string | null
+          created_at: string
           id: string
           match_id: string
           team_name: string
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
           id?: string
           match_id: string
           team_name: string
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
           id?: string
           match_id?: string
           team_name?: string

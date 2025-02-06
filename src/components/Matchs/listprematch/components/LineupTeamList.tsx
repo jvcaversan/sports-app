@@ -13,6 +13,7 @@ interface LineupTeamListProps {
   onMoveToSubstitutes: (playerId: string) => void;
   onAddToStarters: (playerId: string, position: string) => void;
   allSubstitutes: TeamPlayer[];
+  isEditing: boolean;
 }
 
 export const LineupTeamList = ({
@@ -23,6 +24,7 @@ export const LineupTeamList = ({
   onMoveToSubstitutes,
   onAddToStarters,
   allSubstitutes,
+  isEditing,
 }: LineupTeamListProps) => {
   const [isPositionModalVisible, setIsPositionModalVisible] = useState(false);
   const [selectedPosition, setSelectedPosition] = useState("");
@@ -82,6 +84,7 @@ export const LineupTeamList = ({
                 teamColor={teamColor}
                 isSubstitute={false}
                 onMoveToSubstitutes={onMoveToSubstitutes}
+                isEditing={isEditing}
               />
             ) : (
               <TouchableOpacity
@@ -119,6 +122,7 @@ export const LineupTeamList = ({
                 teamColor={teamColor}
                 isSubstitute={true}
                 onMoveToSubstitutes={onMoveToSubstitutes}
+                isEditing={isEditing}
               />
             )}
             keyExtractor={(item) => item.id}

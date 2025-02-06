@@ -86,8 +86,11 @@ export default StyleSheet.create({
     flex: 0.48,
     padding: 16,
     borderRadius: 8,
-    backgroundColor: "#7f8c8d",
+    backgroundColor: "#f39c12",
     alignItems: "center",
+  },
+  confirmButtonActive: {
+    backgroundColor: "#2ecc71",
   },
   buttonText: {
     color: "white",
@@ -141,5 +144,8 @@ export default StyleSheet.create({
     marginRight: 8,
     color: "#7f8c8d",
     fontStyle: "italic",
+  },
+  disabledButton: {
+    backgroundColor: "#95a5a6", // Cor cinza
   },
 });
