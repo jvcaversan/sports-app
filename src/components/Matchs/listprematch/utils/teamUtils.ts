@@ -1,9 +1,14 @@
 import { POSITION_CONFIG, TeamPlayer } from "../types";
 
 interface BalancedTeams {
-  teamA: TeamPlayer[];
-  teamB: TeamPlayer[];
-  substitutes: TeamPlayer[];
+  teamA: {
+    starters: TeamPlayer[];
+    substitutes: TeamPlayer[];
+  };
+  teamB: {
+    starters: TeamPlayer[];
+    substitutes: TeamPlayer[];
+  };
   totalA: number;
   totalB: number;
 }
@@ -38,13 +43,40 @@ export function createBalancedTeams(
 
   const allPlayers = [...sortedMensalistas, ...allSuplentes];
   const usedIds = new Set(
-    [...distributed.teamA, ...distributed.teamB].map((p) => p.id)
+    [...distributed.teamA.starters, ...distributed.teamB.starters].map(
+      (p) => p.id
+    )
   );
+
   const substitutes = allPlayers.filter((p) => !usedIds.has(p.id));
+  const shuffledSubs = [...substitutes].sort(() => Math.random() - 0.5);
+
+  let subsA: TeamPlayer[] = [];
+  let subsB: TeamPlayer[] = [];
+  let totalA = distributed.totalA;
+  let totalB = distributed.totalB;
+
+  shuffledSubs.forEach((player) => {
+    if (totalA <= totalB) {
+      subsA.push(player);
+      totalA += player.rating;
+    } else {
+      subsB.push(player);
+      totalB += player.rating;
+    }
+  });
 
   return {
-    ...distributed,
-    substitutes,
+    teamA: {
+      starters: distributed.teamA.starters,
+      substitutes: subsA,
+    },
+    teamB: {
+      starters: distributed.teamB.starters,
+      substitutes: subsB,
+    },
+    totalA: distributed.totalA,
+    totalB: distributed.totalB,
   };
 }
 
@@ -90,11 +122,10 @@ function selectPlayersForPositions(
 function distributeAndBalanceTeams(
   players: TeamPlayer[],
   tolerance: number
-): BalancedTeams {
+): Omit<BalancedTeams, "substitutesA" | "substitutesB"> {
   let bestBalance: BalancedTeams = {
-    teamA: [],
-    teamB: [],
-    substitutes: [],
+    teamA: { starters: [], substitutes: [] },
+    teamB: { starters: [], substitutes: [] },
     totalA: 0,
     totalB: 0,
   };
@@ -131,9 +162,8 @@ function distributeAndBalanceTeams(
     if (diff < smallestDiff) {
       smallestDiff = diff;
       bestBalance = {
-        teamA,
-        teamB,
-        substitutes: [],
+        teamA: { starters: teamA, substitutes: [] },
+        teamB: { starters: teamB, substitutes: [] },
         totalA,
         totalB,
       };
@@ -142,15 +172,8 @@ function distributeAndBalanceTeams(
   }
 
   return {
-    teamA: bestBalance.teamA.sort(
-      (a, b) =>
-        POSITION_CONFIG[a.position].order - POSITION_CONFIG[b.position].order
-    ),
-    teamB: bestBalance.teamB.sort(
-      (a, b) =>
-        POSITION_CONFIG[a.position].order - POSITION_CONFIG[b.position].order
-    ),
-    substitutes: bestBalance.substitutes,
+    teamA: { starters: bestBalance.teamA.starters, substitutes: [] },
+    teamB: { starters: bestBalance.teamB.starters, substitutes: [] },
     totalA: bestBalance.totalA,
     totalB: bestBalance.totalB,
   };

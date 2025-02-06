@@ -8,12 +8,14 @@ interface LineupPlayerItemProps {
   player: TeamPlayer;
   teamColor: string;
   isSubstitute: boolean;
+  onMoveToSubstitutes?: (playerId: string) => void;
 }
 
 export const LineupPlayerItem = ({
   player,
   teamColor,
   isSubstitute,
+  onMoveToSubstitutes,
 }: LineupPlayerItemProps) => {
   return (
     <View style={lineupstyles.playerRow}>
@@ -33,6 +35,7 @@ export const LineupPlayerItem = ({
           size={18}
           color="#FFB74D"
           style={{ marginLeft: 4 }}
+          onPress={() => onMoveToSubstitutes?.(player.id)}
         />
       )}
     </View>

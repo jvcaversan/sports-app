@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, FlatList } from "react-native";
 import { LineupPlayerItem } from "./LineupPlayerItem";
-import { TeamPlayer } from "../types";
+import { TeamPlayer, POSITION_CONFIG } from "../types";
 import lineupstyles from "../styles/lineupstyles";
 
 interface LineupTeamListProps {
@@ -9,6 +9,7 @@ interface LineupTeamListProps {
   players: TeamPlayer[];
   substitutes: TeamPlayer[];
   teamColor: string;
+  onMoveToSubstitutes: (playerId: string) => void;
 }
 
 export const LineupTeamList = ({
@@ -16,7 +17,27 @@ export const LineupTeamList = ({
   players,
   substitutes,
   teamColor,
+  onMoveToSubstitutes,
 }: LineupTeamListProps) => {
+  const generatePositionSlots = () => {
+    const slots = [];
+
+    for (const [position, config] of Object.entries(POSITION_CONFIG)) {
+      const positionPlayers = players.filter((p) => p.position === position);
+
+      for (let i = 0; i < config.quantity; i++) {
+        const player = positionPlayers[i];
+        slots.push({
+          position,
+          player,
+          isPlaceholder: !player,
+        });
+      }
+    }
+
+    return slots;
+  };
+
   return (
     <View style={lineupstyles.teamContainer}>
       <Text
@@ -40,15 +61,27 @@ export const LineupTeamList = ({
 
       <View style={{ flex: 1, paddingHorizontal: 0 }}>
         <FlatList
-          data={players}
-          renderItem={({ item }) => (
-            <LineupPlayerItem
-              player={item}
-              teamColor={teamColor}
-              isSubstitute={false}
-            />
-          )}
-          keyExtractor={(item) => item.id}
+          data={generatePositionSlots()}
+          renderItem={({ item }) =>
+            item.player ? (
+              <LineupPlayerItem
+                player={item.player}
+                teamColor={teamColor}
+                isSubstitute={false}
+                onMoveToSubstitutes={onMoveToSubstitutes}
+              />
+            ) : (
+              <View style={lineupstyles.playerRow}>
+                <Text style={lineupstyles.playerPosition}>
+                  {item.position.slice(0, 3).toUpperCase()}
+                </Text>
+                <Text style={lineupstyles.playerName}>VAGA DISPONÍVEL</Text>
+              </View>
+            )
+          }
+          keyExtractor={(item, index) =>
+            item.player?.id || `${item.position}-${index}`
+          }
           scrollEnabled={false}
           contentContainerStyle={lineupstyles.playersList}
         />
@@ -64,6 +97,7 @@ export const LineupTeamList = ({
                 player={item}
                 teamColor={teamColor}
                 isSubstitute={true}
+                onMoveToSubstitutes={onMoveToSubstitutes}
               />
             )}
             keyExtractor={(item) => item.id}

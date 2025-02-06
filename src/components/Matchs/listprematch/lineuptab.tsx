@@ -55,36 +55,31 @@ export default function LineUpTab() {
         (player) => player.membership === "suplente"
       );
 
-      const {
-        teamA: shuffledA,
-        teamB: shuffledB,
-        substitutes: allSubstitutes,
-      } = createBalancedTeams(starters, substitutes);
+      const { teamA, teamB } = createBalancedTeams(starters, substitutes);
 
-      // Novo método de distribuição dos suplentes
-      const shuffledSubs = [...allSubstitutes].sort(() => Math.random() - 0.5);
-      const subsA: TeamPlayer[] = [];
-      const subsB: TeamPlayer[] = [];
-      let totalA = 0,
-        totalB = 0;
-
-      shuffledSubs.forEach((player) => {
-        if (totalA <= totalB) {
-          subsA.push(player);
-          totalA += player.rating;
-        } else {
-          subsB.push(player);
-          totalB += player.rating;
-        }
-      });
-
-      setTeamA(shuffledA);
-      setTeamB(shuffledB);
-      setSubstitutesA(subsA);
-      setSubstitutesB(subsB);
+      setTeamA(teamA.starters);
+      setTeamB(teamB.starters);
+      setSubstitutesA(teamA.substitutes);
+      setSubstitutesB(teamB.substitutes);
       setTeamsShuffled(true);
     } catch (error) {
       console.error("Erro ao criar os times:", error);
+    }
+  };
+
+  const handleMoveToSubstitutes = (playerId: string, team: "A" | "B") => {
+    if (team === "A") {
+      const player = teamA.find((p) => p.id === playerId);
+      if (player) {
+        setTeamA((prev) => prev.filter((p) => p.id !== playerId));
+        setSubstitutesA((prev) => [...prev, player]);
+      }
+    } else {
+      const player = teamB.find((p) => p.id === playerId);
+      if (player) {
+        setTeamB((prev) => prev.filter((p) => p.id !== playerId));
+        setSubstitutesB((prev) => [...prev, player]);
+      }
     }
   };
 
@@ -102,6 +97,7 @@ export default function LineUpTab() {
               players={teamA}
               substitutes={substitutesA}
               teamColor="#e74c3c"
+              onMoveToSubstitutes={(id) => handleMoveToSubstitutes(id, "A")}
             />
             <View style={lineupstyles.separator} />
             <LineupTeamList
@@ -109,6 +105,7 @@ export default function LineUpTab() {
               players={teamB}
               substitutes={substitutesB}
               teamColor="#2ecc71"
+              onMoveToSubstitutes={(id) => handleMoveToSubstitutes(id, "B")}
             />
           </View>
         </ScrollView>

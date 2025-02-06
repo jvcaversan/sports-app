@@ -67,6 +67,7 @@ export default StyleSheet.create({
     flex: 1,
     marginRight: 8,
     includeFontPadding: false,
+    color: "#2d3436",
   },
   buttonsContainer: {
     flexDirection: "row",
@@ -131,6 +132,13 @@ export default StyleSheet.create({
     textAlign: "center",
   },
   suplenteName: {
+    color: "#7f8c8d",
+    fontStyle: "italic",
+  },
+  placeholderText: {
+    fontSize: 14,
+    flex: 1,
+    marginRight: 8,
     color: "#7f8c8d",
     fontStyle: "italic",
   },
