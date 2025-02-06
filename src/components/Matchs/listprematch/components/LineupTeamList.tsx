@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, FlatList } from "react-native";
 import { LineupPlayerItem } from "./LineupPlayerItem";
 import { TeamPlayer } from "../types";
-import LineupStyles from "../styles/lineupstyles";
+import lineupstyles from "../styles/lineupstyles";
 
 interface LineupTeamListProps {
   teamName: string;
@@ -18,41 +18,57 @@ export const LineupTeamList = ({
   teamColor,
 }: LineupTeamListProps) => {
   return (
-    <View style={LineupStyles.teamContainer}>
-      <Text style={[LineupStyles.teamTitle, { color: teamColor }]}>
+    <View style={lineupstyles.teamContainer}>
+      <Text
+        style={[
+          lineupstyles.teamTitle,
+          {
+            borderBottomColor: teamColor,
+            borderBottomWidth: 2,
+          },
+        ]}
+      >
         {teamName}
       </Text>
 
-      <Text style={[LineupStyles.teamRating, { color: teamColor }]}>
-        Nota:{" "}
+      <Text style={lineupstyles.teamRating}>
+        Nota Média:{" "}
         {[...players, ...substitutes]
           .reduce((sum, player) => sum + (player.rating || 0), 0)
           .toFixed(1)}
       </Text>
 
-      <FlatList
-        data={players}
-        renderItem={({ item }) => (
-          <LineupPlayerItem player={item} teamColor={teamColor} />
-        )}
-        keyExtractor={(item) => item.id}
-        scrollEnabled={false}
-        contentContainerStyle={LineupStyles.playersList}
-      />
+      <View style={{ flex: 1, paddingHorizontal: 0 }}>
+        <FlatList
+          data={players}
+          renderItem={({ item }) => (
+            <LineupPlayerItem
+              player={item}
+              teamColor={teamColor}
+              isSubstitute={false}
+            />
+          )}
+          keyExtractor={(item) => item.id}
+          scrollEnabled={false}
+          contentContainerStyle={lineupstyles.playersList}
+        />
+      </View>
 
       {substitutes.length > 0 && (
         <>
-          <Text style={[LineupStyles.substitutesTitle, { color: teamColor }]}>
-            Suplentes
-          </Text>
+          <Text style={[lineupstyles.substitutesTitle]}>SUPLENTES</Text>
           <FlatList
             data={substitutes}
             renderItem={({ item }) => (
-              <LineupPlayerItem player={item} teamColor={teamColor} />
+              <LineupPlayerItem
+                player={item}
+                teamColor={teamColor}
+                isSubstitute={true}
+              />
             )}
             keyExtractor={(item) => item.id}
             scrollEnabled={false}
-            contentContainerStyle={LineupStyles.playersList}
+            contentContainerStyle={lineupstyles.playersList}
           />
         </>
       )}

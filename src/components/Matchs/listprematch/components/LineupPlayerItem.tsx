@@ -1,25 +1,40 @@
 import React from "react";
 import { View, Text } from "react-native";
-import LineupStyles from "../styles/lineupstyles";
+import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
+import lineupstyles from "../styles/lineupstyles";
 import { TeamPlayer } from "../types";
 
 interface LineupPlayerItemProps {
   player: TeamPlayer;
   teamColor: string;
+  isSubstitute: boolean;
 }
 
 export const LineupPlayerItem = ({
   player,
   teamColor,
+  isSubstitute,
 }: LineupPlayerItemProps) => {
   return (
-    <View style={LineupStyles.playerRow}>
-      <Text style={[LineupStyles.playerPosition, { color: teamColor }]}>
-        {player.position?.toUpperCase() || "N/D"}
+    <View style={lineupstyles.playerRow}>
+      <Text style={lineupstyles.playerPosition}>
+        {player.position?.slice(0, 3).toUpperCase() || "N/D"}
       </Text>
-      <Text style={LineupStyles.playerName} numberOfLines={1}>
-        {player.name.charAt(0).toUpperCase() + player.name.slice(1)}
+      <Text
+        style={lineupstyles.playerName}
+        numberOfLines={1}
+        ellipsizeMode="tail"
+      >
+        {player.name}
       </Text>
+      {!isSubstitute && (
+        <MaterialCommunityIcons
+          name="close-circle-outline"
+          size={18}
+          color="#FFB74D"
+          style={{ marginLeft: 4 }}
+        />
+      )}
     </View>
   );
 };

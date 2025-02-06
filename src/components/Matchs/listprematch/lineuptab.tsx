@@ -6,12 +6,12 @@ import {
   useConfirmedPlayers,
   useMatchDetails,
 } from "./hooks/useLineupMutation";
-import LineupStyles from "./styles/lineupstyles";
 
 import { TeamPlayer } from "./types";
 import { LineupTeamList } from "./components/LineupTeamList";
 import { createBalancedTeams } from "./utils/teamUtils";
 import LoadingIndicator from "@/components/ActivityIndicator";
+import lineupstyles from "./styles/lineupstyles";
 
 export default function LineUpTab() {
   const { id } = useLocalSearchParams();
@@ -33,6 +33,11 @@ export default function LineUpTab() {
       const transformedPlayers: TeamPlayer[] = confirmedPlayers.map(
         (player) => ({
           ...player,
+          name: player.name
+            ? player.name
+                .toLowerCase()
+                .replace(/(^\w{1})|(\s+\w{1})/g, (letra) => letra.toUpperCase())
+            : "N/D",
           position: player.player_ratings?.[0]?.position || "Desconhecida",
           rating: player.player_ratings?.[0]?.rating || 0,
           membership:
@@ -88,16 +93,17 @@ export default function LineUpTab() {
   }
 
   return (
-    <View style={LineupStyles.teamContainer}>
+    <View style={lineupstyles.teamContainer}>
       {teamsShuffled ? (
         <ScrollView>
-          <View style={LineupStyles.teamsContainer}>
+          <View style={lineupstyles.teamsContainer}>
             <LineupTeamList
               teamName={matchData?.team1 || "Time Casa"}
               players={teamA}
               substitutes={substitutesA}
               teamColor="#e74c3c"
             />
+            <View style={lineupstyles.separator} />
             <LineupTeamList
               teamName={matchData?.team2 || "Time Visitante"}
               players={teamB}
@@ -107,26 +113,26 @@ export default function LineUpTab() {
           </View>
         </ScrollView>
       ) : (
-        <View style={LineupStyles.emptyState}>
-          <Text style={LineupStyles.emptyText}>
+        <View style={lineupstyles.emptyState}>
+          <Text style={lineupstyles.emptyText}>
             Times ainda não foram sorteados. Pressione "Sortear" para gerar os
             times.
           </Text>
         </View>
       )}
 
-      <View style={LineupStyles.buttonsContainer}>
+      <View style={lineupstyles.buttonsContainer}>
         <TouchableOpacity
-          style={LineupStyles.actionButton}
+          style={lineupstyles.actionButton}
           onPress={shuffleTeams}
         >
-          <Text style={LineupStyles.buttonText}>Sortear</Text>
+          <Text style={lineupstyles.buttonText}>Sortear</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={LineupStyles.editButton}
+          style={lineupstyles.editButton}
           onPress={() => console.log("Edit pressed")}
         >
-          <Text style={LineupStyles.buttonText}>Editar</Text>
+          <Text style={lineupstyles.buttonText}>Editar</Text>
         </TouchableOpacity>
       </View>
     </View>
