@@ -1,8 +1,9 @@
 import React from "react";
 import { View, Text } from "react-native";
-import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
-import lineupstyles from "../styles/lineupstyles";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+
 import { TeamPlayer } from "../types";
+import lineupstyles from "../styles/LineupStyles";
 
 interface LineupPlayerItemProps {
   player: TeamPlayer;

@@ -11,7 +11,7 @@ import { TeamPlayer } from "./types";
 import { LineupTeamList } from "./components/LineupTeamList";
 import { createBalancedTeams } from "./utils/teamUtils";
 import LoadingIndicator from "@/components/ActivityIndicator";
-import lineupstyles from "./styles/lineupstyles";
+import lineupstyles from "./styles/LineupStyles";
 
 export default function LineUpTab() {
   const { id } = useLocalSearchParams();
@@ -55,12 +55,15 @@ export default function LineUpTab() {
         (player) => player.membership === "suplente"
       );
 
-      const { teamA, teamB } = createBalancedTeams(starters, substitutes);
+      const { teamA: shuffledA, teamB: shuffledB } = createBalancedTeams(
+        starters,
+        substitutes
+      );
 
-      setTeamA(teamA.starters);
-      setTeamB(teamB.starters);
-      setSubstitutesA(teamA.substitutes);
-      setSubstitutesB(teamB.substitutes);
+      setTeamA(shuffledA.starters.map((p) => ({ ...p, team: "A" })));
+      setTeamB(shuffledB.starters.map((p) => ({ ...p, team: "B" })));
+      setSubstitutesA(shuffledA.substitutes.map((p) => ({ ...p, team: "A" })));
+      setSubstitutesB(shuffledB.substitutes.map((p) => ({ ...p, team: "B" })));
       setTeamsShuffled(true);
     } catch (error) {
       console.error("Erro ao criar os times:", error);
@@ -72,14 +75,38 @@ export default function LineUpTab() {
       const player = teamA.find((p) => p.id === playerId);
       if (player) {
         setTeamA((prev) => prev.filter((p) => p.id !== playerId));
-        setSubstitutesA((prev) => [...prev, player]);
+        setSubstitutesA((prev) => [...prev, { ...player, team: "A" }]);
       }
     } else {
       const player = teamB.find((p) => p.id === playerId);
       if (player) {
         setTeamB((prev) => prev.filter((p) => p.id !== playerId));
-        setSubstitutesB((prev) => [...prev, player]);
+        setSubstitutesB((prev) => [...prev, { ...player, team: "B" }]);
       }
+    }
+  };
+
+  const handleAddToStarters = (
+    playerId: string,
+    position: string,
+    targetTeam: "A" | "B"
+  ) => {
+    // Busca em todas as listas de suplentes
+    const player = [...substitutesA, ...substitutesB].find(
+      (p) => p.id === playerId
+    );
+
+    if (!player) return;
+
+    // Remove de ambas as listas
+    setSubstitutesA((prev) => prev.filter((p) => p.id !== playerId));
+    setSubstitutesB((prev) => prev.filter((p) => p.id !== playerId));
+
+    // Adiciona ao time alvo
+    if (targetTeam === "A") {
+      setTeamA((prev) => [...prev, { ...player, position }]);
+    } else {
+      setTeamB((prev) => [...prev, { ...player, position }]);
     }
   };
 
@@ -96,16 +123,24 @@ export default function LineUpTab() {
               teamName={matchData?.team1 || "Time Casa"}
               players={teamA}
               substitutes={substitutesA}
+              allSubstitutes={[...substitutesA, ...substitutesB]}
               teamColor="#e74c3c"
               onMoveToSubstitutes={(id) => handleMoveToSubstitutes(id, "A")}
+              onAddToStarters={(playerId, position) =>
+                handleAddToStarters(playerId, position, "A")
+              }
             />
             <View style={lineupstyles.separator} />
             <LineupTeamList
               teamName={matchData?.team2 || "Time Visitante"}
               players={teamB}
               substitutes={substitutesB}
+              allSubstitutes={[...substitutesA, ...substitutesB]}
               teamColor="#2ecc71"
               onMoveToSubstitutes={(id) => handleMoveToSubstitutes(id, "B")}
+              onAddToStarters={(playerId, position) =>
+                handleAddToStarters(playerId, position, "B")
+              }
             />
           </View>
         </ScrollView>

@@ -26,3 +26,13 @@ export type SaveLineupPayload = {
   team_name: string;
   players: Array<{ id: string; position: string }>;
 };
+
+export interface LineupTeamListProps {
+  teamName: string;
+  players: TeamPlayer[];
+  substitutes: TeamPlayer[];
+  teamColor: string;
+  onMoveToSubstitutes: (playerId: string) => void;
+  onAddToStarters: (player: TeamPlayer, position: string) => void;
+  allSubstitutes: TeamPlayer[];
+}

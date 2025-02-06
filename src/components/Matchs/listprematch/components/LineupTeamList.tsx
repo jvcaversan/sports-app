@@ -1,8 +1,9 @@
-import React from "react";
-import { View, Text, FlatList } from "react-native";
+import React, { useState } from "react";
+import { View, Text, FlatList, TouchableOpacity } from "react-native";
 import { LineupPlayerItem } from "./LineupPlayerItem";
 import { TeamPlayer, POSITION_CONFIG } from "../types";
-import lineupstyles from "../styles/lineupstyles";
+import lineupstyles from "../styles/LineupStyles";
+import { PositionSelectionModal } from "./PositionSelectionModal";
 
 interface LineupTeamListProps {
   teamName: string;
@@ -10,6 +11,8 @@ interface LineupTeamListProps {
   substitutes: TeamPlayer[];
   teamColor: string;
   onMoveToSubstitutes: (playerId: string) => void;
+  onAddToStarters: (playerId: string, position: string) => void;
+  allSubstitutes: TeamPlayer[];
 }
 
 export const LineupTeamList = ({
@@ -18,7 +21,17 @@ export const LineupTeamList = ({
   substitutes,
   teamColor,
   onMoveToSubstitutes,
+  onAddToStarters,
+  allSubstitutes,
 }: LineupTeamListProps) => {
+  const [isPositionModalVisible, setIsPositionModalVisible] = useState(false);
+  const [selectedPosition, setSelectedPosition] = useState("");
+
+  const handlePositionSelect = (player: TeamPlayer) => {
+    onAddToStarters(player.id, player.position);
+    setIsPositionModalVisible(false);
+  };
+
   const generatePositionSlots = () => {
     const slots = [];
 
@@ -71,12 +84,20 @@ export const LineupTeamList = ({
                 onMoveToSubstitutes={onMoveToSubstitutes}
               />
             ) : (
-              <View style={lineupstyles.playerRow}>
+              <TouchableOpacity
+                style={lineupstyles.playerRow}
+                onPress={() => {
+                  setSelectedPosition(item.position);
+                  setIsPositionModalVisible(true);
+                }}
+              >
                 <Text style={lineupstyles.playerPosition}>
                   {item.position.slice(0, 3).toUpperCase()}
                 </Text>
-                <Text style={lineupstyles.playerName}>VAGA DISPONÍVEL</Text>
-              </View>
+                <Text style={lineupstyles.placeholderText}>
+                  VAGA DISPONÍVEL
+                </Text>
+              </TouchableOpacity>
             )
           }
           keyExtractor={(item, index) =>
@@ -106,6 +127,15 @@ export const LineupTeamList = ({
           />
         </>
       )}
+
+      <PositionSelectionModal
+        visible={isPositionModalVisible}
+        players={allSubstitutes.filter((p) => p.position === selectedPosition)}
+        position={selectedPosition}
+        teamColor={teamColor}
+        onSelectPlayer={handlePositionSelect}
+        onClose={() => setIsPositionModalVisible(false)}
+      />
     </View>
   );
 };
